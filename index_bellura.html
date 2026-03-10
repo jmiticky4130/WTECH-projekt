@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bellura.sk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['DM Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#444444',
+              mid: '#444444',
+              light: '#f5f5f5',
+              accent: '#333333',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-white text-brand-dark min-h-screen flex flex-col">
+
+  <!-- Top utility bar -->
+  <div class="border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-sm text-gray-500">
+      <a href="#" class="hover:text-brand-dark transition-colors">Kontakt</a>
+      <a href="#" class="hover:text-brand-dark transition-colors">Pobočky</a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center relative">
+      <!-- Logo -->
+      <a href="#" class="shrink-0 inline-flex items-center justify-center bg-brand-dark text-white font-bold text-lg px-8 py-2.5 tracking-wider">
+        LOGO
+      </a>
+
+      <!-- Search (absolutely centered on page) -->
+      <div class="absolute left-1/2 -translate-x-1/2">
+        <div class="flex w-[28rem]">
+          <input
+            type="text"
+            placeholder="Hľadať produkty..."
+            class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-mid"
+          >
+          <button class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- User actions -->
+      <div class="flex items-center gap-6 shrink-0 ml-auto">
+        <a href="#" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
+          <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+          Prihlásenie
+        </a>
+        <a href="#" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+          </svg>
+          Košík (0)
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main navigation -->
+  <nav class="bg-brand-dark text-white">
+    <div class="max-w-7xl mx-auto px-4 flex items-center text-sm font-semibold">
+      <a href="#" class="flex items-center gap-2 px-4 py-3 hover:bg-brand-accent transition-colors">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+        </svg>
+        Bellura.sk
+      </a>
+      <span class="w-px h-4 bg-white/25"></span>
+      <a href="#" class="px-4 py-3 hover:bg-brand-accent transition-colors">ŽENY</a>
+      <span class="w-px h-4 bg-white/25"></span>
+      <a href="#" class="px-4 py-3 hover:bg-brand-accent transition-colors">MUŽI</a>
+      <span class="w-px h-4 bg-white/25"></span>
+      <a href="#" class="px-4 py-3 hover:bg-brand-accent transition-colors">DETI</a>
+    </div>
+  </nav>
+
+  <!-- Sub navigation -->
+  <div class="bg-brand-dark text-white border-t border-gray-600">
+    <div class="max-w-7xl mx-auto px-4 flex items-center gap-1 text-sm">
+      <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Novinky</a>
+      <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Akcie</a>
+      <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Oblečenie</a>
+      <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Topánky</a>
+      <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Doplnky</a>
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <section class="bg-gray-200 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 py-24 text-center relative z-10">
+      <h1 class="text-4xl font-bold mb-2">Reklamný banner</h1>
+      <p class="text-gray-600 mb-6">Podnadpis banneru</p>
+      <a href="#" class="inline-block bg-brand-dark text-white font-semibold text-sm tracking-widest px-8 py-3.5 hover:bg-brand-accent transition-colors uppercase">
+        Nakupovať
+      </a>
+    </div>
+    <!-- Decorative diagonal lines (wireframe style) -->
+    <svg class="absolute inset-0 w-full h-full opacity-[0.07]" preserveAspectRatio="none">
+      <line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/>
+      <line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/>
+    </svg>
+  </section>
+
+  <!-- Main content -->
+  <main class="flex-1">
+    <div class="max-w-7xl mx-auto px-4 py-12 space-y-14">
+
+      <!-- Kategórie -->
+      <section>
+        <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Kategórie</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <a href="#" class="group block overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-200 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="bg-brand-dark group-hover:bg-brand-accent text-white text-center py-2.5 text-sm font-semibold tracking-wider transition-colors uppercase">
+              Šaty
+            </div>
+          </a>
+          <a href="#" class="group block overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-200 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="bg-brand-dark group-hover:bg-brand-accent text-white text-center py-2.5 text-sm font-semibold tracking-wider transition-colors uppercase">
+              Šaty
+            </div>
+          </a>
+          <a href="#" class="group block overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-200 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="bg-brand-dark group-hover:bg-brand-accent text-white text-center py-2.5 text-sm font-semibold tracking-wider transition-colors uppercase">
+              Šaty
+            </div>
+          </a>
+          <a href="#" class="group block overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-200 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="bg-brand-dark group-hover:bg-brand-accent text-white text-center py-2.5 text-sm font-semibold tracking-wider transition-colors uppercase">
+              Šaty
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Odporúčané produkty -->
+      <section>
+        <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Odporúčané produkty</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Najnovšie produkty -->
+      <section>
+        <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Najnovšie produkty</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+          <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+            <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full opacity-[0.06]" preserveAspectRatio="none"><line x1="0" y1="0" x2="100%" y2="100%" stroke="#000" stroke-width="1"/><line x1="100%" y1="0" x2="0" y2="100%" stroke="#000" stroke-width="1"/></svg>
+            </div>
+            <div class="p-3 border-t border-gray-100">
+              <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+              <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+              <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+              <p class="text-sm font-bold mt-1.5">39,99 €</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Obľúbené značky -->
+      <section>
+        <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Obľúbené značky</h2>
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+          <div class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-mid hover:text-brand-dark cursor-pointer transition-colors">Značka</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-brand-dark text-white mt-8">
+    <div class="max-w-7xl mx-auto px-4 py-10">
+      <div class="flex flex-wrap justify-between gap-8 text-sm font-bold">
+        <span>Bellura.sk</span>
+        <span>NAKUPOVANIE</span>
+        <span>ZÁKAZNÍCKY SERVIS</span>
+        <span>INFORMÁCIE</span>
+        <span>PLATBA</span>
+      </div>
+    </div>
+    <div class="border-t border-gray-600">
+      <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-gray-400">
+        © 2026 Bellura s.r.o. Všetky práva vyhradené.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
