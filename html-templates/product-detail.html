@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saténová blúzka — Bellura.sk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["DM Sans", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                dark: "#444444",
+                light: "#f5f5f5",
+                accent: "#333333",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-white text-brand-dark min-h-screen flex flex-col">
+
+    <!-- top bar -->
+    <div class="border-b border-gray-200 hidden md:block">
+      <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-sm text-gray-500">
+        <a href="#" class="hover:text-brand-dark transition-colors">Kontakt</a>
+        <a href="#" class="hover:text-brand-dark transition-colors">Pobočky</a>
+      </div>
+    </div>
+
+    <!-- header (observed for sticky bar trigger) -->
+    <header id="site-header" class="border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center md:relative">
+        <a
+          href="#"
+          class="shrink-0 inline-flex items-center justify-center bg-brand-dark text-white font-bold text-lg px-8 py-2.5 tracking-wider"
+        >
+          LOGO
+        </a>
+
+        <!-- search - desktop only -->
+        <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
+          <div class="flex w-[28rem]">
+            <input
+              type="text"
+              placeholder="Hľadať produkty..."
+              class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-dark focus:placeholder-transparent"
+            />
+            <button class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
+              <img src="../icons/search-icon.svg" class="w-12 h-12" alt="Search" />
+            </button>
+          </div>
+        </div>
+
+        <!-- user actions -->
+        <div class="flex items-center gap-6 min-[1000px]:gap-6 shrink-0 ml-auto">
+          <a
+            href="#"
+            class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors"
+          >
+            <img src="../icons/profile-circle.svg" class="w-10 h-10 min-[1000px]:w-8 min-[1000px]:h-8" alt="Profile" />
+            <span class="hidden min-[1000px]:inline">Prihlásenie</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors"
+          >
+            <img src="../icons/shopping-cart.svg" class="w-12 h-12 min-[1000px]:w-10 min-[1000px]:h-10" alt="Cart" />
+            <span class="hidden min-[1000px]:inline">Košík (0)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- search - mobile only -->
+      <div class="md:hidden px-4 pb-3">
+        <div class="flex">
+          <input
+            type="text"
+            placeholder="Hľadať produkty..."
+            class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:placeholder-transparent"
+          />
+          <button class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
+            <img src="../icons/search-icon.svg" class="w-12 h-12" alt="Search" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- nav bar -->
+    <nav class="bg-brand-dark text-white">
+      <div class="md:max-w-7xl md:mx-auto md:px-4 flex items-center text-sm font-semibold">
+        <a
+          href="#"
+          class="flex flex-1 md:flex-none items-center justify-center gap-2 px-4 py-3 hover:bg-brand-accent transition-colors"
+        >
+          <img src="../icons/home-icon.svg" class="w-6 h-6" alt="Home" />
+          <span class="hidden md:inline">Bellura.sk</span>
+        </a>
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a href="#" class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors">ŽENY</a>
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a href="#" class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors">MUŽI</a>
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a href="#" class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors">DETI</a>
+      </div>
+    </nav>
+
+    <!-- sub nav bar -->
+    <div class="bg-brand-dark text-white border-t border-gray-600 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div class="max-w-7xl mx-auto px-4 flex items-center gap-1 text-sm whitespace-nowrap">
+        <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Novinky</a>
+        <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Akcie</a>
+        <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Oblečenie</a>
+        <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Topánky</a>
+        <a href="#" class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium">Doplnky</a>
+      </div>
+    </div>
+
+    <!-- breadcrumb -->
+    <div class="border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 py-2.5 text-sm text-gray-500 flex items-center gap-1.5">
+        <a href="#" class="hover:text-brand-dark transition-colors">Domov</a>
+        <span class="text-gray-300">›</span>
+        <a href="#" class="hover:text-brand-dark transition-colors">Ženy</a>
+        <span class="text-gray-300">›</span>
+        <span class="text-brand-dark font-medium">Oblečenie</span>
+      </div>
+    </div>
+
+    <!-- main content -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- product section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+
+          <!-- left: images -->
+          <div class="flex flex-col gap-3">
+            <!-- main image -->
+            <div class="aspect-[4/5] bg-gray-100 flex items-center justify-center text-gray-300 text-sm border border-gray-200">
+              Hlavný obrázok
+            </div>
+            <!-- thumbnails -->
+            <div class="grid grid-cols-4 gap-3">
+              <div class="aspect-square bg-gray-100 border-2 border-brand-dark overflow-hidden"></div>
+              <div class="aspect-square bg-gray-100 border border-gray-200 overflow-hidden"></div>
+              <div class="aspect-square bg-gray-100 border border-gray-200 overflow-hidden"></div>
+              <div class="aspect-square bg-gray-100 border border-gray-200 overflow-hidden"></div>
+            </div>
+          </div>
+
+          <!-- right: product info -->
+          <div class="flex flex-col">
+            <!-- brand & title -->
+            <p class="text-sm text-gray-500 mb-1">Značka</p>
+            <h1 class="text-2xl font-bold mb-2">Saténová blúzka</h1>
+            <p class="text-2xl font-bold mb-1">39,99 €</p>
+            <p class="text-xs text-gray-400 mb-5">Vrátane DPH</p>
+
+            <hr class="border-gray-200 mb-5" />
+
+            <!-- color -->
+            <div class="mb-5">
+              <p class="text-sm font-semibold mb-2">Farba: <span class="font-normal text-gray-500">Ružová</span></p>
+              <div class="flex gap-2">
+                <div class="w-8 h-8 rounded-full bg-gray-300 ring-2 ring-offset-2 ring-brand-dark"></div>
+                <div class="w-8 h-8 rounded-full bg-gray-400"></div>
+                <div class="w-8 h-8 rounded-full bg-gray-600"></div>
+              </div>
+            </div>
+
+            <!-- size -->
+            <div class="mb-5">
+              <p class="text-sm font-semibold mb-2">Veľkosť</p>
+              <div class="flex gap-2 flex-wrap">
+                <div class="w-11 h-11 border border-gray-300 text-sm flex items-center justify-center">XS</div>
+                <div class="w-11 h-11 border border-gray-300 text-sm flex items-center justify-center">S</div>
+                <div class="w-11 h-11 border-2 border-brand-dark bg-brand-dark text-white text-sm font-semibold flex items-center justify-center">M</div>
+                <div class="w-11 h-11 border border-gray-300 text-sm flex items-center justify-center">L</div>
+                <div class="w-11 h-11 border border-gray-300 text-sm flex items-center justify-center">XL</div>
+              </div>
+            </div>
+
+            <!-- quantity (hidden on mobile — in sticky bar instead) -->
+            <div class="hidden md:block mb-5">
+              <p class="text-sm font-semibold mb-2">Množstvo</p>
+              <div class="flex items-center">
+                <div class="w-10 h-10 border border-gray-300 flex items-center justify-center text-lg font-light select-none">−</div>
+                <div class="w-14 h-10 border-t border-b border-gray-300 flex items-center justify-center text-sm font-semibold">1</div>
+                <div class="w-10 h-10 border border-gray-300 flex items-center justify-center text-lg font-light select-none">+</div>
+              </div>
+            </div>
+
+            <!-- stock -->
+            <div class="flex items-center gap-2 md:mb-6 text-sm text-gray-600">
+              <span class="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>
+              <span>Skladom — doručenie do 2–3 dní</span>
+            </div>
+
+            <!-- add to cart (hidden on mobile — in sticky bar instead) -->
+            <div class="hidden md:block">
+              <button
+                class="w-full bg-brand-dark hover:bg-brand-accent text-white font-bold text-sm tracking-widest py-4 transition-colors uppercase"
+              >
+                Pridať do košíka
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- tabs -->
+        <div class="border-b border-gray-200 mb-6">
+          <div class="flex gap-0 text-sm">
+            <div class="px-4 py-3 font-semibold border-b-2 border-brand-dark text-brand-dark -mb-px cursor-default">Popis</div>
+            <div class="px-4 py-3 text-gray-500 border-b-2 border-transparent -mb-px">Parametre</div>
+            <div class="px-4 py-3 text-gray-500 border-b-2 border-transparent -mb-px">Hodnotenia (24)</div>
+          </div>
+        </div>
+
+        <!-- tab content: Popis (static, always shown) -->
+        <div class="mb-12 text-sm text-gray-700 leading-relaxed space-y-4">
+          <p>
+            Elegantné kvetinové midi šaty z ľahkej vzdušnej látky, ideálne na jarné a letné dni. Šaty majú
+            zavinovací strih, ktorý zvýrazňuje postavu, a jemný kvetinový vzor v ružových odtieňoch.
+            Vhodné na bežné nosenie aj na špeciálne príležitosti.
+          </p>
+          <div class="space-y-1">
+            <p>Materiál: 95% viskóza, 5% elastan</p>
+            <p>Dĺžka: midi (pod kolená)</p>
+            <p>Údržba: pranie pri 30°C, nežehliť priamo</p>
+            <p>Krajina pôvodu: Turecko</p>
+          </div>
+        </div>
+
+        <!-- similar products -->
+        <section>
+          <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Podobné produkty</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+            <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+              <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden"></div>
+              <div class="p-3 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+                <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+                <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+                <p class="text-sm font-bold mt-1.5">39,99 €</p>
+              </div>
+            </a>
+            <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+              <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden"></div>
+              <div class="p-3 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+                <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+                <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+                <p class="text-sm font-bold mt-1.5">39,99 €</p>
+              </div>
+            </a>
+            <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+              <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden"></div>
+              <div class="p-3 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+                <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+                <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+                <p class="text-sm font-bold mt-1.5">39,99 €</p>
+              </div>
+            </a>
+            <a href="#" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
+              <div class="aspect-[4/3] bg-gray-100 relative overflow-hidden"></div>
+              <div class="p-3 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-0.5">H&M</p>
+                <p class="text-sm font-semibold group-hover:underline">Saténová blúzka</p>
+                <p class="text-xs text-gray-500 mt-0.5">Veľkosti: XS, S, M, L</p>
+                <p class="text-sm font-bold mt-1.5">39,99 €</p>
+              </div>
+            </a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- footer -->
+    <footer class="bg-brand-dark text-white mt-8">
+      <div class="max-w-7xl mx-auto px-4 py-10">
+        <div class="grid grid-cols-2 md:flex md:flex-wrap md:justify-between gap-8 text-sm font-bold">
+          <p>Bellura.sk</p>
+          <p>NAKUPOVANIE</p>
+          <p>ZÁKAZNÍCKY SERVIS</p>
+          <p>INFORMÁCIE</p>
+          <p>PLATBA</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-600">
+        <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-gray-400">
+          © 2026 Bellura s.r.o. Všetky práva vyhradené.
+        </div>
+      </div>
+    </footer>
+
+    <!-- sticky mobile add-to-cart bar (mobile only, shown after header scrolls out) -->
+    <div
+      id="sticky-bar"
+      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-3 translate-y-full transition-transform duration-300"
+    >
+      <!-- quantity + add to cart -->
+      <div class="flex flex-1 items-stretch h-13 min-h-[3.25rem]">
+        <!-- quantity stepper -->
+        <div class="flex items-stretch border border-gray-300 border-r-0 shrink-0">
+          <div class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1">−</div>
+          <div class="w-10 flex items-center justify-center text-sm font-semibold border-x border-gray-300">1</div>
+          <div class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1">+</div>
+        </div>
+        <!-- add to cart button -->
+        <button class="flex-1 bg-brand-dark text-white font-bold text-sm tracking-widest uppercase transition-colors active:bg-brand-accent">
+          Pridať do košíka
+        </button>
+      </div>
+      <!-- cart icon -->
+      <a href="#" class="shrink-0 flex items-center justify-center w-13 h-13 min-w-[3.25rem] min-h-[3.25rem] border border-gray-300">
+        <img src="../icons/shopping-cart.svg" class="w-7 h-7" alt="Košík" />
+      </a>
+    </div>
+
+    <script>
+      const header = document.getElementById('site-header');
+      const stickyBar = document.getElementById('sticky-bar');
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) {
+            stickyBar.classList.remove('translate-y-full');
+          } else {
+            stickyBar.classList.add('translate-y-full');
+          }
+        },
+        { threshold: 0 }
+      );
+      observer.observe(header);
+    </script>
+  </body>
+</html>
