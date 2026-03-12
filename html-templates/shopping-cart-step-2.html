@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doprava a platba — Bellura.sk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["DM Sans", "sans-serif"] },
+            colors: {
+              brand: {
+                dark: "#444444",
+                light: "#f5f5f5",
+                accent: "#333333",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-white text-brand-dark min-h-screen flex flex-col">
+    <!-- top bar -->
+    <div class="border-b border-gray-200 hidden md:block">
+      <div
+        class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-6 text-sm text-gray-500"
+      >
+        <a href="#" class="hover:text-brand-dark transition-colors">Kontakt</a>
+        <a href="#" class="hover:text-brand-dark transition-colors">Pobočky</a>
+      </div>
+    </div>
+
+    <!-- header -->
+    <header class="border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center md:relative">
+        <a
+          href="#"
+          class="shrink-0 inline-flex items-center justify-center bg-brand-dark text-white font-bold text-lg px-8 py-2.5 tracking-wider"
+        >
+          LOGO
+        </a>
+
+        <!-- search - desktop only -->
+        <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
+          <div class="flex w-[28rem]">
+            <input
+              type="text"
+              placeholder="Hľadať produkty..."
+              class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:placeholder-transparent"
+            />
+            <button
+              class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors"
+            >
+              <img
+                src="../icons/search-icon.svg"
+                class="w-12 h-12"
+                alt="Search"
+              />
+            </button>
+          </div>
+        </div>
+
+        <!-- user actions -->
+        <div class="flex items-center gap-6 shrink-0 ml-auto">
+          <a
+            href="#"
+            class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors"
+          >
+            <img
+              src="../icons/profile-circle.svg"
+              class="w-10 h-10 min-[1000px]:w-8 min-[1000px]:h-8"
+              alt="Profile"
+            />
+            <span class="hidden min-[1000px]:inline">Prihlásenie</span>
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors"
+          >
+            <img
+              src="../icons/shopping-cart.svg"
+              class="w-12 h-12 min-[1000px]:w-10 min-[1000px]:h-10"
+              alt="Cart"
+            />
+            <span class="hidden min-[1000px]:inline">Košík (0)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- search - mobile only -->
+      <div class="md:hidden px-4 pb-3">
+        <div class="flex">
+          <input
+            type="text"
+            placeholder="Hľadať produkty..."
+            class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:placeholder-transparent"
+          />
+          <button
+            class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors"
+          >
+            <img
+              src="../icons/search-icon.svg"
+              class="w-12 h-12"
+              alt="Search"
+            />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- nav bar -->
+    <nav class="bg-brand-dark text-white">
+      <div
+        class="md:max-w-7xl md:mx-auto md:px-4 flex items-center text-sm font-semibold"
+      >
+        <a
+          href="#"
+          class="flex flex-1 md:flex-none items-center justify-center gap-2 px-4 py-3 hover:bg-brand-accent transition-colors"
+        >
+          <img src="../icons/home-icon.svg" class="w-6 h-6" alt="Home" />
+          <span class="hidden md:inline">Bellura.sk</span>
+        </a>
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a
+          href="#"
+          class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors"
+          >ŽENY</a
+        >
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a
+          href="#"
+          class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors"
+          >MUŽI</a
+        >
+        <span class="hidden md:block w-px h-4 bg-white/25"></span>
+        <a
+          href="#"
+          class="flex-1 md:flex-none text-center px-4 py-3 hover:bg-brand-accent transition-colors"
+          >DETI</a
+        >
+      </div>
+    </nav>
+
+    <!-- sub nav bar -->
+    <div
+      class="bg-brand-dark text-white border-t border-gray-600 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 flex items-center gap-1 text-sm whitespace-nowrap"
+      >
+        <a
+          href="#"
+          class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium"
+          >Novinky</a
+        >
+        <a
+          href="#"
+          class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium"
+          >Akcie</a
+        >
+        <a
+          href="#"
+          class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium"
+          >Oblečenie</a
+        >
+        <a
+          href="#"
+          class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium"
+          >Topánky</a
+        >
+        <a
+          href="#"
+          class="px-4 py-2.5 hover:bg-brand-accent transition-colors font-medium"
+          >Doplnky</a
+        >
+      </div>
+    </div>
+
+    <div class="border-b border-gray-200 bg-white">
+      <div
+        class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-center gap-0 text-sm"
+      >
+        <!-- step 1: completed -->
+        <div class="flex items-center gap-2">
+          <div
+            class="w-7 h-7 rounded-full bg-brand-dark flex items-center justify-center shrink-0"
+          >
+            <img src="../icons/check.svg" class="w-4 h-4 brightness-0 invert" alt="" />
+          </div>
+          <span class="font-semibold text-brand-dark">Košík</span>
+        </div>
+
+        <div class="w-12 sm:w-24 h-px bg-gray-300 mx-2 sm:mx-4 shrink-0"></div>
+
+        <div class="flex items-center gap-2">
+          <div
+            class="w-7 h-7 rounded-full bg-brand-dark flex items-center justify-center shrink-0"
+          >
+            <span class="text-white text-xs font-bold">2</span>
+          </div>
+          <span class="font-semibold text-brand-dark">Doprava a platba</span>
+        </div>
+
+        <div class="w-12 sm:w-24 h-px bg-gray-300 mx-2 sm:mx-4 shrink-0"></div>
+
+        <div class="flex items-center gap-2">
+          <div
+            class="w-7 h-7 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0"
+          >
+            <span class="text-gray-400 text-xs font-bold">3</span>
+          </div>
+          <span class="text-gray-400">Dodacie údaje</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- main -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold mb-6">Doprava a platba</h1>
+
+            <section class="mb-8">
+              <h2 class="text-base font-bold mb-3">Spôsob dopravy</h2>
+
+              <label
+                class="flex items-center gap-4 border-2 border-brand-dark rounded p-4 mb-2 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="doprava"
+                  checked
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">Kuriér DPD</p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    Doručenie do 2–3 pracovných dní na adresu
+                  </p>
+                </div>
+                <span class="text-sm font-semibold shrink-0">3,99 €</span>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 mb-2 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="doprava"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">Slovenská pošta</p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    Doručenie do 3–5 pracovných dní
+                  </p>
+                </div>
+                <span class="text-sm font-semibold shrink-0">2,49 €</span>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 mb-2 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="doprava"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">
+                    Zásielkovňa (výdajné miesto)
+                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    Vyzdvihnutie na najbližšom výdajnom mieste
+                  </p>
+                </div>
+                <span class="text-sm font-semibold shrink-0">1,99 €</span>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="doprava"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">
+                    Osobný odber — pobočka Bratislava
+                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    Obchodná 12, Bratislava — pripravené do 24h
+                  </p>
+                </div>
+                <span class="text-sm font-semibold shrink-0">Zadarmo</span>
+              </label>
+            </section>
+
+            <section>
+              <h2 class="text-base font-bold mb-3">Spôsob platby</h2>
+
+              <label
+                class="flex items-center gap-4 border-2 border-brand-dark rounded p-4 mb-2 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="platba"
+                  checked
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">Platba kartou online</p>
+                </div>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 mb-2 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="platba"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">
+                    Dobierka (platba pri prevzatí)
+                  </p>
+                </div>
+                <span class="text-sm font-semibold shrink-0">+1,50 €</span>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 mb-2 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="platba"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">Google Pay</p>
+                </div>
+              </label>
+
+              <label
+                class="flex items-center gap-4 border border-gray-200 rounded p-4 cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="platba"
+                  class="accent-brand-dark w-4 h-4 shrink-0"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-sm">Bankový prevod</p>
+                </div>
+              </label>
+            </section>
+          </div>
+
+          <aside class="w-full lg:w-80 shrink-0">
+            <div class="border border-gray-200 p-5">
+              <h2 class="text-base font-bold mb-4">Súhrn objednávky</h2>
+
+              <div class="space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Kvetinové midi šaty × 1</span>
+                  <span class="font-medium shrink-0 ml-2">39,99 €</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600"
+                    >Oversized bavlnené tričko × 2</span
+                  >
+                  <span class="font-medium shrink-0 ml-2">29,98 €</span>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 my-4"></div>
+
+              <div class="space-y-2 text-sm mb-4">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Medzisúčet</span>
+                  <span class="font-medium">69,97 €</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Doprava (Kuriér DPD)</span>
+                  <span class="font-medium">3,99 €</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Platba (Kartou)</span>
+                  <span class="font-bold">Zadarmo</span>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 my-4"></div>
+
+              <div class="flex justify-between items-baseline mb-1">
+                <span class="text-base font-bold">Celkom</span>
+                <span class="text-xl font-bold">73,96 €</span>
+              </div>
+              <p class="text-xs text-gray-500 mb-5">Vrátane DPH 12,33 €</p>
+
+              <button
+                class="w-full bg-brand-dark hover:bg-brand-accent text-white font-bold text-sm tracking-widest py-4 transition-colors uppercase mb-3"
+              >
+                Pokračovať
+              </button>
+
+              <div class="text-center">
+                <a
+                  href="#"
+                  class="text-sm text-gray-500 hover:text-brand-dark transition-colors"
+                  >← Späť na košík</a
+                >
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-brand-dark text-white mt-8">
+      <div class="max-w-7xl mx-auto px-4 py-10">
+        <div
+          class="grid grid-cols-2 md:flex md:flex-wrap md:justify-between gap-8 text-sm font-bold"
+        >
+          <p>Bellura.sk</p>
+          <p>NAKUPOVANIE</p>
+          <p>ZÁKAZNÍCKY SERVIS</p>
+          <p>INFORMÁCIE</p>
+          <p>PLATBA</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-600">
+        <div class="max-w-7xl mx-auto px-4 py-4 text-xs text-gray-400">
+          © 2026 Bellura s.r.o. Všetky práva vyhradené.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
