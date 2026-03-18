@@ -70,7 +70,7 @@
           >
             <img
               src="../icons/profile-circle.svg"
-              class="w-12 h-12 min-[1000px]:w-10 min-[1000px]:h-10"
+              class="w-7 h-7 sm:w-9 sm:h-9 min-[1000px]:w-10 min-[1000px]:h-10 brightness-0"
               alt="Profile"
             />
             <span class="hidden min-[1000px]:inline">Prihlásenie</span>
@@ -81,7 +81,7 @@
           >
             <img
               src="../icons/shopping-cart.svg"
-              class="w-12 h-12 min-[1000px]:w-10 min-[1000px]:h-10"
+              class="w-7 h-7 sm:w-9 sm:h-9 min-[1000px]:w-10 min-[1000px]:h-10 brightness-0"
               alt="Cart"
             />
             <span class="hidden min-[1000px]:inline">Košík (0)</span>
@@ -180,37 +180,37 @@
 
     <div class="border-b border-gray-200 bg-white">
       <div
-        class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-center gap-0 text-sm"
+        class="max-w-7xl mx-auto px-4 py-5 flex items-center text-sm"
       >
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <div
             class="w-7 h-7 rounded-full bg-brand-dark flex items-center justify-center shrink-0"
           >
             <span class="text-white text-xs font-bold">1</span>
           </div>
-          <span class="font-semibold text-brand-dark">Košík</span>
+          <span class="font-semibold text-brand-dark hidden sm:inline">Košík</span>
         </div>
 
-        <div class="w-12 sm:w-24 h-px bg-gray-300 mx-2 sm:mx-4 shrink-0"></div>
+        <div class="flex-1 h-px bg-gray-300 mx-2 sm:mx-4"></div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <div
             class="w-7 h-7 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0"
           >
             <span class="text-gray-400 text-xs font-bold">2</span>
           </div>
-          <span class="text-gray-400">Doprava a platba</span>
+          <span class="text-gray-400 hidden sm:inline">Doprava a platba</span>
         </div>
 
-        <div class="w-12 sm:w-24 h-px bg-gray-300 mx-2 sm:mx-4 shrink-0"></div>
+        <div class="flex-1 h-px bg-gray-300 mx-2 sm:mx-4"></div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <div
             class="w-7 h-7 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0"
           >
             <span class="text-gray-400 text-xs font-bold">3</span>
           </div>
-          <span class="text-gray-400">Dodacie údaje</span>
+          <span class="text-gray-400 hidden sm:inline">Dodacie údaje</span>
         </div>
       </div>
     </div>
@@ -218,7 +218,7 @@
     <!-- main content -->
     <main class="flex-1">
       <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
+        <div class="flex flex-col lg:flex-row gap-8 lg:items-start">
           <div class="flex-1 min-w-0">
             <h1 class="text-2xl font-bold mb-6">
               Nákupný košík
@@ -229,19 +229,19 @@
 
             <div class="border border-gray-200">
               <div
-                class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_6rem_3rem] px-4 py-3 border-b border-gray-200 bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500"
+                class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] px-4 py-3 border-b border-gray-200 bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500"
               >
                 <span>Produkt</span>
                 <span class="text-center">Veľkosť</span>
                 <span class="text-center">Cena</span>
                 <span class="text-center">Množstvo</span>
-                <span class="text-right">Spolu</span>
+                <span class="text-right pr-4">Spolu</span>
                 <span class="text-center">Odstrániť</span>
               </div>
 
               <div class="px-4 py-4 border-b border-gray-200">
                 <div
-                  class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_6rem_3rem] items-center"
+                  class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] items-center"
                 >
                   <div class="flex gap-3 items-center">
                     <div class="w-16 h-16 bg-gray-200 shrink-0"></div>
@@ -271,7 +271,7 @@
                       </button>
                     </div>
                   </div>
-                  <span class="text-sm font-bold text-right">39,99 €</span>
+                  <span class="text-sm font-bold text-right pr-4">39,99 €</span>
                   <div class="flex justify-center">
                     <button class="hover:opacity-60 transition-opacity">
                       <img
@@ -331,7 +331,7 @@
 
               <div class="px-4 py-4">
                 <div
-                  class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_6rem_3rem] items-center"
+                  class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] items-center"
                 >
                   <div class="flex gap-3 items-center">
                     <div class="w-16 h-16 bg-gray-200 shrink-0"></div>
@@ -361,7 +361,7 @@
                       </button>
                     </div>
                   </div>
-                  <span class="text-sm font-bold text-right">39,99 €</span>
+                  <span class="text-sm font-bold text-right pr-4">39,99 €</span>
                   <div class="flex justify-center">
                     <button class="hover:opacity-60 transition-opacity">
                       <img
