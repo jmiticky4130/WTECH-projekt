@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — Bellura.sk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["DM Sans", "sans-serif"] },
+            colors: {
+              brand: {
+                dark: "#444444",
+                light: "#f5f5f5",
+                accent: "#333333",
+              },
+            },
+            screens: {
+              wide: "900px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* CSS :target modal pattern */
+      #modal-add,
+      #modal-edit,
+      #modal-settings,
+      #modal-delete-1,
+      #modal-delete-2,
+      #modal-delete-3,
+      #modal-delete-4,
+      #modal-delete-5 {
+        display: none;
+      }
+      #modal-add:target,
+      #modal-edit:target,
+      #modal-settings:target,
+      #modal-delete-1:target,
+      #modal-delete-2:target,
+      #modal-delete-3:target,
+      #modal-delete-4:target,
+      #modal-delete-5:target {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body class="font-sans bg-gray-100 min-h-screen">
+
+    <!-- ===== MOBILE HAMBURGER (< md) ===== -->
+    <details class="md:hidden bg-brand-dark text-white">
+      <summary class="flex items-center justify-between px-4 py-3 cursor-pointer list-none select-none">
+        <a href="#" class="font-bold text-lg tracking-wider">BELLURA</a>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </summary>
+      <div class="border-t border-gray-600 flex flex-col text-sm font-medium">
+        <a href="#" class="px-4 py-3 bg-brand-accent">Produkty</a>
+        <a href="#modal-settings" class="px-4 py-3 hover:bg-brand-accent transition-colors">Nastavenia</a>
+        <a href="admin-login.html" class="px-4 py-3 hover:bg-brand-accent transition-colors">Odhlásiť sa</a>
+      </div>
+    </details>
+
+    <!-- ===== LAYOUT ===== -->
+    <div class="flex min-h-screen">
+
+      <!-- sidebar (desktop) -->
+      <aside class="hidden md:flex flex-col w-64 shrink-0 bg-brand-dark text-white min-h-screen">
+        <!-- logo -->
+        <div class="px-6 py-5 border-b border-gray-600">
+          <a href="#" class="font-bold text-lg tracking-wider">BELLURA</a>
+          <p class="text-xs text-gray-400 mt-0.5">Administrácia</p>
+        </div>
+
+        <!-- nav -->
+        <nav class="flex-1 px-3 py-4 space-y-1 text-sm font-medium">
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-brand-accent rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" />
+            </svg>
+            Produkty
+          </a>
+          <a href="#modal-settings" class="flex items-center gap-3 px-3 py-2.5 hover:bg-brand-accent rounded transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Nastavenia
+          </a>
+        </nav>
+
+        <!-- logout -->
+        <div class="px-3 py-4 border-t border-gray-600">
+          <a
+            href="admin-login.html"
+            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium hover:bg-brand-accent rounded transition-colors w-full"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+            </svg>
+            Odhlásiť sa
+          </a>
+        </div>
+      </aside>
+
+      <!-- main -->
+      <main class="flex-1 overflow-auto">
+        <div class="px-3 py-4 sm:px-6 sm:py-6 max-w-6xl">
+
+          <!-- page header -->
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <p class="text-xs text-gray-400 mb-0.5">Administrácia / Produkty</p>
+              <h1 class="text-2xl font-bold text-brand-dark">Produkty</h1>
+            </div>
+            <a
+              href="#modal-add"
+              class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-5 py-2.5 transition-colors"
+            >
+              + Pridať produkt
+            </a>
+          </div>
+
+          <!-- search & filter bar -->
+          <div class="bg-white shadow rounded mb-4 px-4 py-3 flex flex-wrap gap-3 items-center">
+            <input
+              type="text"
+              placeholder="Hľadať produkty..."
+              class="flex-1 min-w-[180px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
+            />
+            <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+              <option value="">Všetky kategórie</option>
+              <option>Ženy</option>
+              <option>Muži</option>
+              <option>Deti</option>
+            </select>
+            <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">
+              Hľadať
+            </button>
+          </div>
+
+          <!-- product table -->
+          <div class="bg-white rounded shadow overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wider">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold hidden wide:table-cell">Fotografia</th>
+                  <th class="px-4 py-3 text-left font-semibold">Názov</th>
+                  <th class="px-4 py-3 text-left font-semibold hidden wide:table-cell">Kategória</th>
+                  <th class="px-4 py-3 text-left font-semibold">Cena</th>
+                  <th class="px-4 py-3 text-left font-semibold whitespace-nowrap">Sklad</th>
+                  <th class="px-4 py-3 text-left font-semibold hidden wide:table-cell">Zvýraznený</th>
+                  <th class="px-4 py-3 text-left font-semibold">Akcie</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+
+                <!-- row 1 -->
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <div class="w-12 h-12 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-brand-dark">Saténová blúzka</p>
+                    <p class="text-xs text-gray-400">H&M · Biela</p>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Ženy</td>
+                  <td class="px-4 py-3 font-semibold">39,99 €</td>
+                  <td class="px-4 py-3">
+                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">24 ks</span>
+                  </td>
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded">Áno</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/edit.svg" class="w-5 h-5" alt="Upraviť" />
+                      </a>
+                      <a href="#modal-delete-1" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- row 2 -->
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <div class="w-12 h-12 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-brand-dark">Džínsové nohavice</p>
+                    <p class="text-xs text-gray-400">Levi's · Modrá</p>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Muži</td>
+                  <td class="px-4 py-3 font-semibold">59,99 €</td>
+                  <td class="px-4 py-3">
+                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">12 ks</span>
+                  </td>
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <span class="text-gray-400 text-xs">Nie</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/edit.svg" class="w-5 h-5" alt="Upraviť" />
+                      </a>
+                      <a href="#modal-delete-2" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- row 3 -->
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <div class="w-12 h-12 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-brand-dark">Detská mikina</p>
+                    <p class="text-xs text-gray-400">Zara Kids · Ružová</p>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Deti</td>
+                  <td class="px-4 py-3 font-semibold">24,99 €</td>
+                  <td class="px-4 py-3">
+                    <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">3 ks</span>
+                  </td>
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <span class="text-gray-400 text-xs">Nie</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/edit.svg" class="w-5 h-5" alt="Upraviť" />
+                      </a>
+                      <a href="#modal-delete-3" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- row 4 -->
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <div class="w-12 h-12 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-brand-dark">Kožená kabelka</p>
+                    <p class="text-xs text-gray-400">Mango · Čierna</p>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Ženy</td>
+                  <td class="px-4 py-3 font-semibold">89,99 €</td>
+                  <td class="px-4 py-3">
+                    <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">8 ks</span>
+                  </td>
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <span class="text-gray-400 text-xs">Nie</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/edit.svg" class="w-5 h-5" alt="Upraviť" />
+                      </a>
+                      <a href="#modal-delete-4" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- row 5 -->
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <div class="w-12 h-12 bg-gray-200 rounded"></div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-brand-dark">Pánske tričko</p>
+                    <p class="text-xs text-gray-400">Nike · Sivá</p>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Muži</td>
+                  <td class="px-4 py-3 font-semibold">29,99 €</td>
+                  <td class="px-4 py-3">
+                    <span class="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">0 ks</span>
+                  </td>
+                  <td class="px-4 py-3 hidden wide:table-cell">
+                    <span class="text-gray-400 text-xs">Nie</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/edit.svg" class="w-5 h-5" alt="Upraviť" />
+                      </a>
+                      <a href="#modal-delete-5" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
+                        <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+          <!-- end table -->
+
+        </div>
+      </main>
+    </div>
+    <!-- end layout -->
+
+
+    <!-- ===== ADD PRODUCT MODAL ===== -->
+    <div id="modal-add" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4 py-8 overflow-y-auto">
+      <div class="bg-white w-full max-w-2xl mx-auto shadow-xl relative my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-bold">Pridať produkt</h2>
+          <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
+        </div>
+
+        <form action="#" method="post" class="px-6 py-6 space-y-4">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-1.5">Názov <span class="text-red-500">*</span></label>
+              <input type="text" placeholder="Názov produktu" required
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-1.5">Opis <span class="text-red-500">*</span></label>
+              <textarea rows="3" placeholder="Popis produktu..." required
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Fotografia 1 <span class="text-red-500">*</span></label>
+              <input type="file" accept="image/*"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Fotografia 2 <span class="text-red-500">*</span></label>
+              <input type="file" accept="image/*"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Cena (€) <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <input type="number" min="0" step="0.01" placeholder="0,00"
+                  class="w-full border border-gray-300 px-3 py-2 pr-8 text-sm focus:outline-none focus:border-brand-dark" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="">Vybrať kategóriu</option>
+                <option>Ženy</option>
+                <option>Muži</option>
+                <option>Deti</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Podkategória</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="">Vybrať podkategóriu</option>
+                <option>Šaty</option>
+                <option>Blúzky</option>
+                <option>Nohavice</option>
+                <option>Mikiny</option>
+                <option>Topánky</option>
+                <option>Doplnky</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-2">Veľkosti</label>
+              <div class="flex flex-wrap gap-3">
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> XS
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> S
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> M
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> L
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> XL
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> XXL
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Farba</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="">Vybrať farbu</option>
+                <option>Biela</option>
+                <option>Čierna</option>
+                <option>Modrá</option>
+                <option>Červená</option>
+                <option>Ružová</option>
+                <option>Sivá</option>
+                <option>Béžová</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Značka</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="">Vybrať značku</option>
+                <option>H&amp;M</option>
+                <option>Zara</option>
+                <option>Levi's</option>
+                <option>Nike</option>
+                <option>Mango</option>
+                <option>Zara Kids</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Materiál</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="">Vybrať materiál</option>
+                <option>100% bavlna</option>
+                <option>100% polyester</option>
+                <option>Bavlna / Elastan</option>
+                <option>Vlna</option>
+                <option>Ľan</option>
+                <option>Satén</option>
+                <option>Koža</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Skladové množstvo</label>
+              <input type="number" min="0" placeholder="0"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="flex items-center gap-2.5 cursor-pointer">
+                <input type="checkbox" name="is_featured" class="w-4 h-4 accent-brand-dark" />
+                <span class="text-sm font-medium">Zvýraznený produkt</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+            <a href="#!" class="px-5 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">
+              Zrušiť
+            </a>
+            <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-5 py-2.5 transition-colors">
+              Uložiť produkt
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- ===== EDIT PRODUCT MODAL ===== -->
+    <div id="modal-edit" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4 py-8 overflow-y-auto">
+      <div class="bg-white w-full max-w-2xl mx-auto shadow-xl relative my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-bold">Upraviť produkt</h2>
+          <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
+        </div>
+
+        <form action="#" method="post" class="px-6 py-6 space-y-4">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-1.5">Názov <span class="text-red-500">*</span></label>
+              <input type="text" value="Saténová blúzka" required
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-1.5">Opis <span class="text-red-500">*</span></label>
+              <textarea rows="3" required
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none">Elegantná saténová blúzka v bielej farbe. Vhodná na každodenné nosenie aj na špeciálne príležitosti.</textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Fotografia 1 <span class="text-red-500">*</span></label>
+              <input type="file" accept="image/*"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Fotografia 2 <span class="text-red-500">*</span></label>
+              <input type="file" accept="image/*"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Cena (€) <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <input type="number" min="0" step="0.01" value="39.99"
+                  class="w-full border border-gray-300 px-3 py-2 pr-8 text-sm focus:outline-none focus:border-brand-dark" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option selected>Ženy</option>
+                <option>Muži</option>
+                <option>Deti</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Podkategória</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option>Šaty</option>
+                <option selected>Blúzky</option>
+                <option>Nohavice</option>
+                <option>Mikiny</option>
+                <option>Topánky</option>
+                <option>Doplnky</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium mb-2">Veľkosti</label>
+              <div class="flex flex-wrap gap-3">
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 accent-brand-dark" /> XS
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 accent-brand-dark" /> S
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 accent-brand-dark" /> M
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 accent-brand-dark" /> L
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> XL
+                </label>
+                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 accent-brand-dark" /> XXL
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Farba</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option selected>Biela</option>
+                <option>Čierna</option>
+                <option>Modrá</option>
+                <option>Červená</option>
+                <option>Ružová</option>
+                <option>Sivá</option>
+                <option>Béžová</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Značka</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option selected>H&amp;M</option>
+                <option>Zara</option>
+                <option>Levi's</option>
+                <option>Nike</option>
+                <option>Mango</option>
+                <option>Zara Kids</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Materiál</label>
+              <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option>100% bavlna</option>
+                <option selected>100% polyester</option>
+                <option>Bavlna / Elastan</option>
+                <option>Vlna</option>
+                <option>Ľan</option>
+                <option>Satén</option>
+                <option>Koža</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1.5">Skladové množstvo</label>
+              <input type="number" min="0" value="24"
+                class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="flex items-center gap-2.5 cursor-pointer">
+                <input type="checkbox" name="is_featured" checked class="w-4 h-4 accent-brand-dark" />
+                <span class="text-sm font-medium">Zvýraznený produkt</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+            <a href="#!" class="px-5 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">
+              Zrušiť
+            </a>
+            <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-5 py-2.5 transition-colors">
+              Uložiť zmeny
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- ===== DELETE MODALS ===== -->
+
+    <!-- delete 1 — Saténová blúzka -->
+    <div id="modal-delete-1" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+      <div class="bg-white w-full max-w-sm shadow-xl">
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>Saténová blúzka</strong>? Táto akcia je nevratná.</p>
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- delete 2 — Džínsové nohavice -->
+    <div id="modal-delete-2" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+      <div class="bg-white w-full max-w-sm shadow-xl">
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>Džínsové nohavice</strong>? Táto akcia je nevratná.</p>
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- delete 3 — Detská mikina -->
+    <div id="modal-delete-3" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+      <div class="bg-white w-full max-w-sm shadow-xl">
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>Detská mikina</strong>? Táto akcia je nevratná.</p>
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- delete 4 — Kožená kabelka -->
+    <div id="modal-delete-4" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+      <div class="bg-white w-full max-w-sm shadow-xl">
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>Kožená kabelka</strong>? Táto akcia je nevratná.</p>
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- delete 5 — Pánske tričko -->
+    <div id="modal-delete-5" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+      <div class="bg-white w-full max-w-sm shadow-xl">
+        <div class="px-6 py-6">
+          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>Pánske tričko</strong>? Táto akcia je nevratná.</p>
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== SETTINGS MODAL ===== -->
+    <div id="modal-settings" class="fixed inset-0 bg-black/40 z-50 items-start justify-center px-4 py-8 overflow-y-auto">
+      <div class="bg-white w-full max-w-lg mx-auto shadow-xl my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-bold">Nastavenia</h2>
+          <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
+        </div>
+
+        <div class="px-6 py-6 space-y-8">
+
+          <!-- Kategórie -->
+          <section>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Kategórie</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Ženy <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Muži <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Deti <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" placeholder="Nová kategória" class="border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-brand-dark flex-1" />
+              <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-1.5 transition-colors">Pridať</button>
+            </div>
+          </section>
+
+          <!-- Podkategórie -->
+          <section>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Podkategórie</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Šaty <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Blúzky <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Nohavice <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Mikiny <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Topánky <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Doplnky <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" placeholder="Nová podkategória" class="border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-brand-dark flex-1" />
+              <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-1.5 transition-colors">Pridať</button>
+            </div>
+          </section>
+
+          <!-- Farby -->
+          <section>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Farby</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Biela <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Čierna <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Modrá <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Červená <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Ružová <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Sivá <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Béžová <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" placeholder="Nová farba" class="border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-brand-dark flex-1" />
+              <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-1.5 transition-colors">Pridať</button>
+            </div>
+          </section>
+
+          <!-- Materiály -->
+          <section>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Materiály</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">100% bavlna <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">100% polyester <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Bavlna / Elastan <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Vlna <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Ľan <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Satén <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Koža <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" placeholder="Nový materiál" class="border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-brand-dark flex-1" />
+              <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-1.5 transition-colors">Pridať</button>
+            </div>
+          </section>
+
+          <!-- Značky -->
+          <section>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Značky</h3>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">H&amp;M <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Zara <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Levi's <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Nike <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Mango <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+              <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">Zara Kids <a href="#!" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</a></span>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" placeholder="Nová značka" class="border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-brand-dark flex-1" />
+              <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-1.5 transition-colors">Pridať</button>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="flex justify-end px-6 py-4 border-t border-gray-100">
+          <a href="#!" class="px-5 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zavrieť</a>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
