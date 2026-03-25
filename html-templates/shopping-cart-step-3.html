@@ -38,9 +38,9 @@
       <div class="max-w-7xl mx-auto px-4 py-1 flex items-center md:relative">
         <a
           href="#"
-          class="shrink-0 inline-flex items-center justify-center bg-brand-dark text-white font-bold text-lg px-8 py-1 tracking-wider"
+          class="shrink-0"
         >
-          LOGO
+          <img src="images/brand-logo.png" alt="Bellura" class="h-12">
         </a>
 
         <!-- search - desktop only -->
@@ -120,7 +120,7 @@
           class="flex flex-1 md:flex-none items-center justify-center gap-2 px-4 py-1.5 hover:bg-brand-accent transition-colors"
         >
           <img src="../icons/home-icon.svg" class="w-6 h-6" alt="Home" />
-          <span class="hidden md:inline">Bellura.sk</span>
+          <span class="hidden md:inline">Domov</span>
         </a>
         <span class="hidden md:block w-px h-4 bg-white/25"></span>
         <a
@@ -326,18 +326,51 @@
                 />
                 <span>Fakturačná adresa je rovnaká ako doručovacia</span>
               </label>
-              <label class="flex items-center gap-3 cursor-pointer text-sm">
-                <input
-                  type="checkbox"
-                  class="w-4 h-4 accent-brand-dark shrink-0"
-                />
-                <span>Nakupujem na firmu</span>
-              </label>
             </div>
+
+            <section class="mb-8">
+              <h2 class="text-base font-bold mb-3">Údaje o karte</h2>
+              <div class="border border-gray-200 rounded p-4 space-y-4">
+                <div>
+                  <label class="block text-sm mb-1">Číslo karty</label>
+                  <input
+                    type="text"
+                    placeholder="1234 5678 9012 3456"
+                    class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm mb-1">Meno držiteľa karty</label>
+                  <input
+                    type="text"
+                    placeholder="Meno Priezvisko"
+                    class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark"
+                  />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm mb-1">Platnosť do</label>
+                    <input
+                      type="text"
+                      placeholder="MM / RR"
+                      class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm mb-1">CVV</label>
+                    <input
+                      type="text"
+                      placeholder="123"
+                      class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
 
           </div>
 
-          <aside class="w-full lg:w-80 shrink-0">
+          <aside class="w-full lg:w-80 shrink-0 lg:sticky lg:top-4">
             <div class="border border-gray-200 p-5">
               <h2 class="text-base font-bold mb-4">Súhrn objednávky</h2>
 
