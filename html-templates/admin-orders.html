@@ -48,9 +48,7 @@
     <details class="md:hidden bg-brand-dark text-white">
       <summary class="flex items-center justify-between px-4 py-3 cursor-pointer list-none select-none">
         <a href="#" class="font-bold text-lg tracking-wider"><span class="inline-block bg-white rounded-lg px-2 py-1"><img src="images/brand-logo.png" alt="Bellura" class="h-10"></span></a>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+        <img src="../icons/hamburger-menu.svg" class="w-6 h-6 brightness-0 invert" alt="Menu" />
       </summary>
       <div class="border-t border-gray-600 flex flex-col text-sm font-medium">
         <a href="admin-dashboard.html" class="px-4 py-3 hover:bg-brand-accent transition-colors">Produkty</a>
@@ -64,7 +62,6 @@
 
       <!-- sidebar (desktop) -->
       <aside class="hidden md:flex flex-col w-64 shrink-0 bg-brand-dark text-white min-h-screen">
-        <!-- logo -->
         <div class="px-6 py-5 border-b border-gray-600">
           <a href="admin-dashboard.html" class="font-bold text-lg tracking-wider"><span class="inline-block bg-white rounded-lg px-2 py-1"><img src="images/brand-logo.png" alt="Bellura" class="h-10"></span></a>
           <p class="text-xs text-gray-400 mt-0.5">Administrácia</p>
@@ -73,23 +70,15 @@
         <!-- nav -->
         <nav class="flex-1 px-3 py-4 space-y-1 text-sm font-medium">
           <a href="admin-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 hover:bg-brand-accent rounded transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z" />
-            </svg>
+            <img src="../icons/products.svg" class="w-4 h-4 brightness-0 invert" alt="Produkty" />
             Produkty
           </a>
           <a href="admin-orders.html" class="flex items-center gap-3 px-3 py-2.5 bg-brand-accent rounded">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
+            <img src="../icons/orders.svg" class="w-4 h-4 brightness-0 invert" alt="Objednávky" />
             Objednávky
           </a>
           <a href="admin-dashboard.html#modal-settings" class="flex items-center gap-3 px-3 py-2.5 hover:bg-brand-accent rounded transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            <img src="../icons/settings.svg" class="w-4 h-4 brightness-0 invert" alt="Nastavenia" />
             Nastavenia
           </a>
         </nav>
@@ -100,9 +89,7 @@
             href="admin-login.html"
             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium hover:bg-brand-accent rounded transition-colors w-full"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-            </svg>
+            <img src="../icons/logout.svg" class="w-4 h-4 brightness-0 invert" alt="Odhlásiť sa" />
             Odhlásiť sa
           </a>
         </div>
@@ -249,7 +236,6 @@
             </div>
 
           </div>
-          <!-- end mobile cards -->
 
           <!-- desktop table -->
           <div class="hidden wide:block bg-white rounded shadow overflow-x-auto">
@@ -289,10 +275,7 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                       <a href="#modal-order-detail" title="Detail" class="opacity-50 hover:opacity-100 transition-opacity">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <img src="../icons/eye.svg" class="w-5 h-5" alt="Detail" />
                       </a>
                       <a href="#modal-delete-order-1" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
                         <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
@@ -323,10 +306,7 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                       <a href="#modal-order-detail" title="Detail" class="opacity-50 hover:opacity-100 transition-opacity">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <img src="../icons/eye.svg" class="w-5 h-5" alt="Detail" />
                       </a>
                       <a href="#modal-delete-order-2" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
                         <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
@@ -357,10 +337,7 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                       <a href="#modal-order-detail" title="Detail" class="opacity-50 hover:opacity-100 transition-opacity">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <img src="../icons/eye.svg" class="w-5 h-5" alt="Detail" />
                       </a>
                       <a href="#modal-delete-order-3" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
                         <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
@@ -391,10 +368,7 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                       <a href="#modal-order-detail" title="Detail" class="opacity-50 hover:opacity-100 transition-opacity">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <img src="../icons/eye.svg" class="w-5 h-5" alt="Detail" />
                       </a>
                       <a href="#!" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
                         <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
@@ -425,10 +399,7 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
                       <a href="#modal-order-detail" title="Detail" class="opacity-50 hover:opacity-100 transition-opacity">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
+                        <img src="../icons/eye.svg" class="w-5 h-5" alt="Detail" />
                       </a>
                       <a href="#!" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
                         <img src="../icons/trash.svg" class="w-5 h-5" alt="Vymazať" />
@@ -440,12 +411,10 @@
               </tbody>
             </table>
           </div>
-          <!-- end desktop table -->
 
         </div>
       </main>
     </div>
-    <!-- end layout -->
 
 
     <!-- order detail modal -->
