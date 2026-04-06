@@ -15,6 +15,11 @@
 
         <!-- images -->
         <div class="flex flex-col gap-3">
+          <!-- product name above image (mobile only) -->
+          <div class="md:hidden">
+            <p class="text-xs text-gray-500 mb-0.5">Značka</p>
+            <h2 class="text-lg font-bold leading-tight">Saténová blúzka</h2>
+          </div>
           <div class="aspect-[4/5] bg-gray-100 border border-gray-200 overflow-hidden relative">
             <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Saténová blúzka">
           </div>
@@ -65,7 +70,7 @@
           </div>
 
           <!-- stock status -->
-          <div class="flex items-center gap-2 md:mb-6 text-sm text-gray-600">
+          <div id="sticky-trigger" class="flex items-center gap-2 md:mb-6 text-sm text-gray-600">
             <span class="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>
             <span>Skladom — doručenie do 2–3 dní</span>
           </div>
@@ -111,6 +116,20 @@
   </main>
 
   <!-- sticky mobile add-to-cart bar -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const bar = document.getElementById('sticky-bar');
+      const trigger = document.getElementById('sticky-trigger');
+      function update() {
+        const rect = trigger.getBoundingClientRect();
+        const passed = rect.top < window.innerHeight;
+        bar.classList.toggle('translate-y-full', !passed);
+        bar.classList.toggle('translate-y-0', passed);
+      }
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    });
+  </script>
   <div id="sticky-bar" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-3 translate-y-full transition-transform duration-300">
     <div class="flex flex-1 items-stretch h-13 min-h-[3.25rem]">
       <div class="flex items-stretch border border-gray-300 border-r-0 shrink-0">

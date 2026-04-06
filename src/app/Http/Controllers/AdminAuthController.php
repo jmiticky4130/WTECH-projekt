@@ -26,6 +26,7 @@ class AdminAuthController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::guard('admin')->attempt($credentials, $remember)) {
+            Auth::guard('web')->logout();
             $request->session()->regenerate();
             return redirect()->intended(route('admin.products'));
         }
