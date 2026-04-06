@@ -38,9 +38,12 @@
   </nav>
 
   <div class="px-3 py-4 border-t border-gray-600">
-    <a href="{{ route('admin.login') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium hover:bg-brand-accent rounded transition-colors w-full">
-      <img src="{{ asset('icons/logout.svg') }}" class="w-4 h-4 brightness-0 invert" alt="Odhlásiť sa" />
-      Odhlásiť sa
-    </a>
+    <form method="POST" action="{{ route('admin.logout') }}">
+      @csrf
+      <button type="submit" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium hover:bg-brand-accent rounded transition-colors w-full">
+        <img src="{{ asset('icons/logout.svg') }}" class="w-4 h-4 brightness-0 invert" alt="Odhlásiť sa" />
+        Odhlásiť sa
+      </button>
+    </form>
   </div>
 </aside>

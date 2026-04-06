@@ -1,12 +1,22 @@
-@props(['active' => null])
-
 @php
+  $genders = ['zeny', 'muzi', 'deti'];
+  $seg2    = request()->segment(2);
+  $seg3    = request()->segment(3);
+
+  if (in_array($seg2, $genders)) {
+    $gender      = $seg2;
+    $activeSlug  = $seg3;
+  } else {
+    $gender      = null;
+    $activeSlug  = $seg2; // e.g. /kategoria/oblecenie
+  }
+
   $items = [
-    ['label' => 'Novinky', 'href' => route('store.category')],
-    ['label' => 'Akcie', 'href' => route('store.category')],
-    ['label' => 'Oblečenie', 'href' => route('store.category')],
-    ['label' => 'Topánky', 'href' => route('store.category')],
-    ['label' => 'Doplnky', 'href' => route('store.category')],
+    ['label' => 'Novinky',   'slug' => 'novinky'],
+    ['label' => 'Akcie',     'slug' => 'akcie'],
+    ['label' => 'Oblečenie', 'slug' => 'oblecenie'],
+    ['label' => 'Topánky',   'slug' => 'topanky'],
+    ['label' => 'Doplnky',   'slug' => 'doplnky'],
   ];
 @endphp
 
@@ -19,8 +29,13 @@
     <div class="flex flex-col border-t border-gray-600">
       @foreach ($items as $i => $item)
         <a
-          href="{{ $item['href'] }}"
-          class="{{ $i === 0 ? 'pr-4 pl-0' : 'px-4' }} py-1 {{ $active === $item['label'] ? 'bg-brand-accent' : 'hover:bg-brand-accent transition-colors' }} font-medium text-sm"
+          href="{{ url('/kategoria/' . ($gender ? $gender . '/' : '') . $item['slug']) }}"
+          @class([
+            'py-1 font-medium text-sm transition-colors',
+            $i === 0 ? 'pr-4 pl-0' : 'px-4',
+            'bg-brand-accent' => $activeSlug === $item['slug'],
+            'hover:bg-brand-accent' => $activeSlug !== $item['slug'],
+          ])
         >{{ $item['label'] }}</a>
       @endforeach
     </div>
@@ -29,8 +44,13 @@
     <div class="max-w-7xl mx-auto px-4 flex items-center gap-1 text-sm whitespace-nowrap">
       @foreach ($items as $i => $item)
         <a
-          href="{{ $item['href'] }}"
-          class="{{ $i === 0 ? 'pr-4 pl-0' : 'px-4' }} py-1 {{ $active === $item['label'] ? 'bg-brand-accent' : 'hover:bg-brand-accent transition-colors' }} font-medium"
+          href="{{ url('/kategoria/' . ($gender ? $gender . '/' : '') . $item['slug']) }}"
+          @class([
+            'py-1 font-medium transition-colors',
+            $i === 0 ? 'pr-4 pl-0' : 'px-4',
+            'bg-brand-accent' => $activeSlug === $item['slug'],
+            'hover:bg-brand-accent' => $activeSlug !== $item['slug'],
+          ])
         >{{ $item['label'] }}</a>
       @endforeach
     </div>

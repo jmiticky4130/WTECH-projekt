@@ -39,15 +39,25 @@
         <h1 class="text-xl font-bold text-center mb-1">Administrátorské prihlásenie</h1>
         <p class="text-sm text-gray-500 text-center mb-7">Prihláste sa do administračného rozhrania.</p>
 
-        <form action="#" method="post" class="space-y-4">
+        <form action="{{ route('admin.login.store') }}" method="post" class="space-y-4">
+          @csrf
+
+          @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+              {{ $errors->first() }}
+            </div>
+          @endif
+
           <div>
             <label class="block text-sm font-medium mb-1.5">
               E-mail <span class="text-red-500">*</span>
             </label>
             <input
               type="email"
+              name="email"
+              value="{{ old('email') }}"
               placeholder="admin@bellura.sk"
-              class="w-full border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-dark"
+              class="w-full border px-4 py-2.5 text-sm focus:outline-none focus:border-brand-dark {{ $errors->has('email') ? 'border-red-400' : 'border-gray-300' }}"
             />
           </div>
 
@@ -58,17 +68,15 @@
             <div class="relative">
               <input
                 type="password"
+                name="password"
                 placeholder="••••••••"
                 class="w-full border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-brand-dark"
               />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer select-none text-gray-400 hover:text-brand-dark transition-colors">
-                <img src="{{ asset('icons/eye.svg') }}" class="w-5 h-5" alt="Zobraziť heslo" />
-              </span>
             </div>
           </div>
 
           <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-            <input type="checkbox" class="w-4 h-4 accent-brand-dark" />
+            <input type="checkbox" name="remember" class="w-4 h-4 accent-brand-dark" />
             Zapamätať si ma
           </label>
 

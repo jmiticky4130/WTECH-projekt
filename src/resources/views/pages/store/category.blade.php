@@ -1,10 +1,33 @@
-<x-store.layout title="Oblečenie — Bellura.sk" :subNavActive="'Oblečenie'">
+@php
+  $genderLabels = ['zeny' => 'Ženy', 'muzi' => 'Muži', 'deti' => 'Deti'];
+  $subcategoryLabels = [
+    'novinky'   => 'Novinky',
+    'akcie'     => 'Akcie',
+    'oblecenie' => 'Oblečenie',
+    'topanky'   => 'Topánky',
+    'doplnky'   => 'Doplnky',
+  ];
+  $genderLabel      = $genderLabels[$gender ?? ''] ?? null;
+  $subcategoryLabel = $subcategoryLabels[$subcategory ?? ''] ?? null;
+  $h1               = $subcategoryLabel ?? $genderLabel ?? '';
+  $pageTitle        = $h1 . ' — Bellura.sk';
 
-  <x-store.breadcrumb :items="[
-    ['label' => 'Domov', 'href' => url('/')],
-    ['label' => 'Ženy', 'href' => '#'],
-    ['label' => 'Oblečenie'],
-  ]" />
+  if ($gender) {
+    // Ženy  OR  Ženy > Oblečenie
+    $breadcrumb = [['label' => $genderLabel, 'href' => $subcategoryLabel ? url('/kategoria/' . $gender) : null]];
+    if ($subcategoryLabel) {
+      $breadcrumb[] = ['label' => $subcategoryLabel];
+    }
+  } else {
+    // Domov > Oblečenie
+    $breadcrumb   = [['label' => 'Domov', 'href' => url('/')]];
+    $breadcrumb[] = ['label' => $subcategoryLabel ?? ''];
+  }
+@endphp
+
+<x-store.layout :title="$pageTitle">
+
+  <x-store.breadcrumb :items="$breadcrumb" />
 
   <main class="flex-1">
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -94,7 +117,7 @@
         <div class="flex-1 min-w-0">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div>
-              <h1 class="text-2xl font-bold">Oblečenie</h1>
+              <h1 class="text-2xl font-bold">{{ $h1 }}</h1>
               <p class="text-sm text-gray-500 mt-0.5">Zobrazených 1 – 9 z 124 produktov</p>
             </div>
             <div class="flex items-center gap-3">

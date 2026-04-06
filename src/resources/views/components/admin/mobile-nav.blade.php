@@ -25,6 +25,9 @@
       'bg-brand-accent' => $active === 'settings',
       'hover:bg-brand-accent' => $active !== 'settings',
     ])>Nastavenia</a>
-    <a href="{{ route('admin.login') }}" class="px-4 py-3 hover:bg-brand-accent transition-colors">Odhlásiť sa</a>
+    <form method="POST" action="{{ route('admin.logout') }}">
+      @csrf
+      <button type="submit" class="w-full text-left px-4 py-3 hover:bg-brand-accent transition-colors">Odhlásiť sa</button>
+    </form>
   </div>
 </details>
