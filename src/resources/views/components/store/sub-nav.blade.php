@@ -13,7 +13,6 @@
 
   $items = [
     ['label' => 'Novinky',   'slug' => 'novinky'],
-    ['label' => 'Akcie',     'slug' => 'akcie'],
     ['label' => 'Oblečenie', 'slug' => 'oblecenie'],
     ['label' => 'Topánky',   'slug' => 'topanky'],
     ['label' => 'Doplnky',   'slug' => 'doplnky'],
