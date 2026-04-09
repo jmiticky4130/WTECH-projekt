@@ -1,6 +1,6 @@
 @props(['items' => []])
 
-<div class="border-b border-gray-200">
+<div {{ $attributes->merge(['class' => 'border-b border-gray-200']) }}>
   <div class="max-w-7xl mx-auto px-4 py-2.5 text-sm text-gray-500 flex items-center gap-1.5">
     @foreach ($items as $i => $item)
       @if ($i > 0)

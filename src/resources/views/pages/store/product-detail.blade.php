@@ -55,7 +55,7 @@
           <div class="mb-5">
             <p class="text-sm font-semibold mb-2">Veľkosť</p>
             <div class="flex gap-2 flex-wrap">
-              @foreach (['XS', 'S', 'M', 'L', 'XL'] as $size)
+              @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
                 <div class="w-11 h-11 border {{ $size === 'M' ? 'border-2 border-brand-dark bg-brand-dark text-white font-semibold' : 'border-gray-300' }} text-sm flex items-center justify-center">
                   {{ $size }}
                 </div>
@@ -105,11 +105,12 @@
       <!-- similar products -->
       <section>
         <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Podobné produkty</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           @for ($i = 0; $i < 4; $i++)
             <x-store.product-card href="#" image="images/products/satin-blouse.jpg" brand="H&M" name="Saténová blúzka" sizes="XS, S, M, L" price="39,99 €" />
           @endfor
         </div>
+        <x-store.pagination :currentPage="1" :totalPages="5" />
       </section>
 
     </div>

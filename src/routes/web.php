@@ -45,6 +45,8 @@ Route::get('/kategoria/{p1}/{p2?}', function (string $p1, ?string $p2 = null) {
     $colors    = DB::table('colors')->orderBy('name')->get();
     $materials = DB::table('materials')->orderBy('name')->get();
     $allSizes  = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    $globalMinPrice = (int) floor(DB::table('product_variants')->min('price') ?? 0);
+    $globalMaxPrice = (int) ceil(DB::table('product_variants')->max('price') ?? 1000);
 
     // Active filters (all arrays)
     $filterBrands    = array_filter((array) request('brand', []));
@@ -120,15 +122,33 @@ Route::get('/kategoria/{p1}/{p2?}', function (string $p1, ?string $p2 = null) {
         default      => $query->orderByDesc('products.is_featured')->orderByDesc('products.created_at'),
     };
 
-    $total      = (clone $query)->distinct()->count('products.id');
+    $total = DB::table('products')
+        ->joinSub(clone $variantSub, 'qv', 'products.id', '=', 'qv.product_id')
+        ->join('brands', 'products.brand_id', '=', 'brands.id')
+        ->join('materials', 'products.material_id', '=', 'materials.id')
+        ->whereNull('products.deleted_at')
+        ->when($category, fn ($q) => $q->where('products.category_id', $category->id))
+        ->when($filterBrands, fn ($q) => $q->whereIn('brands.name', $filterBrands))
+        ->when($filterMaterials, fn ($q) => $q->whereIn('materials.name', $filterMaterials))
+        ->distinct()
+        ->count('products.id');
     $totalPages = max(1, (int) ceil($total / $perPage));
     $products   = $query->offset(($page - 1) * $perPage)->limit($perPage)->get();
+
+    // Sort sizes in each product
+    $sizeOrder = ['XS' => 0, 'S' => 1, 'M' => 2, 'L' => 3, 'XL' => 4, 'XXL' => 5];
+    $products->each(function ($product) use ($sizeOrder) {
+        $sizes = explode(', ', $product->sizes);
+        usort($sizes, fn ($a, $b) => ($sizeOrder[$a] ?? 999) <=> ($sizeOrder[$b] ?? 999));
+        $product->sizes = implode(', ', $sizes);
+    });
 
     return view('pages.store.category', compact(
         'gender', 'subcategory', 'category',
         'allCategories', 'dbSubcategories',
         'brands', 'colors', 'materials', 'allSizes',
         'filterBrands', 'filterColors', 'filterMaterials', 'filterSizes',
+        'globalMinPrice', 'globalMaxPrice',
         'products', 'total', 'page', 'totalPages', 'perPage', 'sortBy'
     ));
 })->name('store.category');
