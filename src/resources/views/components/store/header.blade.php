@@ -5,16 +5,19 @@
     </a>
 
     <div class="hidden md:block absolute left-1/2 -translate-x-1/2">
-      <div class="flex w-[28rem]">
+      <form action="{{ route('store.search') }}" method="GET" class="flex w-[28rem]">
         <input
           type="text"
+          name="q"
+          value="{{ request()->routeIs('store.search') ? request('q') : '' }}"
           placeholder="Hľadať produkty..."
           class="w-full border border-gray-300 border-r-0 px-4 py-2.5 text-sm focus:outline-none focus:border-brand-dark focus:placeholder-transparent"
+          autocomplete="off"
         />
-        <button class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
+        <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
           <img src="{{ asset('icons/search-icon.svg') }}" class="w-5 h-5" alt="Search" />
         </button>
-      </div>
+      </form>
     </div>
 
     <div class="flex items-center gap-6 min-[1000px]:gap-6 shrink-0 ml-auto">
@@ -43,15 +46,18 @@
   </div>
 
   <div class="md:hidden px-4 pb-1">
-    <div class="flex">
+    <form action="{{ route('store.search') }}" method="GET" class="flex">
       <input
         type="text"
+        name="q"
+        value="{{ request()->routeIs('store.search') ? request('q') : '' }}"
         placeholder="Hľadať produkty..."
         class="w-full border border-gray-300 border-r-0 px-4 py-1 text-sm focus:outline-none focus:placeholder-transparent"
+        autocomplete="off"
       />
-      <button class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
+      <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white px-4 transition-colors">
         <img src="{{ asset('icons/search-icon.svg') }}" class="w-5 h-5" alt="Search" />
       </button>
-    </div>
+    </form>
   </div>
 </header>

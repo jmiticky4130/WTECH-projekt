@@ -159,19 +159,16 @@ class ShopSeeder extends Seeder
         $colorList = array_keys($colorIds);
         $imagePaths = [
             'Oblečenie' => [
-                'images/products/clothing-1.jpg',
-                'images/products/clothing-2.jpg',
-                'images/products/clothing-3.jpg',
+                'images/products/dress.jpg',
+                'images/products/satin-blouse.jpg',
             ],
             'Topánky' => [
-                'images/products/shoes-1.jpg',
-                'images/products/shoes-2.jpg',
-                'images/products/shoes-3.jpg',
+                'images/products/boots.jpeg',
+                'images/products/satin-blouse.jpg',
             ],
             'Doplnky' => [
-                'images/products/accessories-1.jpg',
-                'images/products/accessories-2.jpg',
-                'images/products/accessories-3.jpg',
+                'images/products/satin-blouse.jpg',
+                'images/products/dress.jpg',
             ],
         ];
 
