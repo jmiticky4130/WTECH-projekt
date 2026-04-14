@@ -39,6 +39,71 @@
         },
       };
     </script>
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <script>
+      window.__bellura = {
+        isAuth: {{ auth()->check() ? 'true' : 'false' }},
+        csrfToken: '{{ csrf_token() }}',
+      };
+      function headerCart() {
+        return {
+          count: 0,
+          async init() {
+            if (window.__bellura.isAuth) {
+              try {
+                const r = await fetch('/cart/count', { headers: { Accept: 'application/json' } });
+                const d = await r.json();
+                this.count = d.count;
+              } catch {}
+            } else {
+              const c = JSON.parse(localStorage.getItem('bellura_cart') || '[]');
+              this.count = c.reduce((s, i) => s + i.qty, 0);
+            }
+          },
+          onCartUpdated(e) {
+            if (e.detail?.count !== undefined) {
+              this.count = e.detail.count;
+            } else {
+              this.init();
+            }
+          },
+        };
+      }
+    </script>
+    <script>
+      function searchBar() {
+        return {
+          query: '',
+          results: [],
+          open: false,
+          _timer: null,
+
+          onInput(value) {
+            this.query = value;
+            clearTimeout(this._timer);
+            if (value.length < 2) {
+              this.results = [];
+              this.open = false;
+              return;
+            }
+            this._timer = setTimeout(() => this.fetchSuggestions(), 300);
+          },
+
+          async fetchSuggestions() {
+            try {
+              const r = await fetch('/search-suggestions?q=' + encodeURIComponent(this.query));
+              const data = await r.json();
+              this.results = data;
+              this.open = data.length > 0;
+            } catch {}
+          },
+
+          close() {
+            this.open = false;
+          },
+        };
+      }
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
   </head>

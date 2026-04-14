@@ -11,12 +11,7 @@
     $activeSlug  = $seg2; // e.g. /kategoria/oblecenie
   }
 
-  $items = [
-    ['label' => 'Novinky',   'slug' => 'novinky'],
-    ['label' => 'Oblečenie', 'slug' => 'oblecenie'],
-    ['label' => 'Topánky',   'slug' => 'topanky'],
-    ['label' => 'Doplnky',   'slug' => 'doplnky'],
-  ];
+  $items = \App\Support\CategoryMapping::STORE_SUB_NAV_ITEMS;
 @endphp
 
 <div class="bg-brand-dark text-white border-t border-gray-600">

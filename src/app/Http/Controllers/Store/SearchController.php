@@ -4,9 +4,14 @@ namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SearchFilterRequest;
+use App\Models\Product;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
 use App\Support\CategoryMapping;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -60,5 +65,48 @@ class SearchController extends Controller
             'products', 'total', 'page', 'totalPages', 'perPage', 'sortBy',
             'minPrice', 'maxPrice',
         ));
+    }
+
+    public function suggestions(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->input('q', ''));
+
+        if (mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $term = '%' . mb_strtolower($q) . '%';
+
+        $products = Product::query()
+            ->join('brands', 'products.brand_id', '=', 'brands.id')
+            ->leftJoin('product_images', function ($join) {
+                $join->on('products.id', '=', 'product_images.product_id')
+                     ->whereRaw('"product_images"."is_primary" = true');
+            })
+            ->join('product_variants', 'products.id', '=', 'product_variants.product_id')
+            ->where(function (Builder $w) use ($term) {
+                $w->whereRaw('LOWER(products.name) LIKE ?', [$term])
+                  ->orWhereRaw('LOWER(brands.name) LIKE ?', [$term])
+                  ->orWhereRaw('LOWER(products.description) LIKE ?', [$term]);
+            })
+            ->select(
+                'products.name',
+                'products.slug',
+                'product_images.image_path',
+                'brands.name as brand_name',
+                DB::raw('MIN(product_variants.price) as min_price'),
+            )
+            ->groupBy('products.id', 'products.name', 'products.slug', 'product_images.image_path', 'brands.name')
+            ->orderByDesc('products.is_featured')
+            ->limit(5)
+            ->get();
+
+        return response()->json($products->map(fn ($p) => [
+            'name'            => $p->name,
+            'slug'            => $p->slug,
+            'brand_name'      => $p->brand_name,
+            'image_url'       => $p->image_path ? asset($p->image_path) : null,
+            'price_formatted' => number_format((float) $p->min_price, 2, ',', "\u{00A0}") . "\u{00A0}€",
+        ]));
     }
 }
