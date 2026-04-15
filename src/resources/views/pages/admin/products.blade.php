@@ -482,9 +482,19 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-2">Veľkosti <span class="text-red-500">*</span></label>
-          <div class="flex flex-wrap gap-2">
+          <p class="text-xs text-gray-400 mb-1.5">Oblečenie / doplnky</p>
+          <div class="flex flex-wrap gap-2 mb-3">
             @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
               <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors {{ $size === 'XXL' ? 'w-14' : '' }}">
+                <input type="checkbox" name="size" value="{{ $size }}" class="sr-only" />
+                {{ $size }}
+              </label>
+            @endforeach
+          </div>
+          <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
+          <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
+            @foreach (range(20, 50) as $size)
+              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
                 <input type="checkbox" name="size" value="{{ $size }}" class="sr-only" />
                 {{ $size }}
               </label>

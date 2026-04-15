@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('color_id')->constrained('colors');
-            $table->enum('size', ['XS', 'S', 'M', 'L', 'XL', 'XXL']);
+            $table->string('size', 10);
             $table->decimal('price', 10, 2);
             $table->integer('stock_quantity');
             $table->timestamps();

@@ -17,10 +17,15 @@ class ProductController extends Controller
 
         $images = $product->images()->orderBy('sort_order')->get();
 
+        $isShoe = in_array($product->subcategory?->name, CategoryMapping::SHOE_SUBCATEGORY_NAMES);
+
         $variants = $product->variants()
             ->with('color')
             ->orderBy('color_id')
-            ->orderByRaw("CASE size WHEN 'XS' THEN 0 WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4 WHEN 'XXL' THEN 5 END")
+            ->when($isShoe,
+                fn ($q) => $q->orderByRaw('size::integer'),
+                fn ($q) => $q->orderByRaw("CASE size WHEN 'XS' THEN 0 WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4 WHEN 'XXL' THEN 5 END"),
+            )
             ->get()
             ->map(fn ($v) => (object) [
                 'id'             => $v->id,
@@ -53,9 +58,8 @@ class ProductController extends Controller
                 'brands.name as brand_name',
                 'product_images.image_path',
                 'qv.variant_min_price as min_price',
-                DB::raw("STRING_AGG(DISTINCT pv_all.size, ', ') as sizes"),
+                DB::raw("(SELECT STRING_AGG(DISTINCT pv_s.size, ', ') FROM product_variants pv_s WHERE pv_s.product_id = products.id) as sizes"),
             )
-            ->join('product_variants as pv_all', 'products.id', '=', 'pv_all.product_id')
             ->where('products.id', '!=', $product->id)
             ->groupBy(
                 'products.id',
@@ -75,18 +79,25 @@ class ProductController extends Controller
 
         $similarProducts = $similarQuery->get();
 
-        $sizeOrder = CategoryMapping::SIZE_ORDER;
-        $similarProducts->each(function ($p) use ($sizeOrder) {
+        $clothingOrder = CategoryMapping::SIZE_ORDER;
+        $similarProducts->each(function ($p) use ($clothingOrder) {
             $sizes = array_filter(explode(', ', $p->sizes ?? ''));
-            usort($sizes, fn ($a, $b) => ($sizeOrder[$a] ?? 999) <=> ($sizeOrder[$b] ?? 999));
+            usort($sizes, function ($a, $b) use ($clothingOrder) {
+                $aNum = is_numeric($a);
+                $bNum = is_numeric($b);
+                if ($aNum && $bNum) return (int) $a <=> (int) $b;
+                if (! $aNum && ! $bNum) return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+
+                return $aNum ? 1 : -1;
+            });
             $p->sizes = implode(', ', $sizes);
         });
 
         $breadcrumb = [['label' => 'Domov', 'href' => url('/')]];
-        if ($product->category && isset(CategoryMapping::CAT_SLUG_BY_NAME[$product->category->name])) {
+        if ($product->category && isset(CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name])) {
             $breadcrumb[] = [
                 'label' => $product->category->name,
-                'href'  => url('/kategoria/' . CategoryMapping::CAT_SLUG_BY_NAME[$product->category->name]),
+                'href'  => url('/kategoria/' . CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name]),
             ];
         }
         if ($product->subcategory) {
@@ -101,7 +112,7 @@ class ProductController extends Controller
 
         return view('pages.store.product-detail', compact(
             'product', 'images', 'variants', 'colors', 'minPrice',
-            'similarProducts', 'breadcrumb',
+            'similarProducts', 'breadcrumb', 'isShoe',
         ));
     }
 }

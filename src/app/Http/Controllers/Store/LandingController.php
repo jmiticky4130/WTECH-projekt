@@ -16,6 +16,8 @@ class LandingController extends Controller
             ->select('product_id', DB::raw('MIN(price) as variant_min_price'))
             ->groupBy('product_id');
 
+        $allSizesSub = DB::raw("(SELECT STRING_AGG(DISTINCT pv_s.size, ', ') FROM product_variants pv_s WHERE pv_s.product_id = products.id) as sizes");
+
         $featuredProducts = Product::query()
             ->joinSub($priceSubQuery(), 'qv', 'products.id', '=', 'qv.product_id')
             ->join('brands', 'products.brand_id', '=', 'brands.id')
@@ -23,7 +25,6 @@ class LandingController extends Controller
                 $join->on('products.id', '=', 'product_images.product_id')
                      ->whereRaw('"product_images"."is_primary" = true');
             })
-            ->join('product_variants as pv_all', 'products.id', '=', 'pv_all.product_id')
             ->whereRaw('"products"."is_featured" IS TRUE')
             ->whereNull('products.deleted_at')
             ->select(
@@ -33,7 +34,7 @@ class LandingController extends Controller
                 'brands.name as brand_name',
                 'product_images.image_path',
                 'qv.variant_min_price as min_price',
-                DB::raw("STRING_AGG(DISTINCT pv_all.size, ', ') as sizes"),
+                $allSizesSub,
             )
             ->groupBy('products.id', 'products.name', 'products.slug', 'brands.name', 'product_images.image_path', 'qv.variant_min_price')
             ->limit(4)
@@ -46,7 +47,6 @@ class LandingController extends Controller
                 $join->on('products.id', '=', 'product_images.product_id')
                      ->whereRaw('"product_images"."is_primary" = true');
             })
-            ->join('product_variants as pv_all', 'products.id', '=', 'pv_all.product_id')
             ->whereNull('products.deleted_at')
             ->select(
                 'products.id',
@@ -55,7 +55,7 @@ class LandingController extends Controller
                 'brands.name as brand_name',
                 'product_images.image_path',
                 'qv.variant_min_price as min_price',
-                DB::raw("STRING_AGG(DISTINCT pv_all.size, ', ') as sizes"),
+                $allSizesSub,
             )
             ->groupBy('products.id', 'products.name', 'products.slug', 'brands.name', 'product_images.image_path', 'qv.variant_min_price')
             ->orderBy('products.created_at', 'desc')
@@ -64,11 +64,18 @@ class LandingController extends Controller
 
         $brands = Brand::orderBy('name')->get();
 
-        $sizeOrder = CategoryMapping::SIZE_ORDER;
+        $clothingOrder = CategoryMapping::SIZE_ORDER;
         foreach ([$featuredProducts, $newestProducts] as $products) {
-            $products->each(function ($p) use ($sizeOrder) {
+            $products->each(function ($p) use ($clothingOrder) {
                 $sizes = array_filter(explode(', ', $p->sizes ?? ''));
-                usort($sizes, fn ($a, $b) => ($sizeOrder[$a] ?? 999) <=> ($sizeOrder[$b] ?? 999));
+                usort($sizes, function ($a, $b) use ($clothingOrder) {
+                    $aNum = is_numeric($a);
+                    $bNum = is_numeric($b);
+                    if ($aNum && $bNum) return (int) $a <=> (int) $b;
+                    if (! $aNum && ! $bNum) return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+
+                    return $aNum ? 1 : -1;
+                });
                 $p->sizes = implode(', ', $sizes);
             });
         }

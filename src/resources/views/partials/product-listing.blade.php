@@ -1,8 +1,8 @@
 <div class="flex gap-8 items-start">
 
   <!-- filter sidebar -->
-  <aside class="hidden lg:block w-56 shrink-0 sticky top-16">
-    <form method="GET" action="{{ $formAction }}" id="filter-form">
+  <aside class="filter-sidebar hidden lg:flex flex-col w-56 shrink-0 sticky top-16 max-h-[calc(100vh-4rem)]">
+    <form method="GET" action="{{ $formAction }}" id="filter-form" class="flex-1 overflow-y-auto min-h-0 pr-1">
       @if (request('sort'))
         <input type="hidden" name="sort" value="{{ request('sort') }}" />
       @endif
@@ -11,24 +11,48 @@
       @endif
 
       <!-- Size -->
+      @if (!empty($clothingSizes) || !empty($shoeSizes))
       <div class="mb-6">
         <h3 class="text-sm font-bold mb-3">Veľkosť</h3>
-        <div class="flex flex-wrap gap-2">
-          @foreach ($allSizes as $size)
-            <label class="cursor-pointer">
-              <input type="checkbox" name="size[]" value="{{ $size }}"
-                     class="sr-only peer"
-                     {{ in_array($size, $filterSizes) ? 'checked' : '' }}
-                     onchange="document.getElementById('filter-form').requestSubmit()" />
-              <span class="flex items-center justify-center w-9 h-9 border text-xs transition-colors
-                           peer-checked:bg-brand-dark peer-checked:text-white peer-checked:border-brand-dark
-                           border-gray-300 hover:border-brand-dark">
+
+        @if (!empty($clothingSizes))
+          @if (!empty($shoeSizes))
+            <p class="text-xs text-gray-400 mb-1.5">Oblečenie</p>
+          @endif
+          <div class="flex flex-wrap gap-1.5 {{ !empty($shoeSizes) ? 'mb-4' : '' }}">
+            @foreach ($clothingSizes as $size)
+              <label class="cursor-pointer">
+                <input type="checkbox" name="size[]" value="{{ $size }}"
+                       class="sr-only peer"
+                       {{ in_array($size, $filterSizes) ? 'checked' : '' }}
+                       onchange="document.getElementById('filter-form').requestSubmit()" />
+                <span class="flex items-center justify-center w-9 h-8 border text-xs transition-colors
+                             peer-checked:bg-brand-dark peer-checked:text-white peer-checked:border-brand-dark
+                             border-gray-300 hover:border-brand-dark">
+                  {{ $size }}
+                </span>
+              </label>
+            @endforeach
+          </div>
+        @endif
+
+        @if (!empty($shoeSizes))
+          @if (!empty($clothingSizes))
+            <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
+          @endif
+          <select name="size[]"
+                  onchange="document.getElementById('filter-form').requestSubmit()"
+                  class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <option value="">{{ !empty($clothingSizes) ? 'Všetky EU veľkosti' : 'Všetky veľkosti (EU)' }}</option>
+            @foreach ($shoeSizes as $size)
+              <option value="{{ $size }}" {{ in_array($size, $filterSizes) ? 'selected' : '' }}>
                 {{ $size }}
-              </span>
-            </label>
-          @endforeach
-        </div>
+              </option>
+            @endforeach
+          </select>
+        @endif
       </div>
+      @endif
 
       <!-- Price -->
       <div class="mb-6">
@@ -105,11 +129,13 @@
           @endforeach
         </div>
       </div>
+    </form>
 
+    <div class="shrink-0 pt-3 border-t border-gray-100">
       <a href="{{ $clearUrl }}" data-clear-filters class="block w-full border border-gray-300 hover:border-brand-dark text-sm py-2.5 transition-colors text-center">
         Zrušiť všetky filtre
       </a>
-    </form>
+    </div>
   </aside>
 
   <!-- product grid -->
@@ -178,6 +204,16 @@
 </div>
 
 <style>
+.filter-sidebar form { scrollbar-gutter: stable; }
+.filter-sidebar form::-webkit-scrollbar { width: 4px; }
+.filter-sidebar form::-webkit-scrollbar-track { background: transparent; }
+.filter-sidebar form::-webkit-scrollbar-thumb { background: transparent; border-radius: 2px; transition: background .2s; }
+.filter-sidebar form:hover::-webkit-scrollbar-thumb { background: #d1d5db; }
+.filter-sidebar form:hover::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+@supports (scrollbar-color: auto) {
+  .filter-sidebar form { scrollbar-color: transparent transparent; scrollbar-width: thin; }
+  .filter-sidebar form:hover { scrollbar-color: #d1d5db transparent; }
+}
 .price-slider-wrap { position: relative; height: 20px; margin-bottom: 4px; }
 .price-track, .price-fill { position: absolute; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 2px; }
 .price-track { left: 0; right: 0; background: #e5e7eb; }

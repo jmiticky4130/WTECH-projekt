@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryFilterRequest;
 use App\Models\Category;
+use App\Models\Subcategory;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
 use App\Support\CategoryMapping;
@@ -21,19 +22,33 @@ class CategoryController extends Controller
         if (in_array($p1, CategoryMapping::GENDERS)) {
             $gender      = $p1;
             $subcategory = $p2;
-            if ($subcategory && ! in_array($subcategory, array_merge(CategoryMapping::CAT_SLUGS, CategoryMapping::SUB_SLUGS))) {
+            if ($subcategory && ! in_array($subcategory, CategoryMapping::SUB_SLUGS)) {
                 abort(404);
             }
-        } elseif ((in_array($p1, CategoryMapping::CAT_SLUGS) || in_array($p1, CategoryMapping::SUB_SLUGS)) && $p2 === null) {
+        } elseif (in_array($p1, CategoryMapping::SUB_SLUGS) && $p2 === null) {
             $gender      = null;
             $subcategory = $p1;
         } else {
             abort(404);
         }
 
-        $categoryName    = CategoryMapping::CAT_NAMES[$subcategory] ?? CategoryMapping::CAT_NAMES[$p1] ?? null;
-        $category        = $categoryName ? Category::where('name', $categoryName)->first() : null;
-        $dbSubcategories = $category ? $category->subcategories : collect();
+        // Resolve gender DB category
+        $genderCategory  = $gender
+            ? Category::where('name', CategoryMapping::GENDER_NAMES[$gender])->first()
+            : null;
+
+        // Resolve product-type subcategory
+        $subcategoryName = $subcategory ? (CategoryMapping::CAT_NAMES[$subcategory] ?? null) : null;
+        $subcategoryObjs = $subcategoryName
+            ? Subcategory::where('name', $subcategoryName)
+                ->when($genderCategory, fn ($q) => $q->where('category_id', $genderCategory->id))
+                ->get()
+            : collect();
+        $subcategoryIds  = $subcategoryObjs->pluck('id')->toArray();
+
+        // $category is the matched Subcategory model (for view h1 / breadcrumb)
+        $category        = $subcategoryObjs->first();
+        $dbSubcategories = $genderCategory ? $genderCategory->subcategories : collect();
         $allCategories   = Category::with('subcategories')->get()->map(fn ($cat) => [
             'id'   => $cat->id,
             'name' => $cat->name,
@@ -43,7 +58,8 @@ class CategoryController extends Controller
         $brands         = $this->filterData->getBrands();
         $colors         = $this->filterData->getColors();
         $materials      = $this->filterData->getMaterials();
-        $allSizes       = CategoryMapping::ALL_SIZES;
+        $clothingSizes  = $subcategoryName === 'Topánky' ? [] : CategoryMapping::CLOTHING_SIZES;
+        $shoeSizes      = ($subcategoryName === 'Oblečenie' || $subcategoryName === 'Doplnky') ? [] : CategoryMapping::SHOE_EU_SIZES;
         $globalMinPrice = $this->filterData->getGlobalMinPrice();
         $globalMaxPrice = $this->filterData->getGlobalMaxPrice();
 
@@ -64,7 +80,11 @@ class CategoryController extends Controller
             'max_price' => $request->input('max_price'),
         ];
 
-        $baseQuery  = $this->productQuery->buildFilteredQuery($filters, $category?->id);
+        $baseQuery  = $this->productQuery->buildFilteredQuery(
+            $filters,
+            $genderCategory?->id,
+            ! empty($subcategoryIds) ? $subcategoryIds : null,
+        );
         $total      = $this->productQuery->getTotal($baseQuery);
         $totalPages = max(1, (int) ceil($total / $perPage));
 
@@ -75,7 +95,7 @@ class CategoryController extends Controller
         return view('pages.store.category', compact(
             'gender', 'subcategory', 'category',
             'allCategories', 'dbSubcategories',
-            'brands', 'colors', 'materials', 'allSizes',
+            'brands', 'colors', 'materials', 'clothingSizes', 'shoeSizes',
             'filterBrands', 'filterColors', 'filterMaterials', 'filterSizes',
             'globalMinPrice', 'globalMaxPrice',
             'products', 'total', 'page', 'totalPages', 'perPage', 'sortBy',

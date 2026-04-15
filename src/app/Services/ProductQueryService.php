@@ -19,6 +19,7 @@ class ProductQueryService
     public function buildFilteredQuery(
         array $filters,
         ?int $categoryId = null,
+        ?array $subcategoryIds = null,
         ?string $searchTerm = null,
     ): Builder {
         $variantSub = $this->buildVariantSubquery($filters);
@@ -30,6 +31,10 @@ class ProductQueryService
 
         if ($categoryId !== null) {
             $query->where('products.category_id', $categoryId);
+        }
+
+        if (! empty($subcategoryIds)) {
+            $query->whereIn('products.subcategory_id', $subcategoryIds);
         }
 
         if (! empty($filters['brand'])) {
@@ -73,7 +78,6 @@ class ProductQueryService
                 $join->on('products.id', '=', 'product_images.product_id')
                      ->whereRaw('"product_images"."is_primary" = true');
             })
-            ->join('product_variants as product_variants_all', 'products.id', '=', 'product_variants_all.product_id')
             ->select(
                 'products.id',
                 'products.name',
@@ -83,8 +87,7 @@ class ProductQueryService
                 'subcategories.name as subcategory_name',
                 'product_images.image_path',
                 'qv.variant_min_price as min_price',
-                // STRING_AGG is PostgreSQL-specific — no Eloquent equivalent
-                DB::raw("STRING_AGG(DISTINCT product_variants_all.size, ', ') as sizes"),
+                DB::raw("(SELECT STRING_AGG(DISTINCT pv_s.size, ', ') FROM product_variants pv_s WHERE pv_s.product_id = products.id) as sizes"),
             )
             ->groupBy(
                 'products.id',
@@ -110,11 +113,22 @@ class ProductQueryService
      */
     public function sortProductSizes(Collection $products): void
     {
-        $sizeOrder = CategoryMapping::SIZE_ORDER;
+        $clothingOrder = CategoryMapping::SIZE_ORDER;
 
-        $products->each(function ($product) use ($sizeOrder) {
+        $products->each(function ($product) use ($clothingOrder) {
             $sizes = array_filter(explode(', ', $product->sizes ?? ''));
-            usort($sizes, fn ($a, $b) => ($sizeOrder[$a] ?? 999) <=> ($sizeOrder[$b] ?? 999));
+            usort($sizes, function ($a, $b) use ($clothingOrder) {
+                $aNum = is_numeric($a);
+                $bNum = is_numeric($b);
+                if ($aNum && $bNum) {
+                    return (int) $a <=> (int) $b;
+                }
+                if (! $aNum && ! $bNum) {
+                    return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+                }
+
+                return $aNum ? 1 : -1; // clothing sizes before numeric
+            });
             $product->sizes = implode(', ', $sizes);
         });
     }

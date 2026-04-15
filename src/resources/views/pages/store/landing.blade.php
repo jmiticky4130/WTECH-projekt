@@ -77,7 +77,7 @@
           <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Obľúbené značky</h2>
           <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
             @foreach ($brands as $brand)
-              <a href="{{ route('store.category', ['p1' => 'zeny']) }}?brand[]={{ $brand->id }}" class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-colors">
+              <a href="{{ route('store.category', ['p1' => 'zeny', 'brand' => [$brand->name]]) }}" class="border border-gray-300 py-2.5 px-4 text-center text-sm text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-colors">
                 {{ $brand->name }}
               </a>
             @endforeach

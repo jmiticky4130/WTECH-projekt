@@ -17,10 +17,22 @@
          addingToCart: false,
          addedToCart: false,
          variants: {{ Js::from($variants) }},
+         get allSizes() {
+           const order = { XS: 0, S: 1, M: 2, L: 3, XL: 4, XXL: 5 };
+           const sizes = [...new Set(this.variants.map(v => v.size))];
+           sizes.sort((a, b) => {
+             const aNum = !isNaN(a), bNum = !isNaN(b);
+             if (aNum && bNum) return +a - +b;
+             if (!aNum && !bNum) return (order[a] ?? 99) - (order[b] ?? 99);
+             return aNum ? 1 : -1;
+           });
+           return sizes;
+         },
          get availableSizes() {
-           return this.variants
-             .filter(v => v.color_id == this.activeColor)
-             .map(v => ({ size: v.size, stock: v.stock_quantity }));
+           return this.allSizes.map(size => {
+             const v = this.variants.find(v => v.color_id == this.activeColor && v.size === size);
+             return { size, stock: v ? v.stock_quantity : 0, forColor: !!v };
+           });
          },
          get selectedVariant() {
            if (!this.activeSize) return null;
@@ -144,21 +156,34 @@
             <!-- size selector -->
             <div class="mb-5">
               <p class="text-sm font-semibold mb-2">Veľkosť</p>
-              <div class="flex gap-2 flex-wrap">
-                <template x-for="sv in availableSizes" :key="sv.size">
-                  <button type="button"
-                          class="w-11 h-11 border text-sm flex items-center justify-center transition-colors"
-                          :class="{
-                            'border-2 border-brand-dark bg-brand-dark text-white font-semibold': activeSize === sv.size,
-                            'border-gray-200 text-gray-300 cursor-not-allowed': sv.stock === 0 && activeSize !== sv.size,
-                            'border-gray-300 hover:border-brand-dark': sv.stock > 0 && activeSize !== sv.size,
-                          }"
-                          :disabled="sv.stock === 0"
-                          @click="activeSize = sv.size; qty = 1"
-                          x-text="sv.size">
-                  </button>
-                </template>
-              </div>
+              @if ($isShoe)
+                <select x-model="activeSize" @change="qty = 1"
+                        class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                  <option value="" disabled selected>Vyberte veľkosť (EU)</option>
+                  <template x-for="sv in availableSizes.filter(s => s.forColor)" :key="sv.size">
+                    <option :value="sv.size"
+                            :disabled="sv.stock === 0"
+                            x-text="sv.stock === 0 ? sv.size + ' — vypredané' : sv.size">
+                    </option>
+                  </template>
+                </select>
+              @else
+                <div class="flex gap-2 flex-wrap">
+                  <template x-for="sv in availableSizes" :key="sv.size">
+                    <button type="button"
+                            class="w-11 h-11 border text-sm flex items-center justify-center transition-colors"
+                            :class="{
+                              'border-2 border-brand-dark bg-brand-dark text-white font-semibold': activeSize === sv.size,
+                              'border-gray-200 text-gray-300 cursor-not-allowed line-through': !sv.forColor || sv.stock === 0,
+                              'border-gray-300 hover:border-brand-dark': sv.forColor && sv.stock > 0 && activeSize !== sv.size,
+                            }"
+                            :disabled="!sv.forColor || sv.stock === 0"
+                            @click="if (sv.forColor && sv.stock > 0) { activeSize = sv.size; qty = 1; }"
+                            x-text="sv.size">
+                    </button>
+                  </template>
+                </div>
+              @endif
             </div>
 
             <!-- quantity (desktop only) -->

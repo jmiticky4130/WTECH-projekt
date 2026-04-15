@@ -30,7 +30,8 @@ class SearchController extends Controller
         $brands         = $this->filterData->getBrands();
         $colors         = $this->filterData->getColors();
         $materials      = $this->filterData->getMaterials();
-        $allSizes       = CategoryMapping::ALL_SIZES;
+        $clothingSizes  = CategoryMapping::CLOTHING_SIZES;
+        $shoeSizes      = CategoryMapping::SHOE_EU_SIZES;
         $globalMinPrice = $this->filterData->getGlobalMinPrice();
         $globalMaxPrice = $this->filterData->getGlobalMaxPrice();
 
@@ -59,7 +60,7 @@ class SearchController extends Controller
         $this->productQuery->sortProductSizes($products);
 
         return view('pages.store.search', compact(
-            'q', 'brands', 'colors', 'materials', 'allSizes',
+            'q', 'brands', 'colors', 'materials', 'clothingSizes', 'shoeSizes',
             'filterBrands', 'filterColors', 'filterMaterials', 'filterSizes',
             'globalMinPrice', 'globalMaxPrice',
             'products', 'total', 'page', 'totalPages', 'perPage', 'sortBy',
