@@ -51,14 +51,14 @@
                 {{-- Desktop row --}}
                 <div class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] items-center">
                   <div class="flex gap-3 items-center">
-                    <div class="w-16 h-24 bg-gray-200 shrink-0 overflow-hidden relative">
+                    <a :href="'/produkt/' + item.slug" class="w-16 h-24 bg-gray-200 shrink-0 overflow-hidden relative block">
                       <img :src="item.image_path ? '/' + item.image_path : ''"
                            class="w-full absolute top-1/2 -translate-y-1/2"
                            :alt="item.name">
-                    </div>
+                    </a>
                     <div>
                       <p class="text-xs text-gray-400" x-text="item.brand_name ?? ''"></p>
-                      <p class="text-sm font-bold" x-text="item.name"></p>
+                      <a :href="'/produkt/' + item.slug" class="text-sm font-bold hover:underline" x-text="item.name"></a>
                       <p class="text-xs text-gray-500" x-text="item.color_name ? 'Farba: ' + item.color_name : ''"></p>
                     </div>
                   </div>
@@ -85,14 +85,14 @@
 
                 {{-- Mobile row --}}
                 <div class="md:hidden flex gap-3">
-                  <div class="w-20 h-28 bg-gray-200 shrink-0 overflow-hidden relative">
+                  <a :href="'/produkt/' + item.slug" class="w-20 h-28 bg-gray-200 shrink-0 overflow-hidden relative block">
                     <img :src="item.image_path ? '/' + item.image_path : ''"
                          class="w-full absolute top-1/2 -translate-y-1/2"
                          :alt="item.name">
-                  </div>
+                  </a>
                   <div class="flex-1 min-w-0">
                     <p class="text-xs text-gray-400" x-text="item.brand_name ?? ''"></p>
-                    <p class="text-sm font-bold" x-text="item.name"></p>
+                    <a :href="'/produkt/' + item.slug" class="text-sm font-bold hover:underline block" x-text="item.name"></a>
                     <p class="text-xs text-gray-500 mb-2"
                        x-text="item.color_name ? 'Farba: ' + item.color_name : ''"></p>
                     <div class="flex items-center justify-between mb-2 text-xs text-gray-500">
@@ -132,7 +132,7 @@
               <span class="text-base font-bold">Celkom</span>
               <span class="text-xl font-bold" x-text="loading ? '—' : fmtPrice(subtotal)"></span>
             </div>
-            <p class="text-xs text-gray-500 mb-5">Vrátane DPH</p>
+            <p class="text-xs text-gray-500 mb-5">Vrátane DPH <span x-text="loading ? '' : fmtPrice(subtotal / 1.2 * 0.2)"></span></p>
 
             <a href="{{ route('store.cart.shipping') }}"
                class="block w-full bg-brand-dark hover:bg-brand-accent text-white font-bold text-sm tracking-widest py-4 transition-colors uppercase mb-3 text-center"
