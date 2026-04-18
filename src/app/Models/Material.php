@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
+    protected $fillable = ['name'];
+
     public $timestamps = false;
 
     public function products(): HasMany

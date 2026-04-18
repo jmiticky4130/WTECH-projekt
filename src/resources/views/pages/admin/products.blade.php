@@ -1,13 +1,14 @@
 <x-admin.layout title="Produkty — Bellura.sk" active="products">
   <style>
-    #modal-add, #modal-edit, #modal-add-variant,
-    #modal-delete-1, #modal-delete-2, #modal-delete-3, #modal-delete-4, #modal-delete-5 { display: none; }
-    #modal-add:target, #modal-edit:target, #modal-add-variant:target,
-    #modal-delete-1:target, #modal-delete-2:target, #modal-delete-3:target,
-    #modal-delete-4:target, #modal-delete-5:target { display: flex; }
+    #modal-add, #modal-edit, #modal-delete { display: none; }
+    #modal-add:target, #modal-edit:target, #modal-delete:target { display: flex; }
   </style>
 
   <div class="px-3 py-4 sm:px-6 sm:py-6 max-w-6xl">
+
+    @if (session('success'))
+      <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded">{{ session('success') }}</div>
+    @endif
 
     <!-- page header -->
     <div class="flex items-center justify-between mb-6">
@@ -21,22 +22,24 @@
     </div>
 
     <!-- search & filter bar -->
-    <div class="bg-white shadow rounded mb-4 px-4 py-3 flex flex-wrap gap-3 items-center">
+    <form method="GET" action="{{ route('admin.products') }}" class="bg-white shadow rounded mb-4 px-4 py-3 flex flex-wrap gap-3 items-center">
       <input
         type="text"
+        name="q"
+        value="{{ request('q') }}"
         placeholder="Hľadať produkty..."
         class="flex-1 min-w-[180px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
       />
-      <select class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+      <select name="category" class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
         <option value="">Všetky kategórie</option>
-        <option>Ženy</option>
-        <option>Muži</option>
-        <option>Deti</option>
+        @foreach ($categories as $cat)
+          <option value="{{ $cat->name }}" @selected(request('category') === $cat->name)>{{ $cat->name }}</option>
+        @endforeach
       </select>
-      <button class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">
+      <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">
         Hľadať
       </button>
-    </div>
+    </form>
 
     <!-- product table -->
     <div class="bg-white rounded shadow overflow-x-auto">
@@ -53,253 +56,151 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Saténová blúzka">
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <p class="font-semibold text-brand-dark">Saténová blúzka</p>
-              <p class="text-xs text-gray-400">H&M · Biela</p>
-            </td>
-            <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Ženy</td>
-            <td class="px-4 py-3 font-semibold">39,99 €</td>
-            <td class="px-4 py-3">
-              <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">24 ks</span>
-            </td>
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded">Áno</span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
-                </a>
-                <a href="#modal-delete-1" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Džínsové nohavice">
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <p class="font-semibold text-brand-dark">Džínsové nohavice</p>
-              <p class="text-xs text-gray-400">Levi's · Modrá</p>
-            </td>
-            <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Muži</td>
-            <td class="px-4 py-3 font-semibold">59,99 €</td>
-            <td class="px-4 py-3">
-              <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">12 ks</span>
-            </td>
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <span class="text-gray-400 text-xs">Nie</span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
-                </a>
-                <a href="#modal-delete-2" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Detská mikina">
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <p class="font-semibold text-brand-dark">Detská mikina</p>
-              <p class="text-xs text-gray-400">Zara Kids · Ružová</p>
-            </td>
-            <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Deti</td>
-            <td class="px-4 py-3 font-semibold">24,99 €</td>
-            <td class="px-4 py-3">
-              <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">3 ks</span>
-            </td>
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <span class="text-gray-400 text-xs">Nie</span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
-                </a>
-                <a href="#modal-delete-3" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Kožená kabelka">
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <p class="font-semibold text-brand-dark">Kožená kabelka</p>
-              <p class="text-xs text-gray-400">Mango · Čierna</p>
-            </td>
-            <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Ženy</td>
-            <td class="px-4 py-3 font-semibold">89,99 €</td>
-            <td class="px-4 py-3">
-              <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">8 ks</span>
-            </td>
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <span class="text-gray-400 text-xs">Nie</span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
-                </a>
-                <a href="#modal-delete-4" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
-                </a>
-              </div>
-            </td>
-          </tr>
-
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                <img src="{{ asset('images/products/satin-blouse.jpg') }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="Pánske tričko">
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <p class="font-semibold text-brand-dark">Pánske tričko</p>
-              <p class="text-xs text-gray-400">Nike · Sivá</p>
-            </td>
-            <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">Muži</td>
-            <td class="px-4 py-3 font-semibold">29,99 €</td>
-            <td class="px-4 py-3">
-              <span class="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">0 ks</span>
-            </td>
-            <td class="px-4 py-3 hidden wide:table-cell">
-              <span class="text-gray-400 text-xs">Nie</span>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <a href="#modal-edit" title="Upraviť" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
-                </a>
-                <a href="#modal-delete-5" title="Vymazať" class="opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
-                </a>
-              </div>
-            </td>
-          </tr>
-
+          @forelse ($products as $p)
+            @php $stock = \App\Models\ProductVariant::where('product_id', $p->id)->sum('stock_quantity'); @endphp
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 hidden wide:table-cell">
+                <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
+                  @if ($p->image_path)
+                    <img src="{{ Storage::url($p->image_path) }}" class="w-full absolute top-1/2 -translate-y-1/2 object-cover" alt="{{ $p->name }}">
+                  @endif
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <p class="font-semibold text-brand-dark">{{ $p->name }}</p>
+                <p class="text-xs text-gray-400">{{ $p->brand_name }}</p>
+              </td>
+              <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">{{ $p->subcategory_name }}</td>
+              <td class="px-4 py-3 font-semibold">{{ number_format($p->min_price, 2, ',', ' ') }} €</td>
+              <td class="px-4 py-3">
+                @if ($stock > 5)
+                  <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">{{ $stock }} ks</span>
+                @elseif ($stock > 0)
+                  <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">{{ $stock }} ks</span>
+                @else
+                  <span class="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">0 ks</span>
+                @endif
+              </td>
+              <td class="px-4 py-3 hidden wide:table-cell">
+                @if ($p->is_featured)
+                  <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-2 py-0.5 rounded">Áno</span>
+                @else
+                  <span class="text-gray-400 text-xs">Nie</span>
+                @endif
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onclick="openEditModal({{ $p->id }}, {{ json_encode($p->name) }})"
+                    title="Upraviť"
+                    class="opacity-50 hover:opacity-100 transition-opacity"
+                  >
+                    <img src="{{ asset('icons/edit.svg') }}" class="w-5 h-5" alt="Upraviť" />
+                  </button>
+                  <button
+                    type="button"
+                    onclick="openDeleteModal({{ $p->id }}, {{ json_encode($p->name) }})"
+                    title="Vymazať"
+                    class="opacity-50 hover:opacity-100 transition-opacity"
+                  >
+                    <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Vymazať" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-gray-400 text-sm">Žiadne produkty.</td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
+
+    @if ($products->hasPages())
+      <div class="mt-4">{{ $products->links() }}</div>
+    @endif
 
   </div>
 
 
   <!-- modal: add product -->
-  <div id="modal-add" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4 py-8 overflow-y-auto">
+  <div id="modal-add" class="fixed inset-0 bg-black/40 z-50 items-start justify-center px-4 py-8 overflow-y-auto">
     <div class="bg-white w-full max-w-2xl mx-auto shadow-xl relative my-auto">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-bold">Pridať produkt</h2>
         <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
       </div>
-      <form action="#" method="post" class="px-6 py-6 space-y-5">
+      <form id="form-add" action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="px-6 py-6 space-y-5">
+        @csrf
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Názov <span class="text-red-500">*</span></label>
-            <input type="text" placeholder="Názov produktu" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            <input type="text" name="name" placeholder="Názov produktu" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
           </div>
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Opis <span class="text-red-500">*</span></label>
-            <textarea rows="3" placeholder="Popis produktu..." required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none"></textarea>
+            <textarea name="description" rows="3" placeholder="Popis produktu..." required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať kategóriu</option>
-              <option>Ženy</option>
-              <option>Muži</option>
-              <option>Deti</option>
+              @foreach ($categories as $cat)
+                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Podkategória</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať podkategóriu</option>
-              <option>Šaty</option>
-              <option>Blúzky</option>
-              <option>Nohavice</option>
-              <option>Mikiny</option>
-              <option>Topánky</option>
-              <option>Doplnky</option>
+              @foreach ($subcategories as $sub)
+                <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Značka</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="brand_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať značku</option>
-              <option>H&amp;M</option>
-              <option>Zara</option>
-              <option>Levi's</option>
-              <option>Nike</option>
-              <option>Mango</option>
-              <option>Zara Kids</option>
+              @foreach ($brands as $brand)
+                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Materiál</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="material_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať materiál</option>
-              <option>100% bavlna</option>
-              <option>100% polyester</option>
-              <option>Bavlna / Elastan</option>
-              <option>Vlna</option>
-              <option>Ľan</option>
-              <option>Satén</option>
-              <option>Koža</option>
+              @foreach ($materials as $mat)
+                <option value="{{ $mat->id }}">{{ $mat->name }}</option>
+              @endforeach
             </select>
           </div>
           <div class="sm:col-span-2">
             <label class="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" name="is_featured" class="w-4 h-4 accent-brand-dark" />
+              <input type="checkbox" name="is_featured" value="1" class="w-4 h-4 accent-brand-dark" />
               <span class="text-sm font-medium">Zvýraznený produkt</span>
             </label>
           </div>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
-          <label class="block text-sm font-bold mb-2">Fotografie</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Primárna fotografia <span class="text-red-500">*</span></label>
-              <input type="file" accept="image/*" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
-            </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Ďalšia fotografia</label>
-              <input type="file" accept="image/*" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
-            </div>
-          </div>
+          <label class="block text-sm font-bold mb-2">Fotografie <span class="text-red-500">*</span></label>
+          <input type="file" name="images[]" accept="image/*" multiple required
+            class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
+            onchange="previewImages(this, 'add-previews')"
+          />
+          <div id="add-previews" class="flex flex-wrap gap-2 mt-2"></div>
+          <p class="text-xs text-gray-400 mt-1">Prvý súbor bude primárny.</p>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-bold">Varianty <span class="text-gray-400 font-normal text-xs">(farba + veľkosť + cena + sklad)</span></label>
-            <a href="#modal-add-variant" class="text-xs font-semibold text-brand-dark hover:underline">+ Pridať variant</a>
+            <label class="text-sm font-bold">Varianty <span class="text-gray-400 font-normal text-xs">(farba × veľkosť × cena × sklad)</span></label>
+            <button type="button" onclick="showVariantAdder('form-add')" class="text-xs font-semibold text-brand-dark hover:underline">+ Pridať varianty</button>
           </div>
           <div class="border border-gray-200 rounded overflow-hidden">
             <table class="w-full text-xs">
@@ -312,9 +213,9 @@
                   <th class="px-3 py-2"></th>
                 </tr>
               </thead>
-              <tbody>
-                <tr class="text-gray-400 italic">
-                  <td colspan="5" class="px-3 py-3 text-center text-xs">Zatiaľ žiadne varianty — kliknite na + Pridať variant</td>
+              <tbody id="add-variants-body">
+                <tr class="text-gray-400 italic" id="add-empty-row">
+                  <td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty — kliknite na + Pridať varianty</td>
                 </tr>
               </tbody>
             </table>
@@ -331,90 +232,83 @@
 
 
   <!-- modal: edit product -->
-  <div id="modal-edit" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4 py-8 overflow-y-auto">
+  <div id="modal-edit" class="fixed inset-0 bg-black/40 z-50 items-start justify-center px-4 py-8 overflow-y-auto">
     <div class="bg-white w-full max-w-2xl mx-auto shadow-xl relative my-auto">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-bold">Upraviť produkt</h2>
         <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
       </div>
-      <form action="#" method="post" class="px-6 py-6 space-y-5">
+      <form id="form-edit" action="" method="POST" enctype="multipart/form-data" class="px-6 py-6 space-y-5">
+        @csrf
+        @method('PUT')
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Názov <span class="text-red-500">*</span></label>
-            <input type="text" value="Saténová blúzka" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            <input type="text" name="name" id="edit-name" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
           </div>
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Opis <span class="text-red-500">*</span></label>
-            <textarea rows="3" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none">Elegantná saténová blúzka v bielej farbe. Vhodná na každodenné nosenie aj na špeciálne príležitosti.</textarea>
+            <textarea name="description" id="edit-description" rows="3" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
-              <option selected>Ženy</option>
-              <option>Muži</option>
-              <option>Deti</option>
+            <select name="category_id" id="edit-category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+              <option value="">Vybrať kategóriu</option>
+              @foreach ($categories as $cat)
+                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Podkategória</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
-              <option>Šaty</option>
-              <option selected>Blúzky</option>
-              <option>Nohavice</option>
-              <option>Mikiny</option>
-              <option>Topánky</option>
-              <option>Doplnky</option>
+            <select name="subcategory_id" id="edit-subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+              <option value="">Vybrať podkategóriu</option>
+              @foreach ($subcategories as $sub)
+                <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Značka</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
-              <option selected>H&amp;M</option>
-              <option>Zara</option>
-              <option>Levi's</option>
-              <option>Nike</option>
-              <option>Mango</option>
-              <option>Zara Kids</option>
+            <select name="brand_id" id="edit-brand_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+              <option value="">Vybrať značku</option>
+              @foreach ($brands as $brand)
+                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+              @endforeach
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Materiál</label>
-            <select class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
-              <option>100% bavlna</option>
-              <option selected>100% polyester</option>
-              <option>Bavlna / Elastan</option>
-              <option>Vlna</option>
-              <option>Ľan</option>
-              <option>Satén</option>
-              <option>Koža</option>
+            <select name="material_id" id="edit-material_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+              <option value="">Vybrať materiál</option>
+              @foreach ($materials as $mat)
+                <option value="{{ $mat->id }}">{{ $mat->name }}</option>
+              @endforeach
             </select>
           </div>
           <div class="sm:col-span-2">
             <label class="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" name="is_featured" checked class="w-4 h-4 accent-brand-dark" />
+              <input type="checkbox" name="is_featured" id="edit-is_featured" value="1" class="w-4 h-4 accent-brand-dark" />
               <span class="text-sm font-medium">Zvýraznený produkt</span>
             </label>
           </div>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
-          <label class="block text-sm font-bold mb-2">Fotografie</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Primárna fotografia <span class="text-red-500">*</span></label>
-              <input type="file" accept="image/*" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
-            </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">Ďalšia fotografia</label>
-              <input type="file" accept="image/*" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer" />
-            </div>
-          </div>
+          <label class="block text-sm font-bold mb-2">Existujúce fotografie</label>
+          <div id="edit-existing-images" class="flex flex-wrap gap-2 mb-3"></div>
+          <label class="block text-sm font-medium mb-1.5">Nové fotografie</label>
+          <input type="file" name="images[]" accept="image/*" multiple
+            class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
+            onchange="previewImages(this, 'edit-new-previews')"
+          />
+          <div id="edit-new-previews" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-bold">Varianty <span class="text-gray-400 font-normal text-xs">(farba + veľkosť + cena + sklad)</span></label>
-            <a href="#modal-add-variant" class="text-xs font-semibold text-brand-dark hover:underline">+ Pridať variant</a>
+            <label class="text-sm font-bold">Varianty</label>
+            <button type="button" onclick="showVariantAdder('form-edit')" class="text-xs font-semibold text-brand-dark hover:underline">+ Pridať varianty</button>
           </div>
           <div class="border border-gray-200 rounded overflow-hidden">
             <table class="w-full text-xs">
@@ -427,24 +321,9 @@
                   <th class="px-3 py-2"></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100">
-                <tr>
-                  <td class="px-3 py-2 flex items-center gap-1.5">
-                    <span class="inline-block w-3 h-3 rounded-full border border-gray-300" style="background:#ffffff"></span> Biela
-                  </td>
-                  <td class="px-3 py-2">S</td>
-                  <td class="px-3 py-2">39,99 €</td>
-                  <td class="px-3 py-2"><span class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">12</span></td>
-                  <td class="px-3 py-2 text-right"><a href="#!" class="text-gray-400 hover:text-red-500">&#x2715;</a></td>
-                </tr>
-                <tr>
-                  <td class="px-3 py-2 flex items-center gap-1.5">
-                    <span class="inline-block w-3 h-3 rounded-full border border-gray-300" style="background:#ffffff"></span> Biela
-                  </td>
-                  <td class="px-3 py-2">M</td>
-                  <td class="px-3 py-2">39,99 €</td>
-                  <td class="px-3 py-2"><span class="bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded font-semibold">3</span></td>
-                  <td class="px-3 py-2 text-right"><a href="#!" class="text-gray-400 hover:text-red-500">&#x2715;</a></td>
+              <tbody id="edit-variants-body">
+                <tr class="text-gray-400 italic" id="edit-empty-row">
+                  <td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty</td>
                 </tr>
               </tbody>
             </table>
@@ -460,22 +339,41 @@
   </div>
 
 
-  <!-- modal: add variant -->
-  <div id="modal-add-variant" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4 py-8 overflow-y-auto">
+  <!-- modal: delete product -->
+  <div id="modal-delete" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
+    <div class="bg-white w-full max-w-sm shadow-xl">
+      <div class="px-6 py-6">
+        <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
+        <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong id="delete-product-name"></strong>? Táto akcia je nevratná.</p>
+        <form id="form-delete" method="POST" action="">
+          @csrf
+          @method('DELETE')
+          <div class="flex justify-end gap-3">
+            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
+            <button type="submit" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- variant adder overlay -->
+  <div id="modal-variant-adder" class="fixed inset-0 bg-black/40 z-[60] hidden items-center justify-center px-4 py-8 overflow-y-auto">
     <div class="bg-white w-full max-w-lg mx-auto shadow-xl my-auto">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-bold">Pridať varianty</h2>
-        <a href="#!" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</a>
+        <button type="button" onclick="closeVariantAdder()" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</button>
       </div>
-      <form action="#" method="post" class="px-6 py-6 space-y-5">
+      <div class="px-6 py-6 space-y-5">
         <div>
           <label class="block text-sm font-medium mb-2">Farby <span class="text-red-500">*</span></label>
-          <div class="flex flex-wrap gap-2">
-            @foreach ([['biela', '#ffffff', 'Biela'], ['cierna', '#111111', 'Čierna'], ['modra', '#3b82f6', 'Modrá'], ['cervena', '#ef4444', 'Červená'], ['ruzova', '#f9a8d4', 'Ružová'], ['siva', '#9ca3af', 'Sivá'], ['bezova', '#d4b896', 'Béžová']] as [$val, $hex, $label])
+          <div class="flex flex-wrap gap-2" id="va-colors">
+            @foreach ($colors as $color)
               <label class="flex items-center gap-2 cursor-pointer border border-gray-200 px-3 py-1.5 text-sm hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
-                <input type="checkbox" name="color" value="{{ $val }}" class="sr-only" />
-                <span class="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0" style="background:{{ $hex }}"></span>
-                {{ $label }}
+                <input type="checkbox" name="va_color" value="{{ $color->id }}" data-name="{{ $color->name }}" class="sr-only" />
+                <span class="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0" style="background:{{ $color->hex_code }}"></span>
+                {{ $color->name }}
               </label>
             @endforeach
           </div>
@@ -485,8 +383,8 @@
           <p class="text-xs text-gray-400 mb-1.5">Oblečenie / doplnky</p>
           <div class="flex flex-wrap gap-2 mb-3">
             @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
-              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors {{ $size === 'XXL' ? 'w-14' : '' }}">
-                <input type="checkbox" name="size" value="{{ $size }}" class="sr-only" />
+              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
+                <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
                 {{ $size }}
               </label>
             @endforeach
@@ -495,7 +393,7 @@
           <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
             @foreach (range(20, 50) as $size)
               <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
-                <input type="checkbox" name="size" value="{{ $size }}" class="sr-only" />
+                <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
                 {{ $size }}
               </label>
             @endforeach
@@ -504,46 +402,160 @@
         <div class="grid grid-cols-2 gap-4 pt-1 border-t border-gray-100">
           <div>
             <label class="block text-sm font-medium mb-1.5">Cena (€) <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input type="number" min="0" step="0.01" placeholder="0,00" required class="w-full border border-gray-300 px-3 py-2 pr-8 text-sm focus:outline-none focus:border-brand-dark" />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
-            </div>
+            <input type="number" id="va-price" min="0" step="0.01" placeholder="0.00" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Sklad (ks) <span class="text-red-500">*</span></label>
-            <input type="number" min="0" placeholder="0" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-          </div>
-          <p class="col-span-2 text-xs text-gray-400 -mt-2">Cena a sklad sa aplikujú na každú kombináciu farba × veľkosť.</p>
-        </div>
-        <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
-          <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
-          <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-4 py-2.5 transition-colors">Pridať varianty</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-
-  <!-- modals: delete product -->
-  @foreach ([
-    ['modal-delete-1', 'Saténová blúzka'],
-    ['modal-delete-2', 'Džínsové nohavice'],
-    ['modal-delete-3', 'Detská mikina'],
-    ['modal-delete-4', 'Kožená kabelka'],
-    ['modal-delete-5', 'Pánske tričko'],
-  ] as [$id, $name])
-    <div id="{{ $id }}" class="fixed inset-0 bg-black/40 z-50 items-center justify-center px-4">
-      <div class="bg-white w-full max-w-sm shadow-xl">
-        <div class="px-6 py-6">
-          <h2 class="text-lg font-bold mb-2">Vymazať produkt</h2>
-          <p class="text-sm text-gray-600 mb-6">Naozaj chcete vymazať produkt <strong>{{ $name }}</strong>? Táto akcia je nevratná.</p>
-          <div class="flex justify-end gap-3">
-            <a href="#!" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</a>
-            <a href="#!" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition-colors">Vymazať</a>
+            <input type="number" id="va-stock" min="0" placeholder="0" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
           </div>
         </div>
       </div>
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+        <button type="button" onclick="closeVariantAdder()" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</button>
+        <button type="button" onclick="commitVariants()" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-4 py-2.5 transition-colors">Pridať varianty</button>
+      </div>
     </div>
-  @endforeach
+  </div>
+
+  <script>
+    let currentFormId = null;
+    const variantIndex = { 'form-add': 0, 'form-edit': 0 };
+
+    function openEditModal(id, name) {
+      document.getElementById('edit-name').value = name;
+      document.getElementById('form-edit').action = `/admin/products/${id}`;
+      document.getElementById('edit-variants-body').innerHTML = '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Načítavam...</td></tr>';
+      document.getElementById('edit-existing-images').innerHTML = '';
+      document.getElementById('edit-description').value = '';
+      variantIndex['form-edit'] = 0;
+      window.location.hash = 'modal-edit';
+      fetch(`/admin/products/${id}/data`)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('edit-description').value = data.description || '';
+          setSelectVal('edit-category_id', data.category_id);
+          setSelectVal('edit-subcategory_id', data.subcategory_id);
+          setSelectVal('edit-brand_id', data.brand_id);
+          setSelectVal('edit-material_id', data.material_id);
+          document.getElementById('edit-is_featured').checked = !!data.is_featured;
+          populateEditImages(data.images || []);
+          populateEditVariants(data.variants || []);
+        })
+        .catch(() => {
+          document.getElementById('edit-variants-body').innerHTML = '<tr><td colspan="5" class="px-3 py-3 text-center text-xs text-red-500">Chyba načítania</td></tr>';
+        });
+    }
+
+    function populateEditImages(images) {
+      const container = document.getElementById('edit-existing-images');
+      container.innerHTML = '';
+      images.forEach(img => {
+        const div = document.createElement('div');
+        div.className = 'relative';
+        div.innerHTML = `
+          <img src="${img.url}" class="w-16 h-20 object-cover border border-gray-200 rounded" />
+          <label class="absolute top-0.5 right-0.5 cursor-pointer" title="Zaškrtnúť = zachovať">
+            <input type="checkbox" name="keep_image_ids[]" value="${img.id}" checked class="w-3 h-3" />
+          </label>
+          ${img.is_primary ? '<span class="absolute bottom-0.5 left-0.5 text-[9px] bg-brand-dark text-white px-1 rounded">1°</span>' : ''}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function populateEditVariants(variants) {
+      const tbody = document.getElementById('edit-variants-body');
+      tbody.innerHTML = '';
+      if (!variants.length) {
+        tbody.innerHTML = '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty</td></tr>';
+        return;
+      }
+      variants.forEach(v => addVariantRow('form-edit', v.color_id, v.color_name, v.size, v.price, v.stock_quantity));
+    }
+
+    function setSelectVal(id, value) {
+      const sel = document.getElementById(id);
+      if (sel) sel.value = value ?? '';
+    }
+
+    function openDeleteModal(id, name) {
+      document.getElementById('delete-product-name').textContent = name;
+      document.getElementById('form-delete').action = `/admin/products/${id}`;
+      window.location.hash = 'modal-delete';
+    }
+
+    function previewImages(input, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      Array.from(input.files).forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const div = document.createElement('div');
+          div.className = 'relative';
+          div.innerHTML = `<img src="${e.target.result}" class="w-16 h-20 object-cover border border-gray-200 rounded" />${i === 0 ? '<span class="absolute bottom-0.5 left-0.5 text-[9px] bg-brand-dark text-white px-1 rounded">1°</span>' : ''}`;
+          container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function showVariantAdder(formId) {
+      currentFormId = formId;
+      document.querySelectorAll('#modal-variant-adder input[name="va_color"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('#modal-variant-adder input[name="va_size"]').forEach(cb => cb.checked = false);
+      document.getElementById('va-price').value = '';
+      document.getElementById('va-stock').value = '';
+      const el = document.getElementById('modal-variant-adder');
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+    }
+
+    function closeVariantAdder() {
+      const el = document.getElementById('modal-variant-adder');
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    function commitVariants() {
+      const colors = Array.from(document.querySelectorAll('#modal-variant-adder input[name="va_color"]:checked'));
+      const sizes  = Array.from(document.querySelectorAll('#modal-variant-adder input[name="va_size"]:checked'));
+      const price  = document.getElementById('va-price').value;
+      const stock  = document.getElementById('va-stock').value;
+      if (!colors.length || !sizes.length || !price || stock === '') {
+        alert('Vyplňte farbu, veľkosť, cenu a sklad.');
+        return;
+      }
+      const emptyId = currentFormId === 'form-add' ? 'add-empty-row' : 'edit-empty-row';
+      const emptyRow = document.getElementById(emptyId);
+      if (emptyRow) emptyRow.remove();
+      colors.forEach(colorCb => {
+        sizes.forEach(sizeCb => {
+          addVariantRow(currentFormId, colorCb.value, colorCb.dataset.name, sizeCb.value, price, stock);
+        });
+      });
+      closeVariantAdder();
+    }
+
+    function addVariantRow(formId, colorId, colorName, size, price, stock) {
+      const tbody = document.getElementById(formId === 'form-add' ? 'add-variants-body' : 'edit-variants-body');
+      const idx = variantIndex[formId]++;
+      const row = document.createElement('tr');
+      row.className = 'border-b border-gray-100';
+      row.innerHTML = `
+        <td class="px-3 py-2">${colorName}</td>
+        <td class="px-3 py-2">${size}</td>
+        <td class="px-3 py-2">${price} €</td>
+        <td class="px-3 py-2">${stock}</td>
+        <td class="px-3 py-2 text-right">
+          <button type="button" onclick="this.closest('tr').remove()" class="text-gray-400 hover:text-red-500">&#x2715;</button>
+          <input type="hidden" name="variants[${idx}][color_id]" value="${colorId}" />
+          <input type="hidden" name="variants[${idx}][size]" value="${size}" />
+          <input type="hidden" name="variants[${idx}][price]" value="${price}" />
+          <input type="hidden" name="variants[${idx}][stock]" value="${stock}" />
+        </td>
+      `;
+      tbody.appendChild(row);
+    }
+  </script>
 
 </x-admin.layout>

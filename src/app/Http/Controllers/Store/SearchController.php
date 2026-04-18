@@ -51,7 +51,7 @@ class SearchController extends Controller
             'max_price' => $maxPrice,
         ];
 
-        $baseQuery  = $this->productQuery->buildFilteredQuery($filters, null, $q !== '' ? $q : null);
+        $baseQuery  = $this->productQuery->buildFilteredQuery($filters, null, null, $q !== '' ? $q : null);
         $total      = $this->productQuery->getTotal($baseQuery);
         $totalPages = max(1, (int) ceil($total / $perPage));
 

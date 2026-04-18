@@ -41,19 +41,12 @@ class CategoryController extends Controller
         $subcategoryName = $subcategory ? (CategoryMapping::CAT_NAMES[$subcategory] ?? null) : null;
         $subcategoryObjs = $subcategoryName
             ? Subcategory::where('name', $subcategoryName)
-                ->when($genderCategory, fn ($q) => $q->where('category_id', $genderCategory->id))
                 ->get()
             : collect();
         $subcategoryIds  = $subcategoryObjs->pluck('id')->toArray();
 
         // $category is the matched Subcategory model (for view h1 / breadcrumb)
         $category        = $subcategoryObjs->first();
-        $dbSubcategories = $genderCategory ? $genderCategory->subcategories : collect();
-        $allCategories   = Category::with('subcategories')->get()->map(fn ($cat) => [
-            'id'   => $cat->id,
-            'name' => $cat->name,
-            'subs' => $cat->subcategories,
-        ]);
 
         $brands         = $this->filterData->getBrands();
         $colors         = $this->filterData->getColors();
@@ -94,7 +87,6 @@ class CategoryController extends Controller
 
         return view('pages.store.category', compact(
             'gender', 'subcategory', 'category',
-            'allCategories', 'dbSubcategories',
             'brands', 'colors', 'materials', 'clothingSizes', 'shoeSizes',
             'filterBrands', 'filterColors', 'filterMaterials', 'filterSizes',
             'globalMinPrice', 'globalMaxPrice',

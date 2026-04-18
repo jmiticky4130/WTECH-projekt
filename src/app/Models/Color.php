@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Color extends Model
 {
+    protected $fillable = ['name', 'hex_code'];
+
     public $timestamps = false;
 
     public function variants(): HasMany

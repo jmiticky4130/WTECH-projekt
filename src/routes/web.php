@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CategoryController;
@@ -30,9 +31,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     Route::middleware('admin')->group(function () {
-        Route::view('/', 'pages.admin.products')->name('products');
-        Route::view('/orders', 'pages.admin.orders')->name('orders');
-        Route::view('/settings', 'pages.admin.settings')->name('settings');
+        Route::get('/', [Admin\ProductController::class, 'index'])->name('products');
+        Route::post('/products', [Admin\ProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}/data', [Admin\ProductController::class, 'data'])->name('products.data');
+        Route::put('/products/{product}', [Admin\ProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [Admin\ProductController::class, 'destroy'])->name('products.destroy');
+
+        Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders');
+        Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}', [Admin\OrderController::class, 'update'])->name('orders.update');
+        Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->name('orders.destroy');
+
+        Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings');
+        Route::resource('settings/categories', Admin\CategoryController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'categories.store', 'update' => 'categories.update', 'destroy' => 'categories.destroy']);
+        Route::resource('settings/subcategories', Admin\SubcategoryController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'subcategories.store', 'update' => 'subcategories.update', 'destroy' => 'subcategories.destroy']);
+        Route::resource('settings/brands', Admin\BrandController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'brands.store', 'update' => 'brands.update', 'destroy' => 'brands.destroy']);
+        Route::resource('settings/colors', Admin\ColorController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'colors.store', 'update' => 'colors.update', 'destroy' => 'colors.destroy']);
+        Route::resource('settings/materials', Admin\MaterialController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'materials.store', 'update' => 'materials.update', 'destroy' => 'materials.destroy']);
+        Route::resource('settings/shipping-methods', Admin\ShippingMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'shipping-methods.store', 'update' => 'shipping-methods.update', 'destroy' => 'shipping-methods.destroy']);
+        Route::resource('settings/payment-methods', Admin\PaymentMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'payment-methods.store', 'update' => 'payment-methods.update', 'destroy' => 'payment-methods.destroy']);
     });
 });
 

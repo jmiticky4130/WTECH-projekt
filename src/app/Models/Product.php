@@ -11,6 +11,8 @@ class Product extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = ['name', 'slug', 'description', 'category_id', 'subcategory_id', 'brand_id', 'material_id', 'is_featured'];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -43,6 +45,6 @@ class Product extends Model
 
     public function primaryImage(): HasMany
     {
-        return $this->hasMany(ProductImage::class)->where('is_primary', true);
+        return $this->hasMany(ProductImage::class)->whereRaw('is_primary IS TRUE');
     }
 }
