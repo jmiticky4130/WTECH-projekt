@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers\Store;
 
+use App\Data\PlaceOrderData;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PlaceOrderRequest;
 use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\PaymentMethod;
+use App\Models\ShippingMethod;
+use App\Services\OrderService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
@@ -44,9 +52,9 @@ class CartController extends Controller
 
     public function data(Request $request): JsonResponse
     {
-        if (auth()->check()) {
+        if (Auth::check()) {
             $items = $this->itemQuery()
-                ->where('cart_items.user_id', auth()->id())
+                ->where('cart_items.user_id', Auth::id())
                 ->get();
 
             return response()->json(['items' => $items]);
@@ -128,8 +136,8 @@ class CartController extends Controller
         $itemId = null;
         $cartCount = null;
 
-        if (auth()->check()) {
-            $userId = auth()->id();
+        if (Auth::check()) {
+            $userId = Auth::id();
             $item = CartItem::where('user_id', $userId)->where('variant_id', $variantId)->first();
             if ($item) {
                 $item->increment('quantity', $qty);
@@ -151,7 +159,7 @@ class CartController extends Controller
 
     public function update(Request $request, CartItem $cartItem): JsonResponse
     {
-        abort_unless(auth()->check() && $cartItem->user_id === auth()->id(), 403);
+        abort_unless(Auth::check() && $cartItem->user_id === Auth::id(), 403);
 
         $request->validate(['qty' => ['required', 'integer', 'min:1']]);
         $cartItem->update(['quantity' => $request->integer('qty')]);
@@ -161,7 +169,7 @@ class CartController extends Controller
 
     public function remove(CartItem $cartItem): JsonResponse
     {
-        abort_unless(auth()->check() && $cartItem->user_id === auth()->id(), 403);
+        abort_unless(Auth::check() && $cartItem->user_id === Auth::id(), 403);
         $cartItem->delete();
 
         return response()->json(['ok' => true]);
@@ -169,12 +177,67 @@ class CartController extends Controller
 
     public function count(): JsonResponse
     {
-        if (! auth()->check()) {
+        if (! Auth::check()) {
             return response()->json(['count' => 0]);
         }
 
-        $count = CartItem::where('user_id', auth()->id())->sum('quantity');
+        $count = CartItem::where('user_id', Auth::id())->sum('quantity');
 
         return response()->json(['count' => $count]);
+    }
+
+    public function shipping(): View
+    {
+        return view('pages.store.cart-step-2', $this->checkoutMethods());
+    }
+
+    public function details(): View
+    {
+        return view('pages.store.cart-step-3', $this->checkoutMethods());
+    }
+
+    public function thanks(Order $order): View
+    {
+        return view('pages.store.cart-thanks', ['order' => $order]);
+    }
+
+    private function checkoutMethods(): array
+    {
+        $shippingMethods = ShippingMethod::active()
+            ->get()
+            ->map(fn (ShippingMethod $method) => [
+                'id' => (int) $method->id,
+                'label' => (string) $method->name,
+                'desc' => $method->description,
+                'price' => (float) $method->price,
+                'type' => (string) $method->type,
+            ])
+            ->values()
+            ->all();
+
+        $paymentMethods = PaymentMethod::active()
+            ->get()
+            ->map(fn (PaymentMethod $method) => [
+                'id' => (int) $method->id,
+                'label' => (string) $method->name,
+                'fee' => (float) $method->fee,
+                'type' => (string) $method->type,
+                'requires_address' => (bool) $method->requires_address,
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'shippingMethods' => $shippingMethods,
+            'paymentMethods' => $paymentMethods,
+        ];
+    }
+
+    public function place(PlaceOrderRequest $request, OrderService $orderService): JsonResponse
+    {
+        $dto = PlaceOrderData::fromValidated($request->validated(), Auth::id());
+        $order = $orderService->place($dto);
+
+        return response()->json(['order_id' => $order->id]);
     }
 }

@@ -109,7 +109,7 @@
               <form method="POST" action="{{ route('admin.colors.store') }}" class="flex gap-2">
                 @csrf
                 <input type="text" name="name" placeholder="Názov farby" required class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark flex-1 min-w-0" />
-                <input type="color" name="hex_code" value="#000000" class="border border-gray-300 h-[38px] w-10 p-0.5 cursor-pointer focus:outline-none focus:border-brand-dark shrink-0" title="Hex kód farby" />
+                <input type="color" name="hex_code" value="#000000" class="border border-gray-300 h-9.5 w-10 p-0.5 cursor-pointer focus:outline-none focus:border-brand-dark shrink-0" title="Hex kód farby" />
                 <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors whitespace-nowrap">Pridať</button>
               </form>
             </div>
@@ -211,7 +211,7 @@
               <form method="POST" action="{{ route('admin.payment-methods.store') }}" class="space-y-2">
                 @csrf
                 <input type="text" name="name" placeholder="Názov (napr. Kartou online)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-                <input type="text" name="type" placeholder="Typ (napr. card, cod, transfer)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                <input type="text" name="type" placeholder="Typ (napr. card, cod, google_pay, bank_transfer)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
                 <div class="relative">
                   <input type="number" name="fee" min="0" step="0.01" value="0" placeholder="Poplatok" class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
                   <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>

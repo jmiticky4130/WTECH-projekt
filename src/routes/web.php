@@ -16,14 +16,16 @@ Route::get('/search-suggestions', [SearchController::class, 'suggestions'])->nam
 Route::get('/produkt/{slug}', [ProductController::class, 'show'])->name('store.product');
 
 Route::view('/kosik', 'pages.store.cart-step-1')->name('store.cart');
-Route::view('/kosik/doprava', 'pages.store.cart-step-2')->name('store.cart.shipping');
-Route::view('/kosik/udaje', 'pages.store.cart-step-3')->name('store.cart.details');
+Route::get('/kosik/doprava', [CartController::class, 'shipping'])->name('store.cart.shipping');
+Route::get('/kosik/udaje', [CartController::class, 'details'])->name('store.cart.details');
+Route::get('/kosik/hotovo/{order}', [CartController::class, 'thanks'])->name('store.cart.thanks');
 
 Route::get('/cart/data', [CartController::class, 'data'])->name('cart.data');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/item/{cartItem}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+Route::post('/cart/order', [CartController::class, 'place'])->name('store.cart.place');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');

@@ -68,7 +68,7 @@
                     <div class="flex items-center border border-gray-300">
                       <button @click="updateQty(item, -1)"
                               class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">&minus;</button>
-                      <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-[2rem] text-center"
+                          <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-8 text-center"
                             x-text="item.qty"></span>
                       <button @click="updateQty(item, 1)"
                               class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">+</button>
@@ -103,7 +103,7 @@
                       <div class="flex items-center border border-gray-300">
                         <button @click="updateQty(item, -1)"
                                 class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">&minus;</button>
-                        <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-[2rem] text-center"
+                        <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-8 text-center"
                               x-text="item.qty"></span>
                         <button @click="updateQty(item, 1)"
                                 class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">+</button>

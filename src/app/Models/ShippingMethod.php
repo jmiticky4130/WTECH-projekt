@@ -16,6 +16,8 @@ class ShippingMethod extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true)->orderBy('sort_order');
+        return $query
+            ->whereRaw($this->qualifyColumn('is_active').' is true')
+            ->orderBy('sort_order');
     }
 }

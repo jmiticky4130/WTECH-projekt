@@ -7,7 +7,7 @@
   {{-- Compact variant used in cart items --}}
   <div class="flex items-center border border-gray-300">
     <button class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">&minus;</button>
-    <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-[2rem] text-center">{{ $quantity }}</span>
+    <span class="px-3 py-1 border-x border-gray-300 text-sm min-w-8 text-center">{{ $quantity }}</span>
     <button class="px-2.5 py-1 hover:bg-gray-100 transition-colors text-sm">+</button>
   </div>
 @else
