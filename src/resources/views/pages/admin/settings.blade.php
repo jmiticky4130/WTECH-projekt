@@ -190,32 +190,95 @@
           </div>
           <div class="px-5 py-5 flex flex-col">
             <p class="text-xs text-gray-400 mb-2 font-medium">Existujúce spôsoby</p>
-            <div class="space-y-2 mb-5">
+            <div class="space-y-3 mb-5">
               @forelse ($paymentMethods as $pm)
-                <div class="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-2.5 text-sm">
-                  <div>
-                    <span class="font-medium">{{ $pm->name }}</span>
-                    <span class="text-gray-400 text-xs ml-2">{{ $pm->type }} · {{ number_format($pm->fee, 2, ',', ' ') }} €</span>
-                  </div>
-                  <form method="POST" action="{{ route('admin.payment-methods.destroy', $pm) }}" class="inline" onsubmit="return confirm('Vymazať spôsob platby?')">
+                <div class="bg-gray-50 border border-gray-200 p-3">
+                  <form method="POST" action="{{ route('admin.payment-methods.update', $pm) }}" class="space-y-3">
+                    @csrf @method('PUT')
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input type="text" name="name" value="{{ $pm->name }}" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                      <select name="type" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                        <option value="card" @selected($pm->type === 'card')>card</option>
+                        <option value="cod" @selected($pm->type === 'cod')>cod</option>
+                        <option value="google_pay" @selected($pm->type === 'google_pay')>google_pay</option>
+                        <option value="bank_transfer" @selected($pm->type === 'bank_transfer')>bank_transfer</option>
+                      </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div class="relative">
+                        <input type="number" name="fee" min="0" step="0.01" value="{{ number_format((float) $pm->fee, 2, '.', '') }}" class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+                      </div>
+                      <input type="number" name="sort_order" min="0" value="{{ $pm->sort_order }}" placeholder="Poradie" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div class="flex flex-wrap gap-4 text-xs text-gray-600">
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                          <input type="hidden" name="requires_address" value="0" />
+                          <input type="checkbox" name="requires_address" value="1" @checked($pm->requires_address) class="accent-brand-dark w-4 h-4" />
+                          <span>Len pre adresu</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                          <input type="hidden" name="is_active" value="0" />
+                          <input type="checkbox" name="is_active" value="1" @checked($pm->is_active) class="accent-brand-dark w-4 h-4" />
+                          <span>Aktívne</span>
+                        </label>
+                      </div>
+
+                      <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-3 py-2 transition-colors uppercase tracking-wide">
+                        Uložiť
+                      </button>
+                    </div>
+                  </form>
+
+                  <form method="POST" action="{{ route('admin.payment-methods.destroy', $pm) }}" class="mt-2 text-right" onsubmit="return confirm('Vymazať spôsob platby?')">
                     @csrf @method('DELETE')
-                    <button type="submit" class="text-gray-400 hover:text-red-500 leading-none text-xs ml-4">&#x2715;</button>
+                    <button type="submit" class="text-xs text-gray-500 hover:text-red-500 transition-colors">Vymazať</button>
                   </form>
                 </div>
               @empty
                 <p class="text-xs text-gray-400">Žiadne spôsoby platby.</p>
               @endforelse
             </div>
+
             <div>
               <p class="text-xs text-gray-400 mb-2 font-medium">Pridať nový</p>
               <form method="POST" action="{{ route('admin.payment-methods.store') }}" class="space-y-2">
                 @csrf
+
                 <input type="text" name="name" placeholder="Názov (napr. Kartou online)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-                <input type="text" name="type" placeholder="Typ (napr. card, cod, google_pay, bank_transfer)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-                <div class="relative">
-                  <input type="number" name="fee" min="0" step="0.01" value="0" placeholder="Poplatok" class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
-                  <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+
+                <select name="type" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                  <option value="card">card</option>
+                  <option value="cod">cod</option>
+                  <option value="google_pay">google_pay</option>
+                  <option value="bank_transfer">bank_transfer</option>
+                </select>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div class="relative">
+                    <input type="number" name="fee" min="0" step="0.01" value="0" placeholder="Poplatok" class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
+                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+                  </div>
+                  <input type="number" name="sort_order" min="0" value="0" placeholder="Poradie" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
                 </div>
+
+                <div class="flex flex-wrap gap-4 text-xs text-gray-600">
+                  <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                    <input type="hidden" name="requires_address" value="0" />
+                    <input type="checkbox" name="requires_address" value="1" class="accent-brand-dark w-4 h-4" />
+                    <span>Len pre adresu</span>
+                  </label>
+                  <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                    <input type="hidden" name="is_active" value="0" />
+                    <input type="checkbox" name="is_active" value="1" checked class="accent-brand-dark w-4 h-4" />
+                    <span>Aktívne</span>
+                  </label>
+                </div>
+
                 <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">Pridať</button>
               </form>
             </div>
@@ -232,16 +295,57 @@
         <div class="px-5 py-5 flex flex-col md:flex-row md:gap-8">
           <div class="flex-1 mb-6 md:mb-0">
             <p class="text-xs text-gray-400 mb-2 font-medium">Existujúce spôsoby</p>
-            <div class="space-y-2">
+            <div class="space-y-3">
               @forelse ($shippingMethods as $sm)
-                <div class="flex items-center justify-between bg-gray-50 border border-gray-200 px-3 py-2.5 text-sm">
-                  <div>
-                    <span class="font-medium">{{ $sm->name }}</span>
-                    <span class="text-gray-400 text-xs ml-2">{{ $sm->delivery_days_from }}–{{ $sm->delivery_days_to }} dni · {{ number_format($sm->price, 2, ',', ' ') }} €</span>
-                  </div>
-                  <form method="POST" action="{{ route('admin.shipping-methods.destroy', $sm) }}" class="inline" onsubmit="return confirm('Vymazať spôsob dopravy?')">
+                <div class="bg-gray-50 border border-gray-200 p-3">
+                  <form method="POST" action="{{ route('admin.shipping-methods.update', $sm) }}" class="space-y-3">
+                    @csrf @method('PUT')
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input type="text" name="name" value="{{ $sm->name }}" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                      <select name="type" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                        <option value="address" @selected($sm->type === 'address')>address</option>
+                        <option value="pickup_point" @selected($sm->type === 'pickup_point')>pickup_point</option>
+                        <option value="personal_pickup" @selected($sm->type === 'personal_pickup')>personal_pickup</option>
+                      </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div class="relative">
+                        <input type="number" name="price" min="0" step="0.01" value="{{ number_format((float) $sm->price, 2, '.', '') }}" required class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+                      </div>
+                      <input type="number" name="sort_order" min="0" value="{{ $sm->sort_order }}" placeholder="Poradie" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                    </div>
+
+                    <div>
+                      <p class="text-xs text-gray-400 mb-1.5">Doba dodania (dni)</p>
+                      <div class="grid grid-cols-[1fr_auto_1fr] gap-1 items-center">
+                        <input type="number" name="delivery_days_from" min="1" value="{{ $sm->delivery_days_from }}" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                        <span class="text-gray-400 text-xs">–</span>
+                        <input type="number" name="delivery_days_to" min="1" value="{{ $sm->delivery_days_to }}" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+                      </div>
+                    </div>
+
+                    <textarea name="description" rows="2" placeholder="Popis dopravy"
+                              class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark">{{ $sm->description }}</textarea>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-gray-600">
+                        <input type="hidden" name="is_active" value="0" />
+                        <input type="checkbox" name="is_active" value="1" @checked($sm->is_active) class="accent-brand-dark w-4 h-4" />
+                        <span>Aktívne</span>
+                      </label>
+
+                      <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-3 py-2 transition-colors uppercase tracking-wide">
+                        Uložiť
+                      </button>
+                    </div>
+                  </form>
+
+                  <form method="POST" action="{{ route('admin.shipping-methods.destroy', $sm) }}" class="mt-2 text-right" onsubmit="return confirm('Vymazať spôsob dopravy?')">
                     @csrf @method('DELETE')
-                    <button type="submit" class="text-gray-400 hover:text-red-500 leading-none text-xs ml-4">&#x2715;</button>
+                    <button type="submit" class="text-xs text-gray-500 hover:text-red-500 transition-colors">Vymazať</button>
                   </form>
                 </div>
               @empty
@@ -249,16 +353,28 @@
               @endforelse
             </div>
           </div>
+
           <div class="md:w-80 shrink-0">
             <p class="text-xs text-gray-400 mb-2 font-medium">Pridať nový</p>
             <form method="POST" action="{{ route('admin.shipping-methods.store') }}" class="space-y-2">
               @csrf
+
               <input type="text" name="name" placeholder="Názov dopravcu" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-              <input type="text" name="type" placeholder="Typ (napr. courier, pickup)" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
-              <div class="relative">
-                <input type="number" name="price" min="0" step="0.01" placeholder="Cena" required class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
-                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+
+              <select name="type" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+                <option value="address">address</option>
+                <option value="pickup_point">pickup_point</option>
+                <option value="personal_pickup">personal_pickup</option>
+              </select>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="relative">
+                  <input type="number" name="price" min="0" step="0.01" placeholder="Cena" required class="w-full border border-gray-300 px-3 py-2 pr-7 text-sm focus:outline-none focus:border-brand-dark" />
+                  <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
+                </div>
+                <input type="number" name="sort_order" min="0" value="0" placeholder="Poradie" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
               </div>
+
               <div>
                 <p class="text-xs text-gray-400 mb-1.5">Doba dodania (dni)</p>
                 <div class="flex gap-1 items-center">
@@ -267,6 +383,16 @@
                   <input type="number" name="delivery_days_to" min="1" placeholder="Do" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
                 </div>
               </div>
+
+              <textarea name="description" rows="2" placeholder="Popis dopravy"
+                        class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"></textarea>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs text-gray-600">
+                <input type="hidden" name="is_active" value="0" />
+                <input type="checkbox" name="is_active" value="1" checked class="accent-brand-dark w-4 h-4" />
+                <span>Aktívne</span>
+              </label>
+
               <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">Pridať</button>
             </form>
           </div>

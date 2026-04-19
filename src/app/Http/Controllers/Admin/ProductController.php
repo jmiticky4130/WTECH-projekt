@@ -38,6 +38,11 @@ class ProductController extends Controller
         $this->queryService->applyPresentation($query, 'newest');
 
         $products = $query->paginate(20)->withQueryString();
+        $products->getCollection()->transform(function ($product) {
+            $product->image_url = $this->resolveProductImageUrl($product->image_path ?? null);
+
+            return $product;
+        });
 
         return view('pages.admin.products', [
             'products' => $products,
@@ -84,7 +89,7 @@ class ProductController extends Controller
             'is_featured' => $product->is_featured,
             'images' => $product->images->map(fn ($img) => [
                 'id' => $img->id,
-                'url' => Storage::url($img->image_path),
+                'url' => $this->resolveProductImageUrl($img->image_path),
                 'is_primary' => $img->is_primary,
             ]),
             'variants' => $product->variants->map(fn ($v) => [
@@ -102,5 +107,32 @@ class ProductController extends Controller
         $this->productService->delete($product);
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol vymazaný.');
+    }
+
+    private function resolveProductImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $path) === 1) {
+            return $path;
+        }
+
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (str_starts_with($normalized, 'public/')) {
+            $normalized = substr($normalized, 7);
+        }
+
+        if (str_starts_with($normalized, 'images/') || str_starts_with($normalized, 'storage/')) {
+            return asset($normalized);
+        }
+
+        return Storage::url($normalized);
     }
 }

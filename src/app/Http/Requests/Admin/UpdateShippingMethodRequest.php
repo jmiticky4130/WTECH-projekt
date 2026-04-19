@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\ShippingMethod;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreShippingMethodRequest extends FormRequest
+class UpdateShippingMethodRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,8 +15,10 @@ class StoreShippingMethodRequest extends FormRequest
 
     public function rules(): array
     {
+        $shippingMethod = $this->route('shippingMethod');
+
         return [
-            'name' => ['required', 'string', 'max:50', 'unique:shipping_methods,name'],
+            'name' => ['required', 'string', 'max:50', Rule::unique('shipping_methods', 'name')->ignore($shippingMethod?->id)],
             'type' => ['required', Rule::in(['address', 'pickup_point', 'personal_pickup'])],
             'price' => ['required', 'numeric', 'min:0'],
             'delivery_days_from' => ['required', 'integer', 'min:1'],
@@ -28,8 +31,10 @@ class StoreShippingMethodRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $shippingMethod = $this->route('shippingMethod');
+
         $this->merge([
-            'is_active' => $this->boolean('is_active', true),
+            'is_active' => $this->boolean('is_active', (bool) ($shippingMethod?->is_active ?? true)),
         ]);
     }
 }

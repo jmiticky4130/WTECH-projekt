@@ -28,7 +28,7 @@
         name="q"
         value="{{ request('q') }}"
         placeholder="Hľadať produkty..."
-        class="flex-1 min-w-[180px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
+        class="flex-1 min-w-45 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
       />
       <select name="category" class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
         <option value="">Všetky kategórie</option>
@@ -61,8 +61,8 @@
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="px-4 py-3 hidden wide:table-cell">
                 <div class="w-12 h-16 bg-gray-200 rounded overflow-hidden relative">
-                  @if ($p->image_path)
-                    <img src="{{ Storage::url($p->image_path) }}" class="w-full absolute top-1/2 -translate-y-1/2 object-cover" alt="{{ $p->name }}">
+                  @if ($p->image_url)
+                    <img src="{{ $p->image_url }}" class="w-full absolute top-1/2 -translate-y-1/2 object-cover" alt="{{ $p->name }}">
                   @endif
                 </div>
               </td>
@@ -359,7 +359,7 @@
 
 
   <!-- variant adder overlay -->
-  <div id="modal-variant-adder" class="fixed inset-0 bg-black/40 z-[60] hidden items-center justify-center px-4 py-8 overflow-y-auto">
+  <div id="modal-variant-adder" class="fixed inset-0 bg-black/40 hidden items-center justify-center px-4 py-8 overflow-y-auto" style="z-index: 70;">
     <div class="bg-white w-full max-w-lg mx-auto shadow-xl my-auto">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <h2 class="text-lg font-bold">Pridať varianty</h2>
@@ -370,7 +370,7 @@
           <label class="block text-sm font-medium mb-2">Farby <span class="text-red-500">*</span></label>
           <div class="flex flex-wrap gap-2" id="va-colors">
             @foreach ($colors as $color)
-              <label class="flex items-center gap-2 cursor-pointer border border-gray-200 px-3 py-1.5 text-sm hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
+              <label class="flex items-center gap-2 cursor-pointer border border-gray-200 px-3 py-1.5 text-sm hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
                 <input type="checkbox" name="va_color" value="{{ $color->id }}" data-name="{{ $color->name }}" class="sr-only" />
                 <span class="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0" style="background:{{ $color->hex_code }}"></span>
                 {{ $color->name }}
@@ -383,7 +383,7 @@
           <p class="text-xs text-gray-400 mb-1.5">Oblečenie / doplnky</p>
           <div class="flex flex-wrap gap-2 mb-3">
             @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
-              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
+              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
                 <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
                 {{ $size }}
               </label>
@@ -392,7 +392,7 @@
           <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
           <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
             @foreach (range(20, 50) as $size)
-              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark has-[:checked]:text-white transition-colors">
+              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
                 <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
                 {{ $size }}
               </label>

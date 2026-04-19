@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePaymentMethodRequest;
+use App\Http\Requests\Admin\UpdatePaymentMethodRequest;
 use App\Models\PaymentMethod;
 use Illuminate\Http\RedirectResponse;
 
@@ -16,7 +17,7 @@ class PaymentMethodController extends Controller
         return redirect()->route('admin.settings')->with('success', 'Spôsob platby bol pridaný.');
     }
 
-    public function update(StorePaymentMethodRequest $request, PaymentMethod $paymentMethod): RedirectResponse
+    public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod): RedirectResponse
     {
         $paymentMethod->update($request->validated());
 

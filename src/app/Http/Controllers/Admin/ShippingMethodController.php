@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShippingMethodRequest;
+use App\Http\Requests\Admin\UpdateShippingMethodRequest;
 use App\Models\ShippingMethod;
 use Illuminate\Http\RedirectResponse;
 
@@ -16,7 +17,7 @@ class ShippingMethodController extends Controller
         return redirect()->route('admin.settings')->with('success', 'Spôsob dopravy bol pridaný.');
     }
 
-    public function update(StoreShippingMethodRequest $request, ShippingMethod $shippingMethod): RedirectResponse
+    public function update(UpdateShippingMethodRequest $request, ShippingMethod $shippingMethod): RedirectResponse
     {
         $shippingMethod->update($request->validated());
 

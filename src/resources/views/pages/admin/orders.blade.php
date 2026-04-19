@@ -36,7 +36,7 @@
         name="q"
         value="{{ request('q') }}"
         placeholder="Hľadať objednávku (email / meno)..."
-        class="flex-1 min-w-[180px] border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
+        class="flex-1 min-w-45 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark"
       />
       <select name="status" class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
         <option value="">Všetky stavy</option>
