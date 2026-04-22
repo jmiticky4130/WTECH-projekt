@@ -7,6 +7,7 @@ use App\Http\Requests\SearchFilterRequest;
 use App\Models\Product;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
+use App\Support\ProductImageUrl;
 use App\Support\CategoryMapping;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -106,7 +107,7 @@ class SearchController extends Controller
             'name'            => $p->name,
             'slug'            => $p->slug,
             'brand_name'      => $p->brand_name,
-            'image_url'       => $p->image_path ? asset($p->image_path) : null,
+            'image_url'       => ProductImageUrl::resolve($p->image_path),
             'price_formatted' => number_format((float) $p->min_price, 2, ',', "\u{00A0}") . "\u{00A0}€",
         ]));
     }

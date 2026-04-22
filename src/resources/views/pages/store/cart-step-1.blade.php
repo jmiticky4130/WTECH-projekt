@@ -52,7 +52,7 @@
                 <div class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] items-center">
                   <div class="flex gap-3 items-center">
                     <a :href="'/produkt/' + item.slug" class="w-16 h-24 bg-gray-200 shrink-0 overflow-hidden relative block">
-                      <img :src="item.image_path ? '/' + item.image_path : ''"
+                      <img :src="item.image_url || (item.image_path ? '/' + item.image_path : '')"
                            class="w-full absolute top-1/2 -translate-y-1/2"
                            :alt="item.name">
                     </a>
@@ -86,7 +86,7 @@
                 {{-- Mobile row --}}
                 <div class="md:hidden flex gap-3">
                   <a :href="'/produkt/' + item.slug" class="w-20 h-28 bg-gray-200 shrink-0 overflow-hidden relative block">
-                    <img :src="item.image_path ? '/' + item.image_path : ''"
+                    <img :src="item.image_url || (item.image_path ? '/' + item.image_path : '')"
                          class="w-full absolute top-1/2 -translate-y-1/2"
                          :alt="item.name">
                   </a>

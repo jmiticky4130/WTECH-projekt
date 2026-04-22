@@ -11,13 +11,14 @@ use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\Subcategory;
+use App\Support\ProductImageUrl;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
 use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -33,7 +34,7 @@ class ProductController extends Controller
         $filters = ['brand' => [], 'color' => [], 'material' => [], 'size' => [], 'min_price' => null, 'max_price' => null];
         $categoryId = $request->input('category') ? Category::where('name', $request->input('category'))->value('id') : null;
 
-        $base = $this->queryService->buildFilteredQuery($filters, $categoryId, null, $request->input('q'));
+        $base = $this->queryService->buildFilteredQuery($filters, $categoryId, null, $request->input('q'), true);
         $query = (clone $base);
         $this->queryService->applyPresentation($query, 'newest');
 
@@ -51,14 +52,16 @@ class ProductController extends Controller
             'brands' => Brand::orderBy('name')->get(),
             'materials' => Material::orderBy('name')->get(),
             'colors' => Color::orderBy('name')->get(),
+            'libraryImages' => $this->libraryImages(),
         ]);
     }
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
         $this->productService->create(
-            $request->except(['images', '_token']),
+            $request->except(['images', 'library_images', '_token']),
             $request->file('images', []),
+            $request->input('library_images', []),
         );
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol pridaný.');
@@ -68,9 +71,10 @@ class ProductController extends Controller
     {
         $this->productService->update(
             $product,
-            $request->except(['images', 'keep_image_ids', '_token', '_method']),
+            $request->except(['images', 'library_images', 'keep_image_ids', '_token', '_method']),
             $request->file('images', []),
             $request->input('keep_image_ids', []),
+            $request->input('library_images', []),
         );
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol upravený.');
@@ -89,10 +93,12 @@ class ProductController extends Controller
             'is_featured' => $product->is_featured,
             'images' => $product->images->map(fn ($img) => [
                 'id' => $img->id,
+                'path' => $img->image_path,
                 'url' => $this->resolveProductImageUrl($img->image_path),
                 'is_primary' => $img->is_primary,
             ]),
             'variants' => $product->variants->map(fn ($v) => [
+                'id' => $v->id,
                 'color_id' => $v->color_id,
                 'color_name' => $v->color?->name,
                 'size' => $v->size,
@@ -111,28 +117,32 @@ class ProductController extends Controller
 
     private function resolveProductImageUrl(?string $path): ?string
     {
-        if (! $path) {
-            return null;
+        return ProductImageUrl::resolve($path);
+    }
+
+    private function libraryImages(): array
+    {
+        $directory = public_path('images/products');
+
+        if (! File::isDirectory($directory)) {
+            return [];
         }
 
-        if (preg_match('#^https?://#i', $path) === 1) {
-            return $path;
-        }
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
-        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+        return collect(File::files($directory))
+            ->filter(fn ($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
+            ->sortBy(fn ($file) => strtolower($file->getFilename()))
+            ->map(function ($file): array {
+                $path = 'images/products/' . $file->getFilename();
 
-        if ($normalized === '') {
-            return null;
-        }
-
-        if (str_starts_with($normalized, 'public/')) {
-            $normalized = substr($normalized, 7);
-        }
-
-        if (str_starts_with($normalized, 'images/') || str_starts_with($normalized, 'storage/')) {
-            return asset($normalized);
-        }
-
-        return Storage::url($normalized);
+                return [
+                    'path' => $path,
+                    'url' => ProductImageUrl::resolve($path),
+                    'name' => $file->getFilename(),
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

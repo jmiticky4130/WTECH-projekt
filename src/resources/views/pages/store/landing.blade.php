@@ -1,14 +1,14 @@
 <x-store.layout title="Bellura.sk">
 
   <!-- hero section -->
-  <section class="bg-gray-200 relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 py-48 text-center relative z-10">
-      <h1 class="text-4xl font-bold mb-2">Reklamný banner</h1>
-      <p class="text-gray-600 mb-6">Podnadpis banneru</p>
-      <a href="{{ route('store.category', ['p1' => 'zeny']) }}" class="inline-block bg-brand-dark text-white font-semibold text-sm tracking-widest px-8 py-3.5 hover:bg-brand-accent transition-colors uppercase">
-        Nakupovať
-      </a>
-    </div>
+  <section class="relative overflow-hidden bg-brand-dark">
+    <a href="{{ url('/kategoria/novinky') }}" aria-label="Prejst na kategoriu Novinky" class="group block relative w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80">
+      <img
+        src="{{ asset('images/hero_section_banner.png') }}"
+        alt="Bellura - Novinky"
+        class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.02] group-hover:brightness-105"
+      />
+    </a>
   </section>
 
   <!-- main content -->

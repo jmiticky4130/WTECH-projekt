@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Store;
 use App\Data\PlaceOrderData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaceOrderRequest;
+use App\Support\ProductImageUrl;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\PaymentMethod;
@@ -55,7 +56,12 @@ class CartController extends Controller
         if (Auth::check()) {
             $items = $this->itemQuery()
                 ->where('cart_items.user_id', Auth::id())
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    $item->image_url = ProductImageUrl::resolve($item->image_path);
+
+                    return $item;
+                });
 
             return response()->json(['items' => $items]);
         }
@@ -98,6 +104,7 @@ class CartController extends Controller
             ->map(fn ($v) => array_merge((array) $v, [
                 'item_id' => null,
                 'qty' => $qtyMap[$v->variant_id] ?? 1,
+                'image_url' => ProductImageUrl::resolve($v->image_path),
             ]));
 
         return response()->json(['items' => $variants]);
@@ -132,6 +139,10 @@ class CartController extends Controller
                 'pv.size', 'pv.price', 'pi.image_path'])
             ->where('pv.id', $variantId)
             ->first();
+
+        if ($variant) {
+            $variant->image_url = ProductImageUrl::resolve($variant->image_path);
+        }
 
         $itemId = null;
         $cartCount = null;

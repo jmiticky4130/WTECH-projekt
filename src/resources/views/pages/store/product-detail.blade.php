@@ -1,6 +1,7 @@
 @php
   $pageTitle  = $product->name . ' — Bellura.sk';
   $primaryImg = $images->firstWhere('is_primary', true) ?? $images->first();
+  $primaryImgUrl = $primaryImg ? \App\Support\ProductImageUrl::resolve($primaryImg->image_path) : '';
 @endphp
 
 <x-store.layout :title="$pageTitle">
@@ -9,7 +10,7 @@
 
   {{-- Wrapper provides shared Alpine scope for both main content and sticky mobile bar --}}
   <div x-data="{
-         activeImg: '{{ $primaryImg ? asset($primaryImg->image_path) : '' }}',
+      activeImg: '{{ $primaryImgUrl }}',
          activeColor: {{ $colors->isNotEmpty() ? $colors->first()->color_id : 'null' }},
          activeColorName: '{{ $colors->isNotEmpty() ? $colors->first()->color_name : '' }}',
          activeSize: null,
@@ -103,7 +104,7 @@
               <h2 class="text-lg font-bold leading-tight">{{ $product->name }}</h2>
             </div>
 
-            <div class="aspect-[4/5] bg-gray-100 border border-gray-200 overflow-hidden relative">
+            <div class="aspect-4/5 bg-gray-100 border border-gray-200 overflow-hidden relative">
               <template x-if="activeImg">
                 <img :src="activeImg" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $product->name }}">
               </template>
@@ -112,10 +113,11 @@
             @if ($images->count() > 1)
               <div class="grid grid-cols-4 gap-3">
                 @foreach ($images as $img)
-                  <div class="aspect-[2/3] bg-gray-100 overflow-hidden relative cursor-pointer"
-                       :class="activeImg === '{{ asset($img->image_path) }}' ? 'border-2 border-brand-dark' : 'border border-gray-200'"
-                       @click="activeImg = '{{ asset($img->image_path) }}'">
-                    <img src="{{ asset($img->image_path) }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $product->name }}">
+                  @php $imgUrl = \App\Support\ProductImageUrl::resolve($img->image_path); @endphp
+                  <div class="aspect-2/3 bg-gray-100 overflow-hidden relative cursor-pointer"
+                       :class="activeImg === '{{ $imgUrl }}' ? 'border-2 border-brand-dark' : 'border border-gray-200'"
+                       @click="activeImg = '{{ $imgUrl }}'">
+                    <img src="{{ $imgUrl }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $product->name }}">
                   </div>
                 @endforeach
               </div>
@@ -298,7 +300,7 @@
     <div id="sticky-bar"
          class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-3 translate-y-full transition-transform duration-300"
          :class="{ 'opacity-50 pointer-events-none': !activeSize || !inStock }">
-      <div class="flex flex-1 items-stretch h-13 min-h-[3.25rem]">
+      <div class="flex flex-1 items-stretch h-13 min-h-13">
         <div class="flex items-stretch border border-gray-300 border-r-0 shrink-0">
           <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1"
                   @click="qty = Math.max(1, qty - 1)">&minus;</button>
@@ -313,7 +315,7 @@
           <span x-show="addedToCart">Pridané ✓</span>
         </button>
       </div>
-      <a href="{{ route('store.cart') }}" class="shrink-0 flex items-center justify-center w-13 h-13 min-w-[3.25rem] min-h-[3.25rem] border border-gray-300">
+      <a href="{{ route('store.cart') }}" class="shrink-0 flex items-center justify-center w-13 h-13 min-w-13 min-h-13 border border-gray-300">
         <img src="{{ asset('icons/shopping-cart.svg') }}" class="w-7 h-7" alt="Košík" />
       </a>
     </div>

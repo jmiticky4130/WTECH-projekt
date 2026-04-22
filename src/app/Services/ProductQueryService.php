@@ -21,13 +21,23 @@ class ProductQueryService
         ?int $categoryId = null,
         ?array $subcategoryIds = null,
         ?string $searchTerm = null,
+        bool $includeProductsWithoutVariants = false,
     ): Builder {
         $variantSub = $this->buildVariantSubquery($filters);
+        $hasVariantFilters = ! empty($filters['color'])
+            || ! empty($filters['size'])
+            || ($filters['min_price'] !== null && $filters['min_price'] !== '')
+            || ($filters['max_price'] !== null && $filters['max_price'] !== '');
 
         $query = Product::query()
-            ->joinSub($variantSub, 'qv', 'products.id', '=', 'qv.product_id')
-            ->join('brands', 'products.brand_id', '=', 'brands.id')
-            ->join('materials', 'products.material_id', '=', 'materials.id');
+            ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
+            ->leftJoin('materials', 'products.material_id', '=', 'materials.id');
+
+        if ($includeProductsWithoutVariants && ! $hasVariantFilters) {
+            $query->leftJoinSub($variantSub, 'qv', 'products.id', '=', 'qv.product_id');
+        } else {
+            $query->joinSub($variantSub, 'qv', 'products.id', '=', 'qv.product_id');
+        }
 
         if ($categoryId !== null) {
             $query->where('products.category_id', $categoryId);

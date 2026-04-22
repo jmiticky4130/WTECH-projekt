@@ -10,12 +10,16 @@
   'total' => '',
 ])
 
+@php
+  $resolvedImage = \App\Support\ProductImageUrl::resolve($image);
+@endphp
+
 {{-- Desktop layout --}}
 <div class="hidden md:grid grid-cols-[1fr_5rem_6rem_8rem_7rem_5rem] items-center">
   <div class="flex gap-3 items-center">
     <div class="w-16 h-24 bg-gray-200 shrink-0 overflow-hidden relative">
-      @if ($image)
-        <img src="{{ asset($image) }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
+      @if ($resolvedImage)
+        <img src="{{ $resolvedImage }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
       @endif
     </div>
     <div>
@@ -42,8 +46,8 @@
 {{-- Mobile layout --}}
 <div class="md:hidden flex gap-3">
   <div class="w-20 h-30 bg-gray-200 shrink-0 overflow-hidden relative">
-    @if ($image)
-      <img src="{{ asset($image) }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
+    @if ($resolvedImage)
+      <img src="{{ $resolvedImage }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
     @endif
   </div>
   <div class="flex-1 min-w-0">

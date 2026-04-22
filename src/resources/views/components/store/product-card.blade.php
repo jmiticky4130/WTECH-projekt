@@ -8,10 +8,14 @@
   'price' => '',
 ])
 
+@php
+  $resolvedImage = \App\Support\ProductImageUrl::resolve($image);
+@endphp
+
 <a href="{{ $href ?? route('store.product') }}" class="group block border border-gray-200 bg-white hover:shadow-sm transition-shadow">
   <div class="aspect-[8/9] bg-gray-100 relative overflow-hidden">
-    @if ($image)
-      <img src="{{ asset($image) }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
+    @if ($resolvedImage)
+      <img src="{{ $resolvedImage }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $name }}">
     @endif
   </div>
   <div class="p-3 border-t border-gray-100">

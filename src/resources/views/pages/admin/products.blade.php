@@ -10,15 +10,26 @@
       <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded">{{ session('success') }}</div>
     @endif
 
+    @if ($errors->any() && old('_method') !== 'PUT')
+      <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded">
+        <p class="font-semibold mb-1">Produkt sa neulozil. Skontrolujte chyby nizsie.</p>
+        <ul class="list-disc list-inside space-y-0.5">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
     <!-- page header -->
     <div class="flex items-center justify-between mb-6">
       <div>
         <p class="text-xs text-gray-400 mb-0.5">Administrácia / Produkty</p>
         <h1 class="text-2xl font-bold text-brand-dark">Produkty</h1>
       </div>
-      <a href="#modal-add" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-5 py-2.5 transition-colors">
+      <button type="button" onclick="openAddModal()" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-5 py-2.5 transition-colors">
         + Pridať produkt
-      </a>
+      </button>
     </div>
 
     <!-- search & filter bar -->
@@ -71,7 +82,13 @@
                 <p class="text-xs text-gray-400">{{ $p->brand_name }}</p>
               </td>
               <td class="px-4 py-3 text-gray-600 hidden wide:table-cell">{{ $p->subcategory_name }}</td>
-              <td class="px-4 py-3 font-semibold">{{ number_format($p->min_price, 2, ',', ' ') }} €</td>
+              <td class="px-4 py-3 font-semibold">
+                @if ($p->min_price !== null)
+                  {{ number_format((float) $p->min_price, 2, ',', ' ') }} €
+                @else
+                  <span class="text-gray-400">Bez variantov</span>
+                @endif
+              </td>
               <td class="px-4 py-3">
                 @if ($stock > 5)
                   <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded whitespace-nowrap">{{ $stock }} ks</span>
@@ -134,21 +151,33 @@
       </div>
       <form id="form-add" action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="px-6 py-6 space-y-5">
         @csrf
+
+        @if ($errors->any() && old('_method') !== 'PUT')
+          <div class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded">
+            <p class="font-semibold mb-1">Produkt sa neulozil.</p>
+            <ul class="list-disc list-inside space-y-0.5">
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Názov <span class="text-red-500">*</span></label>
-            <input type="text" name="name" placeholder="Názov produktu" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            <input type="text" name="name" value="{{ old('name') }}" placeholder="Názov produktu" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
           </div>
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium mb-1.5">Opis <span class="text-red-500">*</span></label>
-            <textarea name="description" rows="3" placeholder="Popis produktu..." required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none"></textarea>
+            <textarea name="description" rows="3" placeholder="Popis produktu..." required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark resize-none">{{ old('description') }}</textarea>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
             <select name="category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať kategóriu</option>
               @foreach ($categories as $cat)
-                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                <option value="{{ $cat->id }}" @selected((string) old('category_id') === (string) $cat->id)>{{ $cat->name }}</option>
               @endforeach
             </select>
           </div>
@@ -157,7 +186,7 @@
             <select name="subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať podkategóriu</option>
               @foreach ($subcategories as $sub)
-                <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+                <option value="{{ $sub->id }}" @selected((string) old('subcategory_id') === (string) $sub->id)>{{ $sub->name }}</option>
               @endforeach
             </select>
           </div>
@@ -166,7 +195,7 @@
             <select name="brand_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať značku</option>
               @foreach ($brands as $brand)
-                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                <option value="{{ $brand->id }}" @selected((string) old('brand_id') === (string) $brand->id)>{{ $brand->name }}</option>
               @endforeach
             </select>
           </div>
@@ -175,13 +204,13 @@
             <select name="material_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať materiál</option>
               @foreach ($materials as $mat)
-                <option value="{{ $mat->id }}">{{ $mat->name }}</option>
+                <option value="{{ $mat->id }}" @selected((string) old('material_id') === (string) $mat->id)>{{ $mat->name }}</option>
               @endforeach
             </select>
           </div>
           <div class="sm:col-span-2">
             <label class="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" name="is_featured" value="1" class="w-4 h-4 accent-brand-dark" />
+              <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured')) class="w-4 h-4 accent-brand-dark" />
               <span class="text-sm font-medium">Zvýraznený produkt</span>
             </label>
           </div>
@@ -189,17 +218,39 @@
 
         <div class="border-t border-gray-100 pt-4">
           <label class="block text-sm font-bold mb-2">Fotografie <span class="text-red-500">*</span></label>
-          <input type="file" name="images[]" accept="image/*" multiple required
+
+          <p class="text-xs font-semibold text-gray-600 mb-2">Vyberte z existujucich obrazkov aplikacie</p>
+          @if (count($libraryImages) > 0)
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2">
+              @foreach ($libraryImages as $image)
+                @php $isChecked = in_array($image['path'], old('library_images', []), true); @endphp
+                <label class="cursor-pointer block relative">
+                  <input type="checkbox" name="library_images[]" value="{{ $image['path'] }}" @checked($isChecked) class="peer sr-only" />
+                  <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
+                  <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
+                    <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
+                    <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
+                  </span>
+                </label>
+              @endforeach
+            </div>
+          @else
+            <p class="text-xs text-gray-400">V priecinku public/images/products nie su dostupne ziadne obrazky.</p>
+          @endif
+
+          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo nahrajte nove fotografie</p>
+          <input type="file" name="images[]" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
-            onchange="previewImages(this, 'add-previews')"
+            onchange="handleImageInputChange(this, 'add-previews', 'add-images-validation-message')"
           />
+          <p id="add-images-validation-message" class="hidden text-xs text-red-600 mt-1"></p>
           <div id="add-previews" class="flex flex-wrap gap-2 mt-2"></div>
-          <p class="text-xs text-gray-400 mt-1">Prvý súbor bude primárny.</p>
+          <p class="text-xs text-gray-400 mt-1">Prvý novy nahrany alebo vybrany obrazok bude primarny. Povolené formáty: jpg, jpeg, png, webp. Max. 2 MB na obrázok.</p>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-bold">Varianty <span class="text-gray-400 font-normal text-xs">(farba × veľkosť × cena × sklad)</span></label>
+            <label class="text-sm font-bold">Varianty <span class="text-red-500">*</span> <span class="text-gray-400 font-normal text-xs">(farba × veľkosť × cena × sklad)</span></label>
             <button type="button" onclick="showVariantAdder('form-add')" class="text-xs font-semibold text-brand-dark hover:underline">+ Pridať varianty</button>
           </div>
           <div class="border border-gray-200 rounded overflow-hidden">
@@ -214,9 +265,31 @@
                 </tr>
               </thead>
               <tbody id="add-variants-body">
-                <tr class="text-gray-400 italic" id="add-empty-row">
-                  <td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty — kliknite na + Pridať varianty</td>
-                </tr>
+                @if (is_array(old('variants')) && count(old('variants')) > 0)
+                  @foreach (old('variants') as $idx => $variant)
+                    @php
+                      $oldColorId = (int) data_get($variant, 'color_id');
+                      $oldColor = $colors->firstWhere('id', $oldColorId);
+                    @endphp
+                    <tr class="border-b border-gray-100">
+                      <td class="px-3 py-2">{{ $oldColor?->name ?? ('Farba #' . $oldColorId) }}</td>
+                      <td class="px-3 py-2">{{ data_get($variant, 'size') }}</td>
+                      <td class="px-3 py-2">{{ data_get($variant, 'price') }} €</td>
+                      <td class="px-3 py-2">{{ data_get($variant, 'stock') }}</td>
+                      <td class="px-3 py-2 text-right">
+                        <button type="button" onclick="this.closest('tr').remove()" class="text-gray-400 hover:text-red-500">&#x2715;</button>
+                        <input type="hidden" name="variants[{{ $idx }}][color_id]" value="{{ data_get($variant, 'color_id') }}" />
+                        <input type="hidden" name="variants[{{ $idx }}][size]" value="{{ data_get($variant, 'size') }}" />
+                        <input type="hidden" name="variants[{{ $idx }}][price]" value="{{ data_get($variant, 'price') }}" />
+                        <input type="hidden" name="variants[{{ $idx }}][stock]" value="{{ data_get($variant, 'stock') }}" />
+                      </td>
+                    </tr>
+                  @endforeach
+                @else
+                  <tr class="text-gray-400 italic" id="add-empty-row">
+                    <td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty — kliknite na + Pridať varianty</td>
+                  </tr>
+                @endif
               </tbody>
             </table>
           </div>
@@ -295,13 +368,34 @@
         </div>
 
         <div class="border-t border-gray-100 pt-4">
-          <label class="block text-sm font-bold mb-2">Existujúce fotografie</label>
-          <div id="edit-existing-images" class="flex flex-wrap gap-2 mb-3"></div>
+          <div id="edit-keep-image-ids" class="hidden"></div>
+
+          <label class="block text-sm font-bold mb-2">Fotografie</label>
+          <p class="text-xs font-semibold text-gray-600 mb-2">Vyberte z existujucich obrazkov aplikacie</p>
+          @if (count($libraryImages) > 0)
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2 mb-3">
+              @foreach ($libraryImages as $image)
+                <label class="cursor-pointer block relative">
+                  <input type="checkbox" name="library_images[]" value="{{ $image['path'] }}" class="peer sr-only" />
+                  <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
+                  <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
+                    <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
+                    <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
+                  </span>
+                </label>
+              @endforeach
+            </div>
+          @else
+            <p class="text-xs text-gray-400 mb-3">V priecinku public/images/products nie su dostupne ziadne obrazky.</p>
+          @endif
+
+          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo nahrajte nove fotografie</p>
           <label class="block text-sm font-medium mb-1.5">Nové fotografie</label>
           <input type="file" name="images[]" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
-            onchange="previewImages(this, 'edit-new-previews')"
+            onchange="handleImageInputChange(this, 'edit-new-previews', 'edit-images-validation-message')"
           />
+          <p id="edit-images-validation-message" class="hidden text-xs text-red-600 mt-1"></p>
           <div id="edit-new-previews" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
@@ -361,20 +455,25 @@
   <!-- variant adder overlay -->
   <div id="modal-variant-adder" class="fixed inset-0 bg-black/40 hidden items-center justify-center px-4 py-8 overflow-y-auto" style="z-index: 70;">
     <div class="bg-white w-full max-w-lg mx-auto shadow-xl my-auto">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-bold">Pridať varianty</h2>
-        <button type="button" onclick="closeVariantAdder()" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</button>
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-bold">Pridať varianty</h2>
+          <button type="button" onclick="closeVariantAdder()" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</button>
+        </div>
+        <p id="variant-validation-message" class="hidden mt-1 text-sm text-red-600 font-medium" aria-live="polite"></p>
       </div>
       <div class="px-6 py-6 space-y-5">
         <div>
           <label class="block text-sm font-medium mb-2">Farby <span class="text-red-500">*</span></label>
           <div class="flex flex-wrap gap-2" id="va-colors">
             @foreach ($colors as $color)
-              <label class="flex items-center gap-2 cursor-pointer border border-gray-200 px-3 py-1.5 text-sm hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
-                <input type="checkbox" name="va_color" value="{{ $color->id }}" data-name="{{ $color->name }}" class="sr-only" />
-                <span class="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0" style="background:{{ $color->hex_code }}"></span>
-                {{ $color->name }}
-              </label>
+              <div>
+                <input type="checkbox" id="va-color-{{ $color->id }}" name="va_color" value="{{ $color->id }}" data-name="{{ $color->name }}" class="peer sr-only" />
+                <label for="va-color-{{ $color->id }}" class="flex items-center gap-2 cursor-pointer border border-gray-200 px-3 py-1.5 text-sm hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
+                  <span class="inline-block w-3 h-3 rounded-full border border-gray-300 shrink-0 peer-checked:border-white" style="background:{{ $color->hex_code }}"></span>
+                  {{ $color->name }}
+                </label>
+              </div>
             @endforeach
           </div>
         </div>
@@ -383,19 +482,23 @@
           <p class="text-xs text-gray-400 mb-1.5">Oblečenie / doplnky</p>
           <div class="flex flex-wrap gap-2 mb-3">
             @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
-              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
-                <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
-                {{ $size }}
-              </label>
+              <div>
+                <input type="checkbox" id="va-size-clothes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only" />
+                <label for="va-size-clothes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
+                  {{ $size }}
+                </label>
+              </div>
             @endforeach
           </div>
           <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
           <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
             @foreach (range(20, 50) as $size)
-              <label class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark has-checked:border-brand-dark has-checked:bg-brand-dark has-checked:text-white transition-colors">
-                <input type="checkbox" name="va_size" value="{{ $size }}" class="sr-only" />
-                {{ $size }}
-              </label>
+              <div>
+                <input type="checkbox" id="va-size-shoes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only" />
+                <label for="va-size-shoes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
+                  {{ $size }}
+                </label>
+              </div>
             @endforeach
           </div>
         </div>
@@ -419,13 +522,137 @@
 
   <script>
     let currentFormId = null;
-    const variantIndex = { 'form-add': 0, 'form-edit': 0 };
+    const variantIndex = { 'form-add': {{ is_array(old('variants')) ? count(old('variants')) : 0 }}, 'form-edit': 0 };
+    const maxImageSizeBytes = 2 * 1024 * 1024;
+    let editCurrentLibraryImagePathSet = new Set();
+
+    const addVariantsEmptyRowHtml = '<tr class="text-gray-400 italic" id="add-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty — kliknite na + Pridať varianty</td></tr>';
+
+    function openAddModal(resetForm = true) {
+      if (resetForm) {
+        resetAddFormState();
+      }
+
+      window.location.hash = 'modal-add';
+    }
+
+    function resetAddFormState() {
+      const form = document.getElementById('form-add');
+      form.reset();
+
+      const previews = document.getElementById('add-previews');
+      previews.innerHTML = '';
+
+      const variantsBody = document.getElementById('add-variants-body');
+      variantsBody.innerHTML = addVariantsEmptyRowHtml;
+
+      variantIndex['form-add'] = 0;
+      clearImageValidationMessage('add-images-validation-message');
+      hideVariantValidationMessage();
+
+      form.querySelectorAll('input[name="library_images[]"]').forEach(input => {
+        input.checked = false;
+      });
+    }
+
+    function clearImageValidationMessage(messageId) {
+      const message = document.getElementById(messageId);
+      if (!message) {
+        return;
+      }
+
+      message.textContent = '';
+      message.classList.add('hidden');
+    }
+
+    function validateImageFileInput(input, messageId) {
+      const files = Array.from(input?.files || []);
+      const tooLarge = files.find(file => file.size > maxImageSizeBytes);
+
+      if (!tooLarge) {
+        clearImageValidationMessage(messageId);
+        return true;
+      }
+
+      const message = document.getElementById(messageId);
+      if (message) {
+        message.textContent = `Subor ${tooLarge.name} je vacsi ako 2 MB.`;
+        message.classList.remove('hidden');
+      }
+
+      return false;
+    }
+
+    function handleImageInputChange(input, previewContainerId, messageId) {
+      const isValid = validateImageFileInput(input, messageId);
+      if (!isValid) {
+        const container = document.getElementById(previewContainerId);
+        if (container) {
+          container.innerHTML = '';
+        }
+
+        return;
+      }
+
+      previewImages(input, previewContainerId);
+    }
+
+    function showVariantValidationMessage(message) {
+      const el = document.getElementById('variant-validation-message');
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+
+    function hideVariantValidationMessage() {
+      const el = document.getElementById('variant-validation-message');
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+
+    document.getElementById('form-add').addEventListener('submit', function (event) {
+      const addImagesInput = this.querySelector('input[name="images[]"]');
+      if (!validateImageFileInput(addImagesInput, 'add-images-validation-message')) {
+        event.preventDefault();
+        return;
+      }
+
+      const selectedLibraryImages = this.querySelectorAll('input[name="library_images[]"]:checked').length;
+      const uploadedImages = addImagesInput?.files?.length || 0;
+      if (uploadedImages === 0 && selectedLibraryImages === 0) {
+        event.preventDefault();
+        const message = document.getElementById('add-images-validation-message');
+        if (message) {
+          message.textContent = 'Pridajte alebo vyberte aspon jednu fotografiu.';
+          message.classList.remove('hidden');
+        }
+
+        return;
+      }
+
+      const hasVariants = this.querySelectorAll('input[name*="[color_id]"]').length > 0;
+
+      if (!hasVariants) {
+        event.preventDefault();
+        showVariantAdder('form-add', 'Varianty sú povinné. Pridajte aspoň jeden variant.');
+      }
+    });
+
+    document.querySelectorAll('#form-add input[name="library_images[]"]').forEach(input => {
+      input.addEventListener('change', function () {
+        clearImageValidationMessage('add-images-validation-message');
+      });
+    });
 
     function openEditModal(id, name) {
       document.getElementById('edit-name').value = name;
-      document.getElementById('form-edit').action = `/admin/products/${id}`;
+      const form = document.getElementById('form-edit');
+      form.action = `/admin/products/${id}`;
+      form.querySelectorAll('input[name="library_images[]"]').forEach(input => {
+        input.checked = false;
+      });
+      editCurrentLibraryImagePathSet = new Set();
+      document.getElementById('edit-keep-image-ids').innerHTML = '';
       document.getElementById('edit-variants-body').innerHTML = '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Načítavam...</td></tr>';
-      document.getElementById('edit-existing-images').innerHTML = '';
       document.getElementById('edit-description').value = '';
       variantIndex['form-edit'] = 0;
       window.location.hash = 'modal-edit';
@@ -438,7 +665,9 @@
           setSelectVal('edit-brand_id', data.brand_id);
           setSelectVal('edit-material_id', data.material_id);
           document.getElementById('edit-is_featured').checked = !!data.is_featured;
-          populateEditImages(data.images || []);
+          syncEditLibraryPickerWithExistingImages(data.images || []);
+          populateEditKeepImageIds(data.images || []);
+          syncEditLibrarySelectionState();
           populateEditVariants(data.variants || []);
         })
         .catch(() => {
@@ -446,22 +675,67 @@
         });
     }
 
-    function populateEditImages(images) {
-      const container = document.getElementById('edit-existing-images');
-      container.innerHTML = '';
-      images.forEach(img => {
-        const div = document.createElement('div');
-        div.className = 'relative';
-        div.innerHTML = `
-          <img src="${img.url}" class="w-16 h-20 object-cover border border-gray-200 rounded" />
-          <label class="absolute top-0.5 right-0.5 cursor-pointer" title="Zaškrtnúť = zachovať">
-            <input type="checkbox" name="keep_image_ids[]" value="${img.id}" checked class="w-3 h-3" />
-          </label>
-          ${img.is_primary ? '<span class="absolute bottom-0.5 left-0.5 text-[9px] bg-brand-dark text-white px-1 rounded">1°</span>' : ''}
-        `;
-        container.appendChild(div);
+    function normalizeImagePath(path) {
+      if (!path) {
+        return '';
+      }
+
+      return String(path).replace(/\\/g, '/').replace(/^\/+/, '');
+    }
+
+    function syncEditLibraryPickerWithExistingImages(images) {
+      const selectedPaths = new Set(
+        images
+          .map(img => normalizeImagePath(img.path))
+          .filter(path => path.startsWith('images/products/'))
+      );
+
+      editCurrentLibraryImagePathSet = selectedPaths;
+
+      document.querySelectorAll('#form-edit input[name="library_images[]"]').forEach(input => {
+        const normalizedValue = normalizeImagePath(input.value);
+        input.checked = selectedPaths.has(normalizedValue);
       });
     }
+
+    function populateEditKeepImageIds(images) {
+      const container = document.getElementById('edit-keep-image-ids');
+      container.innerHTML = '';
+      images.forEach(img => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'keep_image_ids[]';
+        input.value = img.id;
+        input.dataset.path = normalizeImagePath(img.path || '');
+        container.appendChild(input);
+      });
+    }
+
+    function syncEditLibrarySelectionState() {
+      const keepContainer = document.getElementById('edit-keep-image-ids');
+      const editForm = document.getElementById('form-edit');
+      const libraryInputs = Array.from(editForm.querySelectorAll('input[name="library_images[]"]'));
+
+      const selectedNow = new Set(
+        libraryInputs
+          .filter(input => input.checked)
+          .map(input => normalizeImagePath(input.value))
+      );
+
+      const hiddenKeepInputs = Array.from(keepContainer.querySelectorAll('input[name="keep_image_ids[]"]'));
+      hiddenKeepInputs.forEach(input => {
+        const imagePath = normalizeImagePath(input.dataset.path || '');
+        if (imagePath.startsWith('images/products/')) {
+          input.disabled = !selectedNow.has(imagePath);
+        }
+      });
+    }
+
+    document.querySelectorAll('#form-edit input[name="library_images[]"]').forEach(input => {
+      input.addEventListener('change', function () {
+        syncEditLibrarySelectionState();
+      });
+    });
 
     function populateEditVariants(variants) {
       const tbody = document.getElementById('edit-variants-body');
@@ -470,7 +744,7 @@
         tbody.innerHTML = '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty</td></tr>';
         return;
       }
-      variants.forEach(v => addVariantRow('form-edit', v.color_id, v.color_name, v.size, v.price, v.stock_quantity));
+      variants.forEach(v => addVariantRow('form-edit', v.color_id, v.color_name, v.size, v.price, v.stock_quantity, v.id));
     }
 
     function setSelectVal(id, value) {
@@ -499,18 +773,24 @@
       });
     }
 
-    function showVariantAdder(formId) {
+    function showVariantAdder(formId, validationMessage = null) {
       currentFormId = formId;
       document.querySelectorAll('#modal-variant-adder input[name="va_color"]').forEach(cb => cb.checked = false);
       document.querySelectorAll('#modal-variant-adder input[name="va_size"]').forEach(cb => cb.checked = false);
       document.getElementById('va-price').value = '';
       document.getElementById('va-stock').value = '';
+      if (validationMessage) {
+        showVariantValidationMessage(validationMessage);
+      } else {
+        hideVariantValidationMessage();
+      }
       const el = document.getElementById('modal-variant-adder');
       el.classList.remove('hidden');
       el.classList.add('flex');
     }
 
     function closeVariantAdder() {
+      hideVariantValidationMessage();
       const el = document.getElementById('modal-variant-adder');
       el.classList.add('hidden');
       el.classList.remove('flex');
@@ -522,7 +802,7 @@
       const price  = document.getElementById('va-price').value;
       const stock  = document.getElementById('va-stock').value;
       if (!colors.length || !sizes.length || !price || stock === '') {
-        alert('Vyplňte farbu, veľkosť, cenu a sklad.');
+        showVariantValidationMessage('Vyplňte farbu, veľkosť, cenu a sklad.');
         return;
       }
       const emptyId = currentFormId === 'form-add' ? 'add-empty-row' : 'edit-empty-row';
@@ -536,7 +816,7 @@
       closeVariantAdder();
     }
 
-    function addVariantRow(formId, colorId, colorName, size, price, stock) {
+    function addVariantRow(formId, colorId, colorName, size, price, stock, variantId = null) {
       const tbody = document.getElementById(formId === 'form-add' ? 'add-variants-body' : 'edit-variants-body');
       const idx = variantIndex[formId]++;
       const row = document.createElement('tr');
@@ -548,6 +828,7 @@
         <td class="px-3 py-2">${stock}</td>
         <td class="px-3 py-2 text-right">
           <button type="button" onclick="this.closest('tr').remove()" class="text-gray-400 hover:text-red-500">&#x2715;</button>
+          ${variantId ? `<input type="hidden" name="variants[${idx}][id]" value="${variantId}" />` : ''}
           <input type="hidden" name="variants[${idx}][color_id]" value="${colorId}" />
           <input type="hidden" name="variants[${idx}][size]" value="${size}" />
           <input type="hidden" name="variants[${idx}][price]" value="${price}" />
@@ -557,5 +838,13 @@
       tbody.appendChild(row);
     }
   </script>
+
+  @if ($errors->any() && old('_method') !== 'PUT')
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        openAddModal(false);
+      });
+    </script>
+  @endif
 
 </x-admin.layout>

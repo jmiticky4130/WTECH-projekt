@@ -5,10 +5,14 @@
   'label' => '',
 ])
 
+@php
+  $resolvedImage = \App\Support\ProductImageUrl::resolve($image);
+@endphp
+
 <a href="{{ $href ?? route('store.category') }}" class="group block overflow-hidden">
   <div class="aspect-[4/4] bg-gray-200 relative overflow-hidden">
-    @if ($image)
-      <img src="{{ asset($image) }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $label }}">
+    @if ($resolvedImage)
+      <img src="{{ $resolvedImage }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $alt ?: $label }}">
     @endif
   </div>
   <div class="bg-brand-dark group-hover:bg-brand-accent text-white text-center py-2.5 text-sm font-semibold tracking-wider transition-colors uppercase">
