@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Store;
 use App\Data\PlaceOrderData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaceOrderRequest;
-use App\Support\ProductImageUrl;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\ShippingMethod;
 use App\Services\OrderService;
+use App\Support\ProductImageUrl;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    private function itemQuery(): \Illuminate\Database\Query\Builder
+    private function itemQuery(): Builder
     {
         return DB::table('cart_items')
             ->join('product_variants as pv', 'cart_items.variant_id', '=', 'pv.id')
@@ -46,6 +47,7 @@ class CartController extends Controller
                 DB::raw('c.name as color_name'),
                 'pv.size',
                 'pv.price',
+                'pv.stock_quantity',
                 'cart_items.quantity as qty',
                 'pi.image_path',
             ]);
@@ -97,6 +99,7 @@ class CartController extends Controller
                 DB::raw('c.name as color_name'),
                 'pv.size',
                 'pv.price',
+                'pv.stock_quantity',
                 'pi.image_path',
             ])
             ->whereIn('pv.id', $variantIds)
@@ -136,34 +139,68 @@ class CartController extends Controller
             )
             ->select(['pv.id as variant_id', 'p.id as product_id', 'p.name', 'p.slug',
                 DB::raw('b.name as brand_name'), DB::raw('c.name as color_name'),
-                'pv.size', 'pv.price', 'pi.image_path'])
+                'pv.size', 'pv.price', 'pv.stock_quantity', 'pi.image_path'])
             ->where('pv.id', $variantId)
             ->first();
 
-        if ($variant) {
-            $variant->image_url = ProductImageUrl::resolve($variant->image_path);
+        if (! $variant) {
+            return response()->json([
+                'message' => 'Vybrany variant uz nie je dostupny.',
+            ], 422);
         }
+
+        $availableStock = max(0, (int) ($variant->stock_quantity ?? 0));
+
+        if ($availableStock < 1) {
+            return response()->json([
+                'message' => 'Vybrany variant je momentalne vypredany.',
+                'available_stock' => 0,
+            ], 422);
+        }
+
+        if ($qty > $availableStock) {
+            return response()->json([
+                'message' => "Na sklade je dostupnych uz len {$availableStock} ks.",
+                'available_stock' => $availableStock,
+            ], 422);
+        }
+
+        $variant->image_url = ProductImageUrl::resolve($variant->image_path);
 
         $itemId = null;
         $cartCount = null;
+        $responseQty = $qty;
 
         if (Auth::check()) {
             $userId = Auth::id();
             $item = CartItem::where('user_id', $userId)->where('variant_id', $variantId)->first();
+
             if ($item) {
-                $item->increment('quantity', $qty);
-                $item->refresh();
+                $newQty = (int) $item->quantity + $qty;
+
+                if ($newQty > $availableStock) {
+                    return response()->json([
+                        'message' => "Na sklade je dostupnych uz len {$availableStock} ks.",
+                        'available_stock' => $availableStock,
+                    ], 422);
+                }
+
+                $item->update(['quantity' => $newQty]);
             } else {
                 $item = CartItem::create(['user_id' => $userId, 'variant_id' => $variantId, 'quantity' => $qty]);
             }
+
+            $item->refresh();
             $itemId = $item->id;
+            $responseQty = (int) $item->quantity;
             $cartCount = CartItem::where('user_id', $userId)->sum('quantity');
         }
 
         return response()->json([
             ...(array) $variant,
             'item_id' => $itemId,
-            'qty' => $qty,
+            'qty' => $responseQty,
+            'available_stock' => $availableStock,
             'cart_count' => $cartCount,
         ]);
     }
@@ -173,7 +210,27 @@ class CartController extends Controller
         abort_unless(Auth::check() && $cartItem->user_id === Auth::id(), 403);
 
         $request->validate(['qty' => ['required', 'integer', 'min:1']]);
-        $cartItem->update(['quantity' => $request->integer('qty')]);
+
+        $newQty = $request->integer('qty');
+        $availableStock = (int) DB::table('product_variants')
+            ->where('id', $cartItem->variant_id)
+            ->value('stock_quantity');
+
+        if ($availableStock < 1) {
+            return response()->json([
+                'message' => 'Vybrany variant je momentalne vypredany.',
+                'available_stock' => 0,
+            ], 422);
+        }
+
+        if ($newQty > $availableStock) {
+            return response()->json([
+                'message' => "Na sklade je dostupnych uz len {$availableStock} ks.",
+                'available_stock' => $availableStock,
+            ], 422);
+        }
+
+        $cartItem->update(['quantity' => $newQty]);
 
         return response()->json(['ok' => true]);
     }
@@ -182,6 +239,40 @@ class CartController extends Controller
     {
         abort_unless(Auth::check() && $cartItem->user_id === Auth::id(), 403);
         $cartItem->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function merge(Request $request): JsonResponse
+    {
+        if (! Auth::check()) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        $items = $request->input('items', []);
+        $userId = Auth::id();
+
+        foreach ($items as $item) {
+            $variantId = isset($item['variant_id']) ? (int) $item['variant_id'] : null;
+            $qty = isset($item['qty']) ? (int) $item['qty'] : 1;
+
+            if (! $variantId || $qty < 1) {
+                continue;
+            }
+
+            $stock = (int) DB::table('product_variants')->where('id', $variantId)->value('stock_quantity');
+            if ($stock < 1) {
+                continue;
+            }
+
+            $existing = CartItem::where('user_id', $userId)->where('variant_id', $variantId)->first();
+            if ($existing) {
+                $newQty = min($existing->quantity + $qty, $stock);
+                $existing->update(['quantity' => $newQty]);
+            } else {
+                CartItem::create(['user_id' => $userId, 'variant_id' => $variantId, 'quantity' => min($qty, $stock)]);
+            }
+        }
 
         return response()->json(['ok' => true]);
     }

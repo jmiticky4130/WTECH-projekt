@@ -44,7 +44,28 @@
       window.__bellura = {
         isAuth: {{ auth()->check() ? 'true' : 'false' }},
         csrfToken: '{{ csrf_token() }}',
+        mergeCart: {{ session('merge_cart') ? 'true' : 'false' }},
       };
+      if (window.__bellura.mergeCart && window.__bellura.isAuth) {
+        const stored = JSON.parse(localStorage.getItem('bellura_cart') || '[]');
+        if (stored.length > 0) {
+          fetch('/cart/count', { headers: { Accept: 'application/json' } })
+            .then(r => r.json())
+            .then(d => {
+              if (d.count > 0) {
+                localStorage.removeItem('bellura_cart');
+              } else {
+                fetch('/cart/merge', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': window.__bellura.csrfToken },
+                  body: JSON.stringify({ items: stored }),
+                }).then(() => localStorage.removeItem('bellura_cart'));
+              }
+            });
+        } else {
+          localStorage.removeItem('bellura_cart');
+        }
+      }
       function headerCart() {
         return {
           count: 0,

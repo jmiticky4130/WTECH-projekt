@@ -60,6 +60,7 @@
                       <p class="text-xs text-gray-400" x-text="item.brand_name ?? ''"></p>
                       <a :href="'/produkt/' + item.slug" class="text-sm font-bold hover:underline" x-text="item.name"></a>
                       <p class="text-xs text-gray-500" x-text="item.color_name ? 'Farba: ' + item.color_name : ''"></p>
+                      <p class="text-xs text-red-500 mt-1" x-show="item.stockError" x-text="item.stockError"></p>
                     </div>
                   </div>
                   <span class="text-sm text-center" x-text="item.size"></span>
@@ -113,6 +114,7 @@
                         <img src="{{ asset('icons/trash.svg') }}" class="w-5 h-5" alt="Odstrániť" />
                       </button>
                     </div>
+                    <p class="text-xs text-red-500 mt-2" x-show="item.stockError" x-text="item.stockError"></p>
                   </div>
                 </div>
 
@@ -171,7 +173,7 @@
             if (this.isAuth) {
               const res = await fetch('/cart/data', { headers: { Accept: 'application/json' } });
               const data = await res.json();
-              this.items = data.items ?? [];
+              this.items = (data.items ?? []).map(item => ({ ...item, stockError: '' }));
             } else {
               const stored = JSON.parse(localStorage.getItem('bellura_cart') || '[]');
               if (stored.length === 0) {
@@ -188,7 +190,11 @@
               const data = await res.json();
               this.items = (data.items ?? []).map(item => {
                 const found = stored.find(s => s.variant_id == item.variant_id);
-                return { ...item, qty: found ? found.qty : (item.qty ?? 1) };
+                return {
+                  ...item,
+                  qty: found ? found.qty : (item.qty ?? 1),
+                  stockError: '',
+                };
               });
             }
           } catch (e) {
@@ -210,12 +216,29 @@
         },
 
         async updateQty(item, delta) {
-          const newQty = item.qty + delta;
+          const currentQty = Number(item.qty ?? 1);
+          const newQty = currentQty + delta;
+          const maxStock = Number(item.stock_quantity ?? 0);
+
+          item.stockError = '';
+
           if (newQty < 1) return;
+
+          if (maxStock < 1) {
+            item.stockError = 'Polozka je momentalne vypredana.';
+            return;
+          }
+
+          if (newQty > maxStock) {
+            item.stockError = `Na sklade je dostupnych uz len ${maxStock} ks.`;
+            return;
+          }
+
+          const previousQty = currentQty;
           item.qty = newQty;
 
           if (this.isAuth) {
-            await fetch(`/cart/item/${item.item_id}`, {
+            const res = await fetch(`/cart/item/${item.item_id}`, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
@@ -224,9 +247,17 @@
               },
               body: JSON.stringify({ qty: newQty }),
             });
+
+            if (!res.ok) {
+              const data = await res.json().catch(() => ({}));
+              item.qty = previousQty;
+              item.stockError = data.message ?? 'Mnozstvo presahuje skladove zasoby.';
+              return;
+            }
           } else {
             this.syncLocalStorage();
           }
+
           window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: this.totalQty } }));
         },
 

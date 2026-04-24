@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, function (Login $event) {
             if ($event->guard === 'web') {
                 Auth::guard('admin')->logout();
+                session()->flash('merge_cart', true);
             }
         });
     }

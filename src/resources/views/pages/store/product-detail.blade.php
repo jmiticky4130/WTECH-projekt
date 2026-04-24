@@ -17,6 +17,7 @@
          qty: 1,
          addingToCart: false,
          addedToCart: false,
+         addError: '',
          variants: {{ Js::from($variants) }},
          get allSizes() {
            const order = { XS: 0, S: 1, M: 2, L: 3, XL: 4, XXL: 5 };
@@ -39,6 +40,9 @@
            if (!this.activeSize) return null;
            return this.variants.find(v => v.color_id == this.activeColor && v.size === this.activeSize) ?? null;
          },
+         get maxSelectableQty() {
+           return this.selectedVariant ? Math.max(0, Number(this.selectedVariant.stock_quantity) || 0) : 0;
+         },
          get price() {
            return this.selectedVariant
              ? parseFloat(this.selectedVariant.price)
@@ -52,12 +56,20 @@
            this.activeColorName = colorName;
            this.activeSize = null;
            this.qty = 1;
+           this.addError = '';
          },
          fmtPrice(p) {
            return parseFloat(p).toFixed(2).replace('.', ',') + ' €';
          },
          async addToCart() {
            if (!this.selectedVariant || !this.inStock || this.addingToCart) return;
+           if (this.qty > this.maxSelectableQty) {
+             this.qty = this.maxSelectableQty;
+             this.addError = `Na sklade je dostupnych uz len ${this.maxSelectableQty} ks.`;
+             return;
+           }
+
+           this.addError = '';
            this.addingToCart = true;
            try {
              if (window.__bellura?.isAuth) {
@@ -70,15 +82,32 @@
                  },
                  body: JSON.stringify({ variant_id: this.selectedVariant.id, qty: this.qty }),
                });
-               const data = await res.json();
+               const data = await res.json().catch(() => ({}));
+
+               if (!res.ok) {
+                 this.addError = data.message ?? 'Polozku sa nepodarilo pridat do kosika.';
+                 return;
+               }
+
                window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: data.cart_count } }));
              } else {
                const cart = JSON.parse(localStorage.getItem('bellura_cart') || '[]');
                const existing = cart.find(i => i.variant_id === this.selectedVariant.id);
+               const requestedQty = Number(this.qty) || 1;
+               const maxQty = this.maxSelectableQty;
+
                if (existing) {
-                 existing.qty += this.qty;
+                 const before = Number(existing.qty) || 0;
+                 existing.qty = Math.min(maxQty, before + requestedQty);
+                 if (existing.qty < before + requestedQty) {
+                   this.addError = `Na sklade je dostupnych uz len ${maxQty} ks.`;
+                 }
                } else {
-                 cart.push({ variant_id: this.selectedVariant.id, qty: this.qty });
+                 const newQty = Math.min(maxQty, requestedQty);
+                 cart.push({ variant_id: this.selectedVariant.id, qty: newQty });
+                 if (newQty < requestedQty) {
+                   this.addError = `Na sklade je dostupnych uz len ${maxQty} ks.`;
+                 }
                }
                localStorage.setItem('bellura_cart', JSON.stringify(cart));
                const total = cart.reduce((s, i) => s + i.qty, 0);
@@ -86,8 +115,11 @@
              }
              this.addedToCart = true;
              setTimeout(() => { this.addedToCart = false; }, 2000);
-           } catch (e) {}
-           this.addingToCart = false;
+           } catch (e) {
+             this.addError = 'Polozku sa nepodarilo pridat do kosika.';
+           } finally {
+             this.addingToCart = false;
+           }
          },
        }">
 
@@ -191,12 +223,13 @@
             <!-- quantity (desktop only) -->
             <div class="hidden md:block mb-5">
               <p class="text-sm font-semibold mb-2">Množstvo</p>
+              <p class="text-xs text-gray-500 mb-2" x-show="selectedVariant" x-text="`Dostupne: ${maxSelectableQty} ks`"></p>
               <div class="flex items-stretch border border-gray-300 w-fit h-11">
                 <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none hover:bg-gray-50"
                         @click="qty = Math.max(1, qty - 1)">&minus;</button>
                 <div class="w-10 flex items-center justify-center text-sm font-semibold border-x border-gray-300" x-text="qty"></div>
                 <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none hover:bg-gray-50"
-                        @click="qty = qty + 1">+</button>
+                        @click="if (selectedVariant && qty < maxSelectableQty) qty = qty + 1">+</button>
               </div>
             </div>
 
@@ -211,7 +244,9 @@
               <template x-if="inStock === true">
                 <span class="flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
-                  <span>Skladom — doručenie do 2–3 dní</span>
+                  <span x-text="selectedVariant && selectedVariant.stock_quantity <= 5
+                    ? `Skladom uz len ${selectedVariant.stock_quantity} ks`
+                    : `Skladom ${selectedVariant ? selectedVariant.stock_quantity : 0} ks`"></span>
                 </span>
               </template>
               <template x-if="inStock === false">
@@ -230,6 +265,7 @@
                 <span x-show="!addedToCart" x-text="addingToCart ? 'Pridávam...' : 'Pridať do košíka'"></span>
                 <span x-show="addedToCart">Pridané ✓</span>
               </button>
+              <p class="mt-2 text-xs text-red-500" x-show="addError" x-text="addError"></p>
             </div>
           </div>
 
@@ -306,7 +342,7 @@
                   @click="qty = Math.max(1, qty - 1)">&minus;</button>
           <div class="w-10 flex items-center justify-center text-sm font-semibold border-x border-gray-300" x-text="qty ?? 1"></div>
           <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1"
-                  @click="qty++">+</button>
+            @click="if (selectedVariant && qty < maxSelectableQty) qty = qty + 1">+</button>
         </div>
         <button @click="addToCart()"
                 :disabled="!activeSize || !inStock || addingToCart"

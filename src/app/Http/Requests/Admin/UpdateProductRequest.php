@@ -23,23 +23,13 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => ['boolean'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'library_images' => ['nullable', 'array'],
-            'library_images.*' => [
-                'string',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    $normalized = ltrim(str_replace('\\', '/', (string) $value), '/');
-
-                    if (! str_starts_with($normalized, 'images/products/')) {
-                        $fail('Vybrany obrazok nie je povoleny.');
-
-                        return;
-                    }
-
-                    if (! is_file(public_path($normalized))) {
-                        $fail('Vybrany obrazok neexistuje.');
-                    }
-                },
-            ],
+            'new_images' => ['nullable', 'array'],
+            'new_images.*.type' => ['required_with:new_images', 'in:upload,library,external'],
+            'new_images.*.value' => ['required_with:new_images', 'string', 'max:500'],
+            'primary_image_id' => ['nullable', 'integer'],
+            'primary_new_index' => ['nullable', 'integer', 'min:0'],
+            'image_order' => ['nullable', 'array'],
+            'image_order.*' => ['integer'],
             'keep_image_ids' => ['nullable', 'array'],
             'keep_image_ids.*' => ['integer'],
             'variants' => ['nullable', 'array'],

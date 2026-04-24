@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Subcategory;
 use App\Support\ProductImageUrl;
 use App\Services\FilterDataService;
@@ -59,9 +60,9 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): RedirectResponse
     {
         $this->productService->create(
-            $request->except(['images', 'library_images', '_token']),
+            $request->except(['images', 'new_images', '_token']),
             $request->file('images', []),
-            $request->input('library_images', []),
+            $request->input('new_images', []),
         );
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol pridaný.');
@@ -71,10 +72,10 @@ class ProductController extends Controller
     {
         $this->productService->update(
             $product,
-            $request->except(['images', 'library_images', 'keep_image_ids', '_token', '_method']),
+            $request->except(['images', 'new_images', 'keep_image_ids', '_token', '_method']),
             $request->file('images', []),
             $request->input('keep_image_ids', []),
-            $request->input('library_images', []),
+            $request->input('new_images', []),
         );
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol upravený.');
@@ -82,7 +83,7 @@ class ProductController extends Controller
 
     public function data(Product $product): JsonResponse
     {
-        $product->load(['variants.color', 'images']);
+        $product->load(['variants.color', 'images' => fn ($q) => $q->orderBy('sort_order')]);
 
         return response()->json([
             'description' => $product->description,
@@ -113,6 +114,37 @@ class ProductController extends Controller
         $this->productService->delete($product);
 
         return redirect()->route('admin.products')->with('success', 'Produkt bol vymazaný.');
+    }
+
+    public function setImagePrimary(Product $product, ProductImage $image): JsonResponse
+    {
+        if ($image->product_id !== $product->id) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        $product->images()->update(['is_primary' => 'false']);
+        $image->update(['is_primary' => 'true']);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function reorderImages(Request $request, Product $product): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+
+        if (! is_array($ids)) {
+            return response()->json(['error' => 'Invalid input'], 422);
+        }
+
+        $productImageIds = $product->images()->pluck('id')->flip();
+
+        foreach ($ids as $order => $id) {
+            if ($productImageIds->has((int) $id)) {
+                ProductImage::where('id', $id)->update(['sort_order' => $order]);
+            }
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     private function resolveProductImageUrl(?string $path): ?string

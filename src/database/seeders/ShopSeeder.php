@@ -52,32 +52,41 @@ class ShopSeeder extends Seeder
         $categoryIds = [];
         $genders = ['Ženy', 'Muži', 'Deti'];
         foreach ($genders as $name) {
-            $categoryIds[$name] = DB::table('categories')->insertGetId([
-                'name' => $name,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('categories')->updateOrInsert(
+                ['name' => $name],
+                ['updated_at' => now()]
+            );
+
+            $categoryIds[$name] = (int) DB::table('categories')
+                ->where('name', $name)
+                ->value('id');
         }
 
         // Subcategories = global product types
         $subcategoryIds = [];
         $subtypes = ['Novinky', 'Oblečenie', 'Topánky', 'Doplnky', 'Akcie'];
         foreach ($subtypes as $sub) {
-            $subcategoryIds[$sub] = DB::table('subcategories')->insertGetId([
-                'name' => $sub,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('subcategories')->updateOrInsert(
+                ['name' => $sub],
+                ['updated_at' => now()]
+            );
+
+            $subcategoryIds[$sub] = (int) DB::table('subcategories')
+                ->where('name', $sub)
+                ->value('id');
         }
 
         $brandIds = [];
         $brands = ['Zara', 'H&M', 'Mango', 'Reserved', 'CCC', 'Deichmann', 'Answear', 'Orsay'];
         foreach ($brands as $name) {
-            $brandIds[$name] = DB::table('brands')->insertGetId([
-                'name' => $name,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            DB::table('brands')->updateOrInsert(
+                ['name' => $name],
+                ['updated_at' => now()]
+            );
+
+            $brandIds[$name] = (int) DB::table('brands')
+                ->where('name', $name)
+                ->value('id');
         }
 
         $colorIds = [];
@@ -94,18 +103,27 @@ class ShopSeeder extends Seeder
             'Žltá' => '#FFD700',
         ];
         foreach ($colors as $name => $hex) {
-            $colorIds[$name] = DB::table('colors')->insertGetId([
-                'name' => $name,
-                'hex_code' => $hex,
-            ]);
+            DB::table('colors')->updateOrInsert(
+                ['name' => $name],
+                ['hex_code' => $hex]
+            );
+
+            $colorIds[$name] = (int) DB::table('colors')
+                ->where('name', $name)
+                ->value('id');
         }
 
         $materialIds = [];
         $materials = ['Bavlna', 'Polyester', 'Vlna', 'Hodváb', 'Denim', 'Koža', 'Viskóza', 'Ľan'];
         foreach ($materials as $name) {
-            $materialIds[$name] = DB::table('materials')->insertGetId([
-                'name' => $name,
-            ]);
+            DB::table('materials')->updateOrInsert(
+                ['name' => $name],
+                []
+            );
+
+            $materialIds[$name] = (int) DB::table('materials')
+                ->where('name', $name)
+                ->value('id');
         }
 
         // cat = gender (Ženy/Muži/Deti), sub = product type (Oblečenie/Topánky/Doplnky)
@@ -214,6 +232,9 @@ class ShopSeeder extends Seeder
 
         foreach ($products as $index => $p) {
             $slug = Str::slug($p['name']).'-'.($index + 1);
+            $existingProductId = DB::table('products')
+                ->where('slug', $slug)
+                ->value('id');
 
             $descriptions = [
                 'Kvalitný produkt z kolekcie '.$p['brand'].'. Vyrobený z materiálu '.$p['material'].'.',
@@ -223,18 +244,37 @@ class ShopSeeder extends Seeder
                 'Prémiová kvalita za dostupnú cenu. Ideálny doplnok do vášho šatníka.',
             ];
 
-            $productId = DB::table('products')->insertGetId([
-                'name' => $p['name'],
-                'slug' => $slug,
-                'description' => $descriptions[$index % count($descriptions)],
-                'category_id' => $categoryIds[$p['cat']],
-                'subcategory_id' => $subcategoryIds[$p['sub']],
-                'brand_id' => $brandIds[$p['brand']],
-                'material_id' => $materialIds[$p['material']],
-                'is_featured' => $p['featured'] ? 'true' : 'false',
-                'created_at' => now(),
-                'updated_at' => now(),
+            DB::table('products')->upsert([
+                [
+                    'name' => $p['name'],
+                    'slug' => $slug,
+                    'description' => $descriptions[$index % count($descriptions)],
+                    'category_id' => $categoryIds[$p['cat']],
+                    'subcategory_id' => $subcategoryIds[$p['sub']],
+                    'brand_id' => $brandIds[$p['brand']],
+                    'material_id' => $materialIds[$p['material']],
+                    'is_featured' => $p['featured'] ? 'true' : 'false',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ], ['slug'], [
+                'name',
+                'description',
+                'category_id',
+                'subcategory_id',
+                'brand_id',
+                'material_id',
+                'is_featured',
+                'updated_at',
             ]);
+
+            $productId = (int) DB::table('products')
+                ->where('slug', $slug)
+                ->value('id');
+
+            if ($existingProductId) {
+                continue;
+            }
 
             $numColors = rand(2, 3);
             $productColors = array_slice($colorList, $index % count($colorList), $numColors);
@@ -272,6 +312,141 @@ class ShopSeeder extends Seeder
                     'created_at' => now(),
                 ]);
             }
+        }
+
+        $this->seedOrdersAndItems();
+    }
+
+    private function seedOrdersAndItems(): void
+    {
+        if (DB::table('orders')->exists()) {
+            return;
+        }
+
+        $shippingMethods = DB::table('shipping_methods')
+            ->select(['id', 'type', 'price'])
+            ->orderBy('sort_order')
+            ->get()
+            ->values();
+
+        $paymentMethods = DB::table('payment_methods')
+            ->select(['id', 'fee'])
+            ->orderBy('sort_order')
+            ->get()
+            ->values();
+
+        $variants = DB::table('product_variants as pv')
+            ->join('products as p', 'p.id', '=', 'pv.product_id')
+            ->leftJoin('colors as c', 'c.id', '=', 'pv.color_id')
+            ->select([
+                'pv.id as variant_id',
+                'pv.size',
+                'pv.price',
+                'pv.stock_quantity',
+                'p.name as product_name',
+                'c.name as color_name',
+            ])
+            ->where('pv.stock_quantity', '>', 0)
+            ->orderBy('pv.id')
+            ->limit(80)
+            ->get()
+            ->values();
+
+        if ($shippingMethods->isEmpty() || $paymentMethods->isEmpty() || $variants->isEmpty()) {
+            return;
+        }
+
+        $customers = [
+            ['first' => 'Jana', 'last' => 'Novakova', 'email' => 'jana.novakova@example.com', 'phone' => '+421900111222'],
+            ['first' => 'Peter', 'last' => 'Kovac', 'email' => 'peter.kovac@example.com', 'phone' => '+421900222333'],
+            ['first' => 'Lucia', 'last' => 'Mikulasova', 'email' => 'lucia.mikulasova@example.com', 'phone' => '+421900333444'],
+            ['first' => 'Martin', 'last' => 'Oravec', 'email' => 'martin.oravec@example.com', 'phone' => '+421900444555'],
+            ['first' => 'Eva', 'last' => 'Balazova', 'email' => 'eva.balazova@example.com', 'phone' => '+421900555666'],
+            ['first' => 'Tomas', 'last' => 'Simek', 'email' => 'tomas.simek@example.com', 'phone' => '+421900666777'],
+        ];
+
+        $statuses = ['pending', 'paid', 'shipped', 'delivered', 'cancelled', 'paid'];
+        $variantCount = $variants->count();
+
+        foreach ($customers as $index => $customer) {
+            $shipping = $shippingMethods[$index % $shippingMethods->count()];
+            $payment = $paymentMethods[$index % $paymentMethods->count()];
+
+            $isAddress = $shipping->type === 'address';
+            $isPickupPoint = $shipping->type === 'pickup_point';
+
+            $street = $isAddress ? 'Hlavna '.(10 + $index) : null;
+            $city = $isAddress ? 'Bratislava' : null;
+            $zip = $isAddress ? '811 01' : null;
+            $country = $isAddress ? 'Slovensko' : null;
+
+            $createdAt = now()->subDays(10 - $index);
+
+            $orderId = DB::table('orders')->insertGetId([
+                'user_id' => null,
+                'status' => $statuses[$index % count($statuses)],
+                'email' => $customer['email'],
+                'phone' => $customer['phone'],
+                'shipping_method_id' => $shipping->id,
+                'payment_method_id' => $payment->id,
+                'shipping_cost' => $shipping->price,
+                'payment_fee' => $payment->fee,
+                'subtotal' => 0,
+                'total' => 0,
+                'first_name' => $customer['first'],
+                'last_name' => $customer['last'],
+                'street' => $street,
+                'city' => $city,
+                'zip' => $zip,
+                'country' => $country,
+                'pickup_point' => $isPickupPoint ? 'Z-Point Bratislava Centrum' : null,
+                'billing_first_name' => $isAddress ? $customer['first'] : null,
+                'billing_last_name' => $isAddress ? $customer['last'] : null,
+                'billing_street' => $street,
+                'billing_city' => $city,
+                'billing_zip' => $zip,
+                'billing_country' => $country,
+                'billing_same_as_delivery' => $isAddress,
+                'note' => $index % 2 === 0 ? 'Prosim dorucit po 16:00.' : null,
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ]);
+
+            $itemCount = min(2 + ($index % 2), $variantCount);
+            $subtotal = 0.0;
+
+            for ($itemIndex = 0; $itemIndex < $itemCount; $itemIndex++) {
+                $variant = $variants[($index * 4 + $itemIndex) % $variantCount];
+                $quantity = max(1, min((int) $variant->stock_quantity, 1 + (($index + $itemIndex) % 2)));
+                $unitPrice = round((float) $variant->price, 2);
+                $lineTotal = round($unitPrice * $quantity, 2);
+                $subtotal += $lineTotal;
+
+                DB::table('order_items')->insert([
+                    'order_id' => $orderId,
+                    'variant_id' => $variant->variant_id,
+                    'product_name' => $variant->product_name,
+                    'color_name' => $variant->color_name,
+                    'size' => $variant->size,
+                    'unit_price' => $unitPrice,
+                    'line_total' => $lineTotal,
+                    'quantity' => $quantity,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
+            }
+
+            $shippingCost = round((float) $shipping->price, 2);
+            $paymentFee = round((float) $payment->fee, 2);
+            $total = round($subtotal + $shippingCost + $paymentFee, 2);
+
+            DB::table('orders')
+                ->where('id', $orderId)
+                ->update([
+                    'subtotal' => round($subtotal, 2),
+                    'total' => $total,
+                    'updated_at' => $createdAt,
+                ]);
         }
     }
 }

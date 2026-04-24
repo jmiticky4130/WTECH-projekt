@@ -11,25 +11,34 @@ use Illuminate\Support\Str;
 
 class ProductService
 {
-    public function create(array $data, array $images, array $libraryImages = []): Product
+    public function create(array $data, array $uploadedFiles, array $newImagesMeta = []): Product
     {
         $data['slug'] = $this->uniqueSlug($data['name']);
+        $primaryNewIndex = isset($data['primary_new_index']) ? (int) $data['primary_new_index'] : null;
+        $variants = $data['variants'] ?? [];
+        unset($data['primary_new_index'], $data['primary_image_id'], $data['image_order'], $data['variants']);
+
         $product = Product::create($data);
 
-        $this->saveImages($product, $images, $libraryImages, []);
+        $this->saveImages($product, $uploadedFiles, $newImagesMeta, [], $primaryNewIndex, 0, false);
 
-        if (! empty($data['variants'])) {
-            $this->syncVariants($product, $data['variants']);
+        if (! empty($variants)) {
+            $this->syncVariants($product, $variants);
         }
 
         return $product;
     }
 
-    public function update(Product $product, array $data, array $newImages, array $keepImageIds, array $libraryImages = []): void
+    public function update(Product $product, array $data, array $uploadedFiles, array $keepImageIds, array $newImagesMeta = []): void
     {
         if (isset($data['name']) && $data['name'] !== $product->name) {
             $data['slug'] = $this->uniqueSlug($data['name'], $product->id);
         }
+
+        $imageOrder = array_values(array_filter(array_map('intval', $data['image_order'] ?? [])));
+        $primaryImageId = isset($data['primary_image_id']) ? (int) $data['primary_image_id'] : null;
+        $primaryNewIndex = isset($data['primary_new_index']) ? (int) $data['primary_new_index'] : null;
+        unset($data['primary_image_id'], $data['primary_new_index'], $data['image_order']);
 
         $product->update($data);
 
@@ -40,7 +49,20 @@ class ProductService
             $img->delete();
         });
 
-        $this->saveImages($product, $newImages, $libraryImages, $keepImageIds);
+        foreach ($imageOrder as $order => $id) {
+            $product->images()->where('id', $id)->update(['sort_order' => $order]);
+        }
+
+        if ($primaryImageId !== null) {
+            $product->images()->update(['is_primary' => 'false']);
+            $product->images()->where('id', $primaryImageId)->update(['is_primary' => 'true']);
+        }
+
+        $keptCount = count($imageOrder) ?: count($keepImageIds);
+        $hasPrimaryAfterKept = $primaryImageId !== null
+            || $product->images()->where('is_primary', 'true')->exists();
+
+        $this->saveImages($product, $uploadedFiles, $newImagesMeta, $keepImageIds, $primaryNewIndex, $keptCount, $hasPrimaryAfterKept);
 
         $this->syncVariants($product, $data['variants'] ?? []);
     }
@@ -50,49 +72,76 @@ class ProductService
         $product->delete();
     }
 
-    /** @param UploadedFile[] $images */
-    private function saveImages(Product $product, array $images, array $libraryImages, array $keepImageIds): void
-    {
-        $keptImages = $product->images()->whereIn('id', $keepImageIds)->get();
-        $hasPrimary = $keptImages->contains(fn (ProductImage $image) => (bool) $image->is_primary);
-        $sortOrderOffset = $keptImages->count();
+    private function saveImages(
+        Product $product,
+        array $uploadedFiles,
+        array $newImagesMeta,
+        array $keepImageIds,
+        ?int $primaryNewIndex,
+        int $sortOrderOffset,
+        bool $hasPrimary,
+    ): void {
         $existingPathSet = $product->images()
             ->pluck('image_path')
             ->map(fn (?string $path) => $this->normalizeImagePath($path))
             ->filter()
             ->flip();
 
+        // Resolve each meta entry to a path in tray order
         $paths = [];
+        foreach ($newImagesMeta as $entry) {
+            $type  = $entry['type'] ?? '';
+            $value = $entry['value'] ?? '';
 
-        foreach ($images as $file) {
-            $paths[] = $file->store('products', 'public');
+            if ($type === 'upload') {
+                $fileIndex = (int) $value;
+                if (isset($uploadedFiles[$fileIndex])) {
+                    $paths[] = $uploadedFiles[$fileIndex]->store('products', 'public');
+                }
+            } elseif ($type === 'library') {
+                $paths[] = ltrim(str_replace('\\', '/', (string) $value), '/');
+            } elseif ($type === 'external') {
+                if (str_starts_with((string) $value, 'http://') || str_starts_with((string) $value, 'https://')) {
+                    $paths[] = (string) $value;
+                }
+            }
         }
 
-        foreach (array_values(array_unique($libraryImages)) as $libraryPath) {
-            $paths[] = ltrim(str_replace('\\', '/', (string) $libraryPath), '/');
+        // deduplicate while preserving tray order, skip already-stored paths
+        $newPaths = [];
+        foreach ($paths as $path) {
+            $normalized = $this->normalizeImagePath($path);
+            if ($normalized !== '' && ! $existingPathSet->has($normalized)) {
+                $newPaths[] = $normalized;
+                $existingPathSet->put($normalized, true);
+            }
         }
 
-        foreach ($paths as $i => $path) {
-            $normalizedPath = $this->normalizeImagePath($path);
-            if ($normalizedPath === '' || $existingPathSet->has($normalizedPath)) {
-                continue;
+        foreach ($newPaths as $i => $normalizedPath) {
+            $isPrimary = $primaryNewIndex !== null
+                ? ($i === $primaryNewIndex)
+                : (! $hasPrimary && $i === 0);
+
+            if ($isPrimary) {
+                $hasPrimary = true;
             }
 
-            $isPrimary = ! $hasPrimary && $i === 0;
             ProductImage::create([
                 'product_id' => $product->id,
                 'image_path' => $normalizedPath,
                 'is_primary' => $isPrimary ? 'true' : 'false',
                 'sort_order' => $sortOrderOffset + $i,
             ]);
-
-            $existingPathSet->put($normalizedPath, true);
         }
     }
 
     private function deletableFromPublicDisk(?string $path): bool
     {
         if (! $path) {
+            return false;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return false;
         }
 

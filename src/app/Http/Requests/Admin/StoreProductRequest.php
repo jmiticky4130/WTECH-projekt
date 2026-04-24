@@ -23,23 +23,10 @@ class StoreProductRequest extends FormRequest
             'is_featured' => ['boolean'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'library_images' => ['nullable', 'array'],
-            'library_images.*' => [
-                'string',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    $normalized = ltrim(str_replace('\\', '/', (string) $value), '/');
-
-                    if (! str_starts_with($normalized, 'images/products/')) {
-                        $fail('Vybrany obrazok nie je povoleny.');
-
-                        return;
-                    }
-
-                    if (! is_file(public_path($normalized))) {
-                        $fail('Vybrany obrazok neexistuje.');
-                    }
-                },
-            ],
+            'new_images' => ['nullable', 'array'],
+            'new_images.*.type' => ['required_with:new_images', 'in:upload,library,external'],
+            'new_images.*.value' => ['required_with:new_images', 'string', 'max:500'],
+            'primary_new_index' => ['nullable', 'integer', 'min:0'],
             'variants' => ['required', 'array', 'min:1'],
             'variants.*.color_id' => ['required', 'exists:colors,id'],
             'variants.*.size' => ['required', 'string', 'max:10'],
@@ -51,10 +38,8 @@ class StoreProductRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator): void {
-            $uploaded = is_array($this->file('images')) ? count($this->file('images')) : 0;
-            $selected = is_array($this->input('library_images')) ? count($this->input('library_images')) : 0;
-
-            if ($uploaded + $selected === 0) {
+            $newImages = $this->input('new_images', []);
+            if (empty($newImages)) {
                 $validator->errors()->add('images', 'Pridajte alebo vyberte aspon jednu fotografiu.');
             }
         });
@@ -68,7 +53,6 @@ class StoreProductRequest extends FormRequest
             'images.*.uploaded' => "Obrazok sa nepodarilo nahrat. Serverovy limit je {$uploadLimit} na subor.",
             'images.*.max' => 'Obrazok moze mat maximalne 2 MB.',
             'images.*.mimes' => 'Povolene formaty obrazkov su: jpg, jpeg, png, webp.',
-            'library_images.*.string' => 'Vybrany obrazok ma neplatny format.',
         ];
     }
 }

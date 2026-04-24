@@ -174,7 +174,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
-            <select name="category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="category_id" id="add-category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať kategóriu</option>
               @foreach ($categories as $cat)
                 <option value="{{ $cat->id }}" @selected((string) old('category_id') === (string) $cat->id)>{{ $cat->name }}</option>
@@ -183,7 +183,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Podkategória</label>
-            <select name="subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="subcategory_id" id="add-subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať podkategóriu</option>
               @foreach ($subcategories as $sub)
                 <option value="{{ $sub->id }}" @selected((string) old('subcategory_id') === (string) $sub->id)>{{ $sub->name }}</option>
@@ -216,36 +216,49 @@
           </div>
         </div>
 
-        <div class="border-t border-gray-100 pt-4">
+        <div class="border-t border-gray-100 pt-4" id="add-images-section">
           <label class="block text-sm font-bold mb-2">Fotografie <span class="text-red-500">*</span></label>
 
-          <p class="text-xs font-semibold text-gray-600 mb-2">Vyberte z existujucich obrazkov aplikacie</p>
-          @if (count($libraryImages) > 0)
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2">
-              @foreach ($libraryImages as $image)
-                @php $isChecked = in_array($image['path'], old('library_images', []), true); @endphp
-                <label class="cursor-pointer block relative">
-                  <input type="checkbox" name="library_images[]" value="{{ $image['path'] }}" @checked($isChecked) class="peer sr-only" />
-                  <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
-                  <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
-                    <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
-                    <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
-                  </span>
-                </label>
-              @endforeach
-            </div>
-          @else
-            <p class="text-xs text-gray-400">V priecinku public/images/products nie su dostupne ziadne obrazky.</p>
-          @endif
+          <!-- image tray (shared component rendered by JS) -->
+          <div id="add-image-tray" class="flex flex-wrap gap-2 mb-3 min-h-8"></div>
+          <p id="add-images-validation-message" class="hidden text-xs text-red-600 mb-2"></p>
 
-          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo nahrajte nove fotografie</p>
-          <input type="file" name="images[]" accept="image/*" multiple
+          <!-- library picker -->
+          <details class="mb-3">
+            <summary class="text-xs font-semibold text-gray-600 cursor-pointer select-none mb-1">Vybrať z knižnice obrázkov</summary>
+            @if (count($libraryImages) > 0)
+              <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2 mt-2" id="add-library-grid">
+                @foreach ($libraryImages as $image)
+                  <label class="cursor-pointer block relative" data-lib-url="{{ $image['url'] }}" data-lib-path="{{ $image['path'] }}">
+                    <input type="checkbox" data-lib="1" value="{{ $image['path'] }}" class="peer sr-only add-lib-checkbox" />
+                    <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
+                    <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
+                      <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
+                      <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
+                    </span>
+                  </label>
+                @endforeach
+              </div>
+            @else
+              <p class="text-xs text-gray-400 mt-1">V priečinku public/images/products nie sú dostupné žiadne obrázky.</p>
+            @endif
+          </details>
+
+          <!-- upload -->
+          <p class="text-xs text-gray-500 mb-1">Nahrať nové fotografie</p>
+          <input type="file" id="add-file-input" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
-            onchange="handleImageInputChange(this, 'add-previews', 'add-images-validation-message')"
           />
-          <p id="add-images-validation-message" class="hidden text-xs text-red-600 mt-1"></p>
-          <div id="add-previews" class="flex flex-wrap gap-2 mt-2"></div>
-          <p class="text-xs text-gray-400 mt-1">Prvý novy nahrany alebo vybrany obrazok bude primarny. Povolené formáty: jpg, jpeg, png, webp. Max. 2 MB na obrázok.</p>
+
+          <!-- external URL -->
+          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo vložiť URL externého obrázka</p>
+          <div class="flex gap-2">
+            <input type="text" id="add-url-input" placeholder="https://example.com/image.jpg"
+              class="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            <button type="button" onclick="addExternalUrl('add')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm border border-gray-300 transition-colors">Pridať</button>
+          </div>
+
+          <p class="text-xs text-gray-400 mt-2">Poradie: ťahaním presúvajte obrázky. Hviezda = primárny. Povolené formáty: jpg, jpeg, png, webp. Max. 2 MB.</p>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
@@ -367,36 +380,50 @@
           </div>
         </div>
 
-        <div class="border-t border-gray-100 pt-4">
-          <div id="edit-keep-image-ids" class="hidden"></div>
+        <div class="border-t border-gray-100 pt-4" id="edit-images-section">
 
           <label class="block text-sm font-bold mb-2">Fotografie</label>
-          <p class="text-xs font-semibold text-gray-600 mb-2">Vyberte z existujucich obrazkov aplikacie</p>
-          @if (count($libraryImages) > 0)
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2 mb-3">
-              @foreach ($libraryImages as $image)
-                <label class="cursor-pointer block relative">
-                  <input type="checkbox" name="library_images[]" value="{{ $image['path'] }}" class="peer sr-only" />
-                  <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
-                  <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
-                    <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
-                    <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
-                  </span>
-                </label>
-              @endforeach
-            </div>
-          @else
-            <p class="text-xs text-gray-400 mb-3">V priecinku public/images/products nie su dostupne ziadne obrazky.</p>
-          @endif
 
-          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo nahrajte nove fotografie</p>
-          <label class="block text-sm font-medium mb-1.5">Nové fotografie</label>
-          <input type="file" name="images[]" accept="image/*" multiple
+          <!-- image tray -->
+          <div id="edit-image-tray" class="flex flex-wrap gap-2 mb-3 min-h-8"></div>
+          <p id="edit-images-validation-message" class="hidden text-xs text-red-600 mb-2"></p>
+
+          <!-- library picker -->
+          <details class="mb-3">
+            <summary class="text-xs font-semibold text-gray-600 cursor-pointer select-none mb-1">Vybrať z knižnice obrázkov</summary>
+            @if (count($libraryImages) > 0)
+              <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2 mt-2" id="edit-library-grid">
+                @foreach ($libraryImages as $image)
+                  <label class="cursor-pointer block relative" data-lib-url="{{ $image['url'] }}" data-lib-path="{{ $image['path'] }}">
+                    <input type="checkbox" data-lib="1" value="{{ $image['path'] }}" class="peer sr-only edit-lib-checkbox" />
+                    <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
+                    <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
+                      <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
+                      <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
+                    </span>
+                  </label>
+                @endforeach
+              </div>
+            @else
+              <p class="text-xs text-gray-400 mt-1">V priečinku public/images/products nie sú dostupné žiadne obrázky.</p>
+            @endif
+          </details>
+
+          <!-- upload -->
+          <p class="text-xs text-gray-500 mb-1">Nahrať nové fotografie</p>
+          <input type="file" id="edit-file-input" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
-            onchange="handleImageInputChange(this, 'edit-new-previews', 'edit-images-validation-message')"
           />
-          <p id="edit-images-validation-message" class="hidden text-xs text-red-600 mt-1"></p>
-          <div id="edit-new-previews" class="flex flex-wrap gap-2 mt-2"></div>
+
+          <!-- external URL -->
+          <p class="text-xs text-gray-500 mt-3 mb-1">Alebo vložiť URL externého obrázka</p>
+          <div class="flex gap-2">
+            <input type="text" id="edit-url-input" placeholder="https://example.com/image.jpg"
+              class="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+            <button type="button" onclick="addExternalUrl('edit')" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm border border-gray-300 transition-colors">Pridať</button>
+          </div>
+
+          <p class="text-xs text-gray-400 mt-2">Poradie: ťahaním presúvajte obrázky. Hviezda = primárny. Povolené formáty: jpg, jpeg, png, webp. Max. 2 MB.</p>
         </div>
 
         <div class="border-t border-gray-100 pt-4">
@@ -521,82 +548,375 @@
   </div>
 
   <script>
+    // ─── constants ────────────────────────────────────────────────────────────
+    const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
     let currentFormId = null;
     const variantIndex = { 'form-add': {{ is_array(old('variants')) ? count(old('variants')) : 0 }}, 'form-edit': 0 };
-    const maxImageSizeBytes = 2 * 1024 * 1024;
-    let editCurrentLibraryImagePathSet = new Set();
-
     const addVariantsEmptyRowHtml = '<tr class="text-gray-400 italic" id="add-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Žiadne varianty — kliknite na + Pridať varianty</td></tr>';
 
-    function openAddModal(resetForm = true) {
-      if (resetForm) {
-        resetAddFormState();
+    // image source values: 'existing', 'library_existing', 'upload', 'library', 'external'
+    const imageTray = { add: [], edit: [] };
+    const pendingFiles = { add: new DataTransfer(), edit: new DataTransfer() };
+
+    function normalizeImagePath(path) {
+      if (!path) return '';
+      return String(path).replace(/\\/g, '/').replace(/^\/+/, '');
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ─── tray rendering ───────────────────────────────────────────────────────
+    function renderTray(scope) {
+      const tray = document.getElementById(`${scope}-image-tray`);
+      tray.innerHTML = '';
+
+      imageTray[scope].forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'relative group w-20 cursor-grab active:cursor-grabbing select-none';
+        card.dataset.idx = idx;
+        card.draggable = true;
+
+        const starClass = item.isPrimary ? 'text-yellow-400' : 'text-gray-300 group-hover:text-gray-400';
+        const borderClass = item.isPrimary ? 'border-brand-dark ring-2 ring-brand-dark' : 'border-gray-200';
+
+        card.innerHTML = `
+          <img src="${escHtml(item.url)}" class="w-20 h-24 object-cover border ${borderClass} rounded" />
+          <button type="button" title="Nastaviť ako primárny"
+            onclick="setPrimary('${scope}', ${idx})"
+            class="absolute top-0.5 left-0.5 ${starClass} transition-colors text-lg leading-none drop-shadow">&#9733;</button>
+          <button type="button" title="Odstrániť"
+            onclick="removeFromTray('${scope}', ${idx})"
+            class="absolute top-0.5 right-0.5 text-gray-300 group-hover:text-red-500 transition-colors text-sm leading-none font-bold drop-shadow">&#x2715;</button>
+          ${item.isPrimary ? '<span class="absolute bottom-0.5 left-0.5 text-[9px] bg-brand-dark text-white px-1 rounded">primárny</span>' : ''}
+        `;
+
+        card.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', String(idx));
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          card.classList.add('opacity-50');
+        });
+        card.addEventListener('dragleave', () => card.classList.remove('opacity-50'));
+        card.addEventListener('drop', e => {
+          e.preventDefault();
+          card.classList.remove('opacity-50');
+          const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          const toIdx = parseInt(card.dataset.idx, 10);
+          if (fromIdx !== toIdx) {
+            const arr = imageTray[scope];
+            const [moved] = arr.splice(fromIdx, 1);
+            arr.splice(toIdx, 0, moved);
+            renderTray(scope);
+          }
+        });
+
+        tray.appendChild(card);
+      });
+    }
+
+    // ─── tray mutations ───────────────────────────────────────────────────────
+    function setPrimary(scope, idx) {
+      imageTray[scope].forEach((item, i) => { item.isPrimary = (i === idx); });
+      renderTray(scope);
+    }
+
+    function removeFromTray(scope, idx) {
+      const item = imageTray[scope][idx];
+      imageTray[scope].splice(idx, 1);
+
+      if (item.isPrimary && imageTray[scope].length > 0) {
+        imageTray[scope][0].isPrimary = true;
       }
 
+      if (item.source === 'upload') {
+        rebuildFileList(scope);
+      }
+
+      if (item.source === 'library' || item.source === 'library_existing') {
+        const cb = document.querySelector(`#${scope}-library-grid input[value="${CSS.escape(item.path)}"]`);
+        if (cb) {
+          cb.dataset.skipChange = '1';
+          cb.checked = false;
+          delete cb.dataset.skipChange;
+        }
+      }
+
+      renderTray(scope);
+    }
+
+    function addToTray(scope, item) {
+      const key = item.path || item.url;
+      if (imageTray[scope].some(i => (i.path || i.url) === key)) return;
+      if (!imageTray[scope].some(i => i.isPrimary)) {
+        item.isPrimary = true;
+      }
+      imageTray[scope].push(item);
+      renderTray(scope);
+    }
+
+    function rebuildFileList(scope) {
+      pendingFiles[scope] = new DataTransfer();
+      imageTray[scope].filter(i => i.source === 'upload').forEach(i => {
+        if (i.file) pendingFiles[scope].items.add(i.file);
+      });
+      const fileInput = document.getElementById(`${scope}-file-input`);
+      if (fileInput) fileInput.files = pendingFiles[scope].files;
+    }
+
+    // ─── sync hidden inputs on form submit ────────────────────────────────────
+    function buildHiddenInputs(scope) {
+      const form = document.getElementById(`form-${scope}`);
+      form.querySelectorAll('[data-tray-generated]').forEach(el => el.remove());
+
+      const items = imageTray[scope];
+
+      const mk = (name, value) => {
+        const el = document.createElement('input');
+        el.type = 'hidden';
+        el.name = name;
+        el.value = value;
+        el.dataset.trayGenerated = '1';
+        form.appendChild(el);
+      };
+
+      const newItems = items.filter(i => i.source === 'upload' || i.source === 'library' || i.source === 'external');
+      const primaryItem = items.find(i => i.isPrimary);
+      const newFileList = new DataTransfer();
+      let uploadIdx = 0;
+
+      newItems.forEach((item, ni) => {
+        mk(`new_images[${ni}][type]`, item.source);
+        if (item.source === 'upload') {
+          mk(`new_images[${ni}][value]`, uploadIdx++);
+          if (item.file) newFileList.items.add(item.file);
+        } else if (item.source === 'library') {
+          mk(`new_images[${ni}][value]`, item.path);
+        } else {
+          mk(`new_images[${ni}][value]`, item.url);
+        }
+      });
+
+      items.forEach(item => {
+        if (item.source === 'existing' || item.source === 'library_existing') {
+          mk('keep_image_ids[]', item.id);
+          mk('image_order[]', item.id);
+        }
+      });
+
+      // primary
+      if (primaryItem) {
+        if (primaryItem.source === 'existing' || primaryItem.source === 'library_existing') {
+          mk('primary_image_id', primaryItem.id);
+        } else {
+          const primaryNewIdx = newItems.indexOf(primaryItem);
+          if (primaryNewIdx !== -1) mk('primary_new_index', primaryNewIdx);
+        }
+      }
+
+      const fileInput = document.getElementById(`${scope}-file-input`);
+      if (fileInput) fileInput.files = newFileList.files;
+      pendingFiles[scope] = newFileList;
+    }
+
+    // ─── file input handler ───────────────────────────────────────────────────
+    function setupFileInput(scope) {
+      const input = document.getElementById(`${scope}-file-input`);
+      if (!input) return;
+      input.addEventListener('change', () => {
+        const files = Array.from(input.files);
+        const msgEl = document.getElementById(`${scope}-images-validation-message`);
+        const tooLarge = files.find(f => f.size > MAX_IMAGE_BYTES);
+        if (tooLarge) {
+          msgEl.textContent = `Súbor ${tooLarge.name} je väčší ako 2 MB.`;
+          msgEl.classList.remove('hidden');
+          input.value = '';
+          return;
+        }
+        msgEl.classList.add('hidden');
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = e => {
+            pendingFiles[scope].items.add(file);
+            input.files = pendingFiles[scope].files;
+            addToTray(scope, { url: e.target.result, path: null, isPrimary: false, source: 'upload', file });
+          };
+          reader.readAsDataURL(file);
+        });
+        input.value = '';
+      });
+    }
+
+    // ─── library picker handler ───────────────────────────────────────────────
+    function setupLibraryPicker(scope) {
+      document.querySelectorAll(`.${scope}-lib-checkbox`).forEach(cb => {
+        cb.addEventListener('change', () => {
+          // skip if the change was triggered programmatically by removeFromTray
+          if (cb.dataset.skipChange) return;
+
+          const label = cb.closest('label');
+          const path = cb.value;
+          const url = label.dataset.libUrl;
+          if (cb.checked) {
+            if (!imageTray[scope].some(i => i.path === path)) {
+              addToTray(scope, { url, path, isPrimary: false, source: 'library' });
+            }
+          } else {
+            const idx = imageTray[scope].findIndex(i => i.path === path);
+            if (idx !== -1) {
+              const item = imageTray[scope][idx];
+              item.source = 'upload'; // temporarily skip checkbox uncheck logic in removeFromTray
+              removeFromTray(scope, idx);
+            }
+          }
+        });
+      });
+    }
+
+    // ─── external URL ─────────────────────────────────────────────────────────
+    function addExternalUrl(scope) {
+      const input = document.getElementById(`${scope}-url-input`);
+      const url = (input.value || '').trim();
+      const msgEl = document.getElementById(`${scope}-images-validation-message`);
+      if (!url.match(/^https?:\/\/.+/i)) {
+        msgEl.textContent = 'Zadajte platnú URL adresu (začínajúcu https://).';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+      msgEl.classList.add('hidden');
+      addToTray(scope, { url, path: url, isPrimary: false, source: 'external' });
+      input.value = '';
+    }
+
+    // ─── add modal ────────────────────────────────────────────────────────────
+    function openAddModal(resetForm = true) {
+      if (resetForm) resetAddFormState();
       window.location.hash = 'modal-add';
     }
 
     function resetAddFormState() {
       const form = document.getElementById('form-add');
       form.reset();
-
-      const previews = document.getElementById('add-previews');
-      previews.innerHTML = '';
-
-      const variantsBody = document.getElementById('add-variants-body');
-      variantsBody.innerHTML = addVariantsEmptyRowHtml;
-
+      imageTray.add = [];
+      pendingFiles.add = new DataTransfer();
+      const fileInput = document.getElementById('add-file-input');
+      if (fileInput) fileInput.value = '';
+      document.getElementById('add-url-input').value = '';
+      document.querySelectorAll('.add-lib-checkbox').forEach(cb => cb.checked = false);
+      renderTray('add');
+      document.getElementById('add-variants-body').innerHTML = addVariantsEmptyRowHtml;
       variantIndex['form-add'] = 0;
-      clearImageValidationMessage('add-images-validation-message');
+      document.getElementById('add-images-validation-message').textContent = '';
+      document.getElementById('add-images-validation-message').classList.add('hidden');
       hideVariantValidationMessage();
+      syncSubcategoryState('add-category_id', 'add-subcategory_id');
+      form.querySelectorAll('[data-tray-generated]').forEach(el => el.remove());
+    }
 
-      form.querySelectorAll('input[name="library_images[]"]').forEach(input => {
-        input.checked = false;
+    document.getElementById('form-add').addEventListener('submit', function (event) {
+      if (imageTray.add.length === 0) {
+        event.preventDefault();
+        const msg = document.getElementById('add-images-validation-message');
+        msg.textContent = 'Pridajte alebo vyberte aspoň jednu fotografiu.';
+        msg.classList.remove('hidden');
+        return;
+      }
+      const hasVariants = this.querySelectorAll('input[name*="[color_id]"]').length > 0;
+      if (!hasVariants) {
+        event.preventDefault();
+        showVariantAdder('form-add', 'Varianty sú povinné. Pridajte aspoň jeden variant.');
+        return;
+      }
+      buildHiddenInputs('add');
+    });
+
+    // ─── edit modal ───────────────────────────────────────────────────────────
+    function openEditModal(id, name) {
+      document.getElementById('edit-name').value = name;
+      const form = document.getElementById('form-edit');
+      form.action = `/admin/products/${id}`;
+      form.querySelectorAll('[data-tray-generated]').forEach(el => el.remove());
+
+      imageTray.edit = [];
+      pendingFiles.edit = new DataTransfer();
+
+      document.querySelectorAll('.edit-lib-checkbox').forEach(cb => {
+        cb.dataset.skipChange = '1';
+        cb.checked = false;
+        delete cb.dataset.skipChange;
       });
+
+      renderTray('edit');
+      document.getElementById('edit-variants-body').innerHTML =
+        '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Načítavam...</td></tr>';
+      document.getElementById('edit-description').value = '';
+      variantIndex['form-edit'] = 0;
+      window.location.hash = 'modal-edit';
+
+      fetch(`/admin/products/${id}/data`)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('edit-description').value = data.description || '';
+          setSelectVal('edit-category_id', data.category_id);
+          setSelectVal('edit-subcategory_id', data.subcategory_id);
+          syncSubcategoryState('edit-category_id', 'edit-subcategory_id');
+          setSelectVal('edit-brand_id', data.brand_id);
+          setSelectVal('edit-material_id', data.material_id);
+          document.getElementById('edit-is_featured').checked = !!data.is_featured;
+
+          (data.images || []).forEach(img => {
+            const normalizedPath = normalizeImagePath(img.path);
+            const isLib = normalizedPath.startsWith('images/products/');
+            const source = isLib ? 'library_existing' : 'existing';
+
+            imageTray.edit.push({
+              id: img.id,
+              url: img.url,
+              path: img.path,
+              isPrimary: !!img.is_primary,
+              source,
+            });
+
+            if (isLib) {
+              const cb = document.querySelector(`#edit-library-grid input[value="${CSS.escape(img.path)}"]`);
+              if (cb) {
+                cb.dataset.skipChange = '1';
+                cb.checked = true;
+                delete cb.dataset.skipChange;
+              }
+            }
+          });
+
+          renderTray('edit');
+          populateEditVariants(data.variants || []);
+        })
+        .catch(() => {
+          document.getElementById('edit-variants-body').innerHTML =
+            '<tr><td colspan="5" class="px-3 py-3 text-center text-xs text-red-500">Chyba načítania</td></tr>';
+        });
     }
 
-    function clearImageValidationMessage(messageId) {
-      const message = document.getElementById(messageId);
-      if (!message) {
-        return;
-      }
+    document.getElementById('form-edit').addEventListener('submit', function () {
+      buildHiddenInputs('edit');
+    });
 
-      message.textContent = '';
-      message.classList.add('hidden');
+    // ─── subcat sync ─────────────────────────────────────────────────────────
+    function syncSubcategoryState(categorySelectId, subcategorySelectId) {
+      const category = document.getElementById(categorySelectId);
+      const subcategory = document.getElementById(subcategorySelectId);
+      if (!category || !subcategory) return;
+      const hasCategory = String(category.value || '').trim() !== '';
+      subcategory.disabled = !hasCategory;
+      subcategory.classList.toggle('bg-gray-100', !hasCategory);
+      subcategory.classList.toggle('cursor-not-allowed', !hasCategory);
+      if (!hasCategory) subcategory.value = '';
     }
 
-    function validateImageFileInput(input, messageId) {
-      const files = Array.from(input?.files || []);
-      const tooLarge = files.find(file => file.size > maxImageSizeBytes);
-
-      if (!tooLarge) {
-        clearImageValidationMessage(messageId);
-        return true;
-      }
-
-      const message = document.getElementById(messageId);
-      if (message) {
-        message.textContent = `Subor ${tooLarge.name} je vacsi ako 2 MB.`;
-        message.classList.remove('hidden');
-      }
-
-      return false;
-    }
-
-    function handleImageInputChange(input, previewContainerId, messageId) {
-      const isValid = validateImageFileInput(input, messageId);
-      if (!isValid) {
-        const container = document.getElementById(previewContainerId);
-        if (container) {
-          container.innerHTML = '';
-        }
-
-        return;
-      }
-
-      previewImages(input, previewContainerId);
-    }
-
+    // ─── variant helpers ─────────────────────────────────────────────────────
     function showVariantValidationMessage(message) {
       const el = document.getElementById('variant-validation-message');
       el.textContent = message;
@@ -608,134 +928,6 @@
       el.textContent = '';
       el.classList.add('hidden');
     }
-
-    document.getElementById('form-add').addEventListener('submit', function (event) {
-      const addImagesInput = this.querySelector('input[name="images[]"]');
-      if (!validateImageFileInput(addImagesInput, 'add-images-validation-message')) {
-        event.preventDefault();
-        return;
-      }
-
-      const selectedLibraryImages = this.querySelectorAll('input[name="library_images[]"]:checked').length;
-      const uploadedImages = addImagesInput?.files?.length || 0;
-      if (uploadedImages === 0 && selectedLibraryImages === 0) {
-        event.preventDefault();
-        const message = document.getElementById('add-images-validation-message');
-        if (message) {
-          message.textContent = 'Pridajte alebo vyberte aspon jednu fotografiu.';
-          message.classList.remove('hidden');
-        }
-
-        return;
-      }
-
-      const hasVariants = this.querySelectorAll('input[name*="[color_id]"]').length > 0;
-
-      if (!hasVariants) {
-        event.preventDefault();
-        showVariantAdder('form-add', 'Varianty sú povinné. Pridajte aspoň jeden variant.');
-      }
-    });
-
-    document.querySelectorAll('#form-add input[name="library_images[]"]').forEach(input => {
-      input.addEventListener('change', function () {
-        clearImageValidationMessage('add-images-validation-message');
-      });
-    });
-
-    function openEditModal(id, name) {
-      document.getElementById('edit-name').value = name;
-      const form = document.getElementById('form-edit');
-      form.action = `/admin/products/${id}`;
-      form.querySelectorAll('input[name="library_images[]"]').forEach(input => {
-        input.checked = false;
-      });
-      editCurrentLibraryImagePathSet = new Set();
-      document.getElementById('edit-keep-image-ids').innerHTML = '';
-      document.getElementById('edit-variants-body').innerHTML = '<tr class="text-gray-400 italic" id="edit-empty-row"><td colspan="5" class="px-3 py-3 text-center text-xs">Načítavam...</td></tr>';
-      document.getElementById('edit-description').value = '';
-      variantIndex['form-edit'] = 0;
-      window.location.hash = 'modal-edit';
-      fetch(`/admin/products/${id}/data`)
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('edit-description').value = data.description || '';
-          setSelectVal('edit-category_id', data.category_id);
-          setSelectVal('edit-subcategory_id', data.subcategory_id);
-          setSelectVal('edit-brand_id', data.brand_id);
-          setSelectVal('edit-material_id', data.material_id);
-          document.getElementById('edit-is_featured').checked = !!data.is_featured;
-          syncEditLibraryPickerWithExistingImages(data.images || []);
-          populateEditKeepImageIds(data.images || []);
-          syncEditLibrarySelectionState();
-          populateEditVariants(data.variants || []);
-        })
-        .catch(() => {
-          document.getElementById('edit-variants-body').innerHTML = '<tr><td colspan="5" class="px-3 py-3 text-center text-xs text-red-500">Chyba načítania</td></tr>';
-        });
-    }
-
-    function normalizeImagePath(path) {
-      if (!path) {
-        return '';
-      }
-
-      return String(path).replace(/\\/g, '/').replace(/^\/+/, '');
-    }
-
-    function syncEditLibraryPickerWithExistingImages(images) {
-      const selectedPaths = new Set(
-        images
-          .map(img => normalizeImagePath(img.path))
-          .filter(path => path.startsWith('images/products/'))
-      );
-
-      editCurrentLibraryImagePathSet = selectedPaths;
-
-      document.querySelectorAll('#form-edit input[name="library_images[]"]').forEach(input => {
-        const normalizedValue = normalizeImagePath(input.value);
-        input.checked = selectedPaths.has(normalizedValue);
-      });
-    }
-
-    function populateEditKeepImageIds(images) {
-      const container = document.getElementById('edit-keep-image-ids');
-      container.innerHTML = '';
-      images.forEach(img => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'keep_image_ids[]';
-        input.value = img.id;
-        input.dataset.path = normalizeImagePath(img.path || '');
-        container.appendChild(input);
-      });
-    }
-
-    function syncEditLibrarySelectionState() {
-      const keepContainer = document.getElementById('edit-keep-image-ids');
-      const editForm = document.getElementById('form-edit');
-      const libraryInputs = Array.from(editForm.querySelectorAll('input[name="library_images[]"]'));
-
-      const selectedNow = new Set(
-        libraryInputs
-          .filter(input => input.checked)
-          .map(input => normalizeImagePath(input.value))
-      );
-
-      const hiddenKeepInputs = Array.from(keepContainer.querySelectorAll('input[name="keep_image_ids[]"]'));
-      hiddenKeepInputs.forEach(input => {
-        const imagePath = normalizeImagePath(input.dataset.path || '');
-        if (imagePath.startsWith('images/products/')) {
-          input.disabled = !selectedNow.has(imagePath);
-        }
-      });
-    }
-
-    document.querySelectorAll('#form-edit input[name="library_images[]"]').forEach(input => {
-      input.addEventListener('change', function () {
-        syncEditLibrarySelectionState();
-      });
-    });
 
     function populateEditVariants(variants) {
       const tbody = document.getElementById('edit-variants-body');
@@ -758,32 +950,14 @@
       window.location.hash = 'modal-delete';
     }
 
-    function previewImages(input, containerId) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      Array.from(input.files).forEach((file, i) => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const div = document.createElement('div');
-          div.className = 'relative';
-          div.innerHTML = `<img src="${e.target.result}" class="w-16 h-20 object-cover border border-gray-200 rounded" />${i === 0 ? '<span class="absolute bottom-0.5 left-0.5 text-[9px] bg-brand-dark text-white px-1 rounded">1°</span>' : ''}`;
-          container.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
     function showVariantAdder(formId, validationMessage = null) {
       currentFormId = formId;
       document.querySelectorAll('#modal-variant-adder input[name="va_color"]').forEach(cb => cb.checked = false);
       document.querySelectorAll('#modal-variant-adder input[name="va_size"]').forEach(cb => cb.checked = false);
       document.getElementById('va-price').value = '';
       document.getElementById('va-stock').value = '';
-      if (validationMessage) {
-        showVariantValidationMessage(validationMessage);
-      } else {
-        hideVariantValidationMessage();
-      }
+      if (validationMessage) showVariantValidationMessage(validationMessage);
+      else hideVariantValidationMessage();
       const el = document.getElementById('modal-variant-adder');
       el.classList.remove('hidden');
       el.classList.add('flex');
@@ -837,6 +1011,26 @@
       `;
       tbody.appendChild(row);
     }
+
+    // ─── boot ─────────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', function () {
+      setupFileInput('add');
+      setupFileInput('edit');
+      setupLibraryPicker('add');
+      setupLibraryPicker('edit');
+      syncSubcategoryState('add-category_id', 'add-subcategory_id');
+      syncSubcategoryState('edit-category_id', 'edit-subcategory_id');
+      document.getElementById('add-category_id')?.addEventListener('change', () =>
+        syncSubcategoryState('add-category_id', 'add-subcategory_id'));
+      document.getElementById('edit-category_id')?.addEventListener('change', () =>
+        syncSubcategoryState('edit-category_id', 'edit-subcategory_id'));
+      document.getElementById('add-url-input')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); addExternalUrl('add'); }
+      });
+      document.getElementById('edit-url-input')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); addExternalUrl('edit'); }
+      });
+    });
   </script>
 
   @if ($errors->any() && old('_method') !== 'PUT')

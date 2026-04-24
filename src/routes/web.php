@@ -26,6 +26,7 @@ Route::patch('/cart/item/{cartItem}', [CartController::class, 'update'])->name('
 Route::delete('/cart/item/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 Route::post('/cart/order', [CartController::class, 'place'])->name('store.cart.place');
+Route::post('/cart/merge', [CartController::class, 'merge'])->name('cart.merge');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
@@ -38,6 +39,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/products/{product}/data', [Admin\ProductController::class, 'data'])->name('products.data');
         Route::put('/products/{product}', [Admin\ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [Admin\ProductController::class, 'destroy'])->name('products.destroy');
+        Route::patch('/products/{product}/images/{image}/primary', [Admin\ProductController::class, 'setImagePrimary'])->name('products.images.primary');
+        Route::patch('/products/{product}/images/reorder', [Admin\ProductController::class, 'reorderImages'])->name('products.images.reorder');
 
         Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders');
         Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
