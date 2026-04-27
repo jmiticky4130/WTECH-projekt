@@ -379,15 +379,15 @@
         },
 
         get isCardPayment() {
-          return this.payment?.type === 'card';
+          return this.payment?.type === 'karta';
         },
 
         get isBankTransfer() {
-          return this.payment?.type === 'bank_transfer';
+          return this.payment?.type === 'bankový prevod';
         },
 
         get isCashOnDelivery() {
-          return this.payment?.type === 'cod';
+          return this.payment?.type === 'dobierka';
         },
 
         isPaymentDisabled(paymentId) {

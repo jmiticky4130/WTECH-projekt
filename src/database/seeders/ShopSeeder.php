@@ -25,17 +25,16 @@ class ShopSeeder extends Seeder
         );
 
         $paymentMethods = [
-            ['name' => 'Platba kartou online', 'type' => 'card',          'fee' => 0,    'sort_order' => 1],
-            ['name' => 'Dobierka',              'type' => 'cod',           'fee' => 1.50, 'sort_order' => 2],
-            ['name' => 'Google Pay',            'type' => 'google_pay',    'fee' => 0,    'sort_order' => 3],
-            ['name' => 'Bankový prevod',        'type' => 'bank_transfer', 'fee' => 0,    'sort_order' => 4],
+            ['name' => 'Platba kartou online', 'type' => 'karta',          'fee' => 0,    'sort_order' => 1],
+            ['name' => 'Dobierka',              'type' => 'dobierka',       'fee' => 1.50, 'sort_order' => 2],
+            ['name' => 'Bankový prevod',        'type' => 'bankový prevod', 'fee' => 0,    'sort_order' => 4],
         ];
 
         foreach ($paymentMethods as $method) {
             PaymentMethod::firstOrCreate(['name' => $method['name']], $method);
         }
 
-        DB::statement("UPDATE payment_methods SET requires_address = true WHERE type = 'cod'");
+        DB::statement("UPDATE payment_methods SET requires_address = true WHERE type = 'dobierka'");
 
         $shippingMethods = [
             ['name' => 'Kuriér DPD',              'type' => 'address',         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3, 'sort_order' => 1],
@@ -381,6 +380,9 @@ class ShopSeeder extends Seeder
             $country = $isAddress ? 'Slovensko' : null;
 
             $createdAt = now()->subDays(10 - $index);
+            $billingSameAsDelivery = DB::getDriverName() === 'pgsql'
+                ? DB::raw($isAddress ? 'true' : 'false')
+                : $isAddress;
 
             $orderId = DB::table('orders')->insertGetId([
                 'user_id' => null,
@@ -406,7 +408,7 @@ class ShopSeeder extends Seeder
                 'billing_city' => $city,
                 'billing_zip' => $zip,
                 'billing_country' => $country,
-                'billing_same_as_delivery' => $isAddress,
+                'billing_same_as_delivery' => $billingSameAsDelivery,
                 'note' => $index % 2 === 0 ? 'Prosim dorucit po 16:00.' : null,
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,

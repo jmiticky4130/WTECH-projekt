@@ -101,7 +101,18 @@ class ProductController extends Controller
             ];
         }
         if ($product->subcategory) {
-            $breadcrumb[] = ['label' => $product->subcategory->name];
+            $genderSlug = $product->category
+                ? (CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name] ?? null)
+                : null;
+            $subSlug = CategoryMapping::CAT_SLUG_BY_NAME[$product->subcategory->name] ?? null;
+            $subHref = $genderSlug && $subSlug
+                ? url('/kategoria/' . $genderSlug . '/' . $subSlug)
+                : null;
+
+            $breadcrumb[] = array_filter([
+                'label' => $product->subcategory->name,
+                'href'  => $subHref,
+            ]);
         }
         $breadcrumb[] = ['label' => $product->name];
 

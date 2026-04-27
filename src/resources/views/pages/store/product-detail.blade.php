@@ -136,9 +136,9 @@
               <h2 class="text-lg font-bold leading-tight">{{ $product->name }}</h2>
             </div>
 
-            <div class="aspect-4/5 bg-gray-100 border border-gray-200 overflow-hidden relative">
+            <div class="aspect-[4/5] bg-gray-100 border border-gray-200 overflow-hidden relative">
               <template x-if="activeImg">
-                <img :src="activeImg" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $product->name }}">
+                <img :src="activeImg" class="absolute inset-0 w-full h-full object-cover" alt="{{ $product->name }}">
               </template>
             </div>
 
@@ -146,10 +146,10 @@
               <div class="grid grid-cols-4 gap-3">
                 @foreach ($images as $img)
                   @php $imgUrl = \App\Support\ProductImageUrl::resolve($img->image_path); @endphp
-                  <div class="aspect-2/3 bg-gray-100 overflow-hidden relative cursor-pointer"
+                  <div class="aspect-[2/3] bg-gray-100 overflow-hidden relative cursor-pointer"
                        :class="activeImg === '{{ $imgUrl }}' ? 'border-2 border-brand-dark' : 'border border-gray-200'"
                        @click="activeImg = '{{ $imgUrl }}'">
-                    <img src="{{ $imgUrl }}" class="w-full absolute top-1/2 -translate-y-1/2" alt="{{ $product->name }}">
+                    <img src="{{ $imgUrl }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $product->name }}">
                   </div>
                 @endforeach
               </div>
@@ -223,7 +223,6 @@
             <!-- quantity (desktop only) -->
             <div class="hidden md:block mb-5">
               <p class="text-sm font-semibold mb-2">Množstvo</p>
-              <p class="text-xs text-gray-500 mb-2" x-show="selectedVariant" x-text="`Dostupne: ${maxSelectableQty} ks`"></p>
               <div class="flex items-stretch border border-gray-300 w-fit h-11">
                 <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none hover:bg-gray-50"
                         @click="qty = Math.max(1, qty - 1)">&minus;</button>

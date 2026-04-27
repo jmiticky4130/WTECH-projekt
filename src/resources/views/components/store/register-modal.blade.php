@@ -74,16 +74,24 @@
           <label class="block text-sm font-medium mb-1.5">
             Heslo <span class="text-red-500">*</span>
           </label>
-          <div class="relative">
+          <div data-password-container class="relative">
             <input
               type="password"
               name="password"
               placeholder="Minimálne 8 znakov"
               class="w-full border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-brand-dark @error('password') border-red-400 @enderror"
             />
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
-              <img src="{{ asset('icons/eye.svg') }}" class="w-5 h-5" alt="Zobraziť heslo" />
-            </span>
+            <button
+              type="button"
+              data-password-toggle
+              data-password-show-icon="{{ asset('icons/eye.svg') }}"
+              data-password-hide-icon="{{ asset('icons/eye-closed.svg') }}"
+              class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+              aria-label="Zobraziť heslo"
+              aria-pressed="false"
+            >
+              <img data-password-icon src="{{ asset('icons/eye.svg') }}" class="w-5 h-5" alt="Zobraziť heslo" />
+            </button>
           </div>
         </div>
 
@@ -91,16 +99,24 @@
           <label class="block text-sm font-medium mb-1.5">
             Potvrdenie hesla <span class="text-red-500">*</span>
           </label>
-          <div class="relative">
+          <div data-password-container class="relative">
             <input
               type="password"
               name="password_confirmation"
               placeholder="Zopakujte heslo"
               class="w-full border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-brand-dark"
             />
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
-              <img src="{{ asset('icons/eye-closed.svg') }}" class="w-5 h-5" alt="Skryť heslo" />
-            </span>
+            <button
+              type="button"
+              data-password-toggle
+              data-password-show-icon="{{ asset('icons/eye.svg') }}"
+              data-password-hide-icon="{{ asset('icons/eye-closed.svg') }}"
+              class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+              aria-label="Zobraziť heslo"
+              aria-pressed="false"
+            >
+              <img data-password-icon src="{{ asset('icons/eye.svg') }}" class="w-5 h-5" alt="Zobraziť heslo" />
+            </button>
           </div>
         </div>
 

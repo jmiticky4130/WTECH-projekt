@@ -16,7 +16,7 @@ class StorePaymentMethodRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:50', 'unique:payment_methods,name'],
-            'type' => ['required', Rule::in(['card', 'cod', 'bank_transfer', 'google_pay'])],
+            'type' => ['required', Rule::in(['karta', 'dobierka', 'bankový prevod'])],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'requires_address' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],

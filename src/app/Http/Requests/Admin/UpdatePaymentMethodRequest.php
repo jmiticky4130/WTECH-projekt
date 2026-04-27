@@ -15,11 +15,11 @@ class UpdatePaymentMethodRequest extends FormRequest
 
     public function rules(): array
     {
-        $paymentMethod = $this->route('paymentMethod');
+        $paymentMethod = $this->route('payment_method');
 
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique('payment_methods', 'name')->ignore($paymentMethod?->id)],
-            'type' => ['required', Rule::in(['card', 'cod', 'bank_transfer', 'google_pay'])],
+            'type' => ['required', Rule::in(['karta', 'dobierka', 'bankový prevod'])],
             'fee' => ['nullable', 'numeric', 'min:0'],
             'requires_address' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
@@ -29,7 +29,7 @@ class UpdatePaymentMethodRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $paymentMethod = $this->route('paymentMethod');
+        $paymentMethod = $this->route('payment_method');
 
         $this->merge([
             'requires_address' => $this->boolean('requires_address', (bool) ($paymentMethod?->requires_address ?? false)),

@@ -15,7 +15,7 @@ class UpdateShippingMethodRequest extends FormRequest
 
     public function rules(): array
     {
-        $shippingMethod = $this->route('shippingMethod');
+        $shippingMethod = $this->route('shipping_method');
 
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique('shipping_methods', 'name')->ignore($shippingMethod?->id)],
@@ -31,7 +31,7 @@ class UpdateShippingMethodRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $shippingMethod = $this->route('shippingMethod');
+        $shippingMethod = $this->route('shipping_method');
 
         $this->merge([
             'is_active' => $this->boolean('is_active', (bool) ($shippingMethod?->is_active ?? true)),

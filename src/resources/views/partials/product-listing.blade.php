@@ -40,16 +40,23 @@
           @if (!empty($clothingSizes))
             <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
           @endif
-          <select name="size[]"
-                  onchange="document.getElementById('filter-form').requestSubmit()"
-                  class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
-            <option value="">{{ !empty($clothingSizes) ? 'Všetky EU veľkosti' : 'Všetky veľkosti (EU)' }}</option>
-            @foreach ($shoeSizes as $size)
-              <option value="{{ $size }}" {{ in_array($size, $filterSizes) ? 'selected' : '' }}>
-                {{ $size }}
-              </option>
-            @endforeach
-          </select>
+          <details class="border border-gray-300 bg-white">
+            <summary class="px-3 py-2 text-sm cursor-pointer select-none flex items-center justify-between">
+              <span>{{ !empty($clothingSizes) ? 'Vyberte EU veľkosti' : 'Vyberte veľkosti (EU)' }}</span>
+              <span class="text-xs">▼</span>
+            </summary>
+            <div class="border-t border-gray-200 max-h-56 overflow-y-auto p-2 space-y-1">
+              @foreach ($shoeSizes as $size)
+                <label class="flex items-center gap-2 text-sm cursor-pointer px-1 py-1 hover:bg-gray-50">
+                  <input type="checkbox" name="size[]" value="{{ $size }}"
+                         class="w-4 h-4 accent-brand-dark shrink-0"
+                         {{ in_array($size, $filterSizes) ? 'checked' : '' }}
+                         onchange="document.getElementById('filter-form').requestSubmit()" />
+                  <span>{{ $size }}</span>
+                </label>
+              @endforeach
+            </div>
+          </details>
         @endif
       </div>
       @endif

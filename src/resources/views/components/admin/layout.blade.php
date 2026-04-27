@@ -18,9 +18,9 @@
             fontFamily: { sans: ["DM Sans", "sans-serif"] },
             colors: {
               brand: {
-                dark: "#444444",
+                dark: "#5C4530",
                 light: "#f5f5f5",
-                accent: "#333333",
+                accent: "#4A3525",
               },
             },
             screens: {

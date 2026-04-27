@@ -15,9 +15,9 @@
             fontFamily: { sans: ["DM Sans", "sans-serif"] },
             colors: {
               brand: {
-                dark: "#444444",
+                dark: "#5C4530",
                 light: "#f5f5f5",
-                accent: "#333333",
+                accent: "#4A3525",
               },
             },
           },
@@ -65,13 +65,24 @@
             <label class="block text-sm font-medium mb-1.5">
               Heslo <span class="text-red-500">*</span>
             </label>
-            <div class="relative">
+            <div data-password-container class="relative">
               <input
                 type="password"
                 name="password"
                 placeholder="••••••••"
                 class="w-full border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-brand-dark"
               />
+              <button
+                type="button"
+                data-password-toggle
+                data-password-show-icon="{{ asset('icons/eye.svg') }}"
+                data-password-hide-icon="{{ asset('icons/eye-closed.svg') }}"
+                class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                aria-label="Zobraziť heslo"
+                aria-pressed="false"
+              >
+                <img data-password-icon src="{{ asset('icons/eye.svg') }}" class="w-5 h-5" alt="Zobraziť heslo" />
+              </button>
             </div>
           </div>
 
@@ -97,5 +108,6 @@
     </div>
 
     <p class="text-gray-600 text-xs mt-4">© 2026 Bellura s.r.o.</p>
+    <x-password-toggle-script />
   </body>
 </html>

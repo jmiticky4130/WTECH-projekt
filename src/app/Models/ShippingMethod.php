@@ -14,6 +14,11 @@ class ShippingMethod extends Model
 
     protected $casts = ['is_active' => 'boolean', 'price' => 'decimal:2'];
 
+    public function setIsActiveAttribute(mixed $value): void
+    {
+        $this->attributes['is_active'] = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false';
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query

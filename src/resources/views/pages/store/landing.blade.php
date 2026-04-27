@@ -2,11 +2,11 @@
 
   <!-- hero section -->
   <section class="relative overflow-hidden bg-brand-dark">
-    <a href="{{ url('/kategoria/novinky') }}" aria-label="Prejst na kategoriu Novinky" class="group block relative w-full h-44 sm:h-56 md:h-64 lg:h-72 xl:h-80">
+    <a href="{{ url('/kategoria/novinky') }}" aria-label="Prejst na kategoriu Novinky" class="block relative w-full h-72 sm:h-96 md:h-[28rem] lg:h-[32rem] xl:h-[36rem]">
       <img
         src="{{ asset('images/hero_section_banner.png') }}"
         alt="Bellura - Novinky"
-        class="absolute inset-0 w-full h-full object-cover object-center transition duration-500 ease-out group-hover:scale-[1.02] group-hover:brightness-105"
+        class="absolute inset-0 w-full h-full object-cover object-center"
       />
     </a>
   </section>
@@ -24,7 +24,7 @@
             @foreach ($categoryItems as $item)
               <x-store.category-card
                 :href="url('/kategoria/' . $item['slug'])"
-                :image="'images/categories/placeholder.svg'"
+                :image="'images/category-photos/' . $item['slug'] . '.jpg'"
                 :alt="$item['label']"
                 :label="$item['label']"
               />

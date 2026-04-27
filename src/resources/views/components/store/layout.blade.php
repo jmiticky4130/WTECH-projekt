@@ -30,9 +30,9 @@
             fontFamily: { sans: ["DM Sans", "sans-serif"] },
             colors: {
               brand: {
-                dark: "#444444",
+                dark: "#5C4530",
                 light: "#f5f5f5",
-                accent: "#333333",
+                accent: "#4A3525",
               },
             },
           },
@@ -125,6 +125,7 @@
         };
       }
     </script>
+    <x-password-toggle-script />
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak] { display: none !important; }</style>
   </head>
