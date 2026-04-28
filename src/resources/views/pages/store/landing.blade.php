@@ -16,17 +16,19 @@
     <div class="max-w-7xl mx-auto px-4 py-12 space-y-14">
 
       <!-- categories -->
-      @php $categoryItems = \App\Support\CategoryMapping::STORE_SUB_NAV_ITEMS; @endphp
-      @if (!empty($categoryItems))
+      @php
+        $categoryItems = \App\Models\Subcategory::orderBy('sort_order')->orderBy('id')->limit(4)->get(['name', 'slug']);
+      @endphp
+      @if ($categoryItems->isNotEmpty())
         <section>
           <h2 class="text-xl font-bold underline underline-offset-4 mb-6">Kategórie</h2>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
             @foreach ($categoryItems as $item)
               <x-store.category-card
-                :href="url('/kategoria/' . $item['slug'])"
-                :image="'images/category-photos/' . $item['slug'] . '.jpg'"
-                :alt="$item['label']"
-                :label="$item['label']"
+                :href="url('/kategoria/' . $item->slug)"
+                :image="'images/category-photos/' . $item->slug . '.jpg'"
+                :alt="$item->name"
+                :label="$item->name"
               />
             @endforeach
           </div>

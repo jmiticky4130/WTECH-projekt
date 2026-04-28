@@ -89,7 +89,7 @@
               <span>Fakturačná adresa je rovnaká ako dodacia</span>
             </label>
 
-            <div class="border border-gray-200 rounded p-4" x-show="!f.billingSame">
+            <div x-show="!f.billingSame">
               <h2 class="text-base font-bold mb-4">Fakturačná adresa</h2>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>

@@ -1,4 +1,7 @@
 @php
+  use App\Models\Subcategory;
+  use Illuminate\Support\Facades\Cache;
+
   $genders = ['zeny', 'muzi', 'deti'];
   $seg2    = request()->segment(2);
   $seg3    = request()->segment(3);
@@ -8,10 +11,15 @@
     $activeSlug  = $seg3;
   } else {
     $gender      = null;
-    $activeSlug  = $seg2; // e.g. /kategoria/oblecenie
+    $activeSlug  = $seg2;
   }
 
-  $items = \App\Support\CategoryMapping::STORE_SUB_NAV_ITEMS;
+  $items = Cache::remember('subnav:all', 3600, function () {
+    return Subcategory::orderBy('sort_order')->orderBy('id')->get(['name', 'slug'])->map(fn ($s) => [
+      'label' => $s->name,
+      'slug'  => $s->slug,
+    ])->all();
+  });
 @endphp
 
 <div class="bg-brand-dark text-white border-t border-gray-600">

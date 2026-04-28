@@ -1,4 +1,4 @@
-<div class="flex gap-8 items-start">
+<div id="products" class="flex gap-8 items-start">
 
   <!-- filter sidebar -->
   <aside class="filter-sidebar hidden lg:flex flex-col w-56 shrink-0 sticky top-16 max-h-[calc(100vh-4rem)]">
@@ -259,6 +259,7 @@
         section.style.opacity = '1';
         section.style.pointerEvents = '';
         history.pushState({}, '', url);
+        document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
         bindSortListener();
       });
   }

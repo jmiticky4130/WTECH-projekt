@@ -10,8 +10,11 @@ return new class extends Migration
     {
         Schema::create('subcategories', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 20);
+            $table->string('name', 30);
+            $table->string('slug', 40)->unique();
+            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

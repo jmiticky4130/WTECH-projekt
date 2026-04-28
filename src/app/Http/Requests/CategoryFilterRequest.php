@@ -14,18 +14,18 @@ class CategoryFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'brand'      => ['sometimes', 'array'],
-            'brand.*'    => ['string'],
-            'color'      => ['sometimes', 'array'],
-            'color.*'    => ['string'],
-            'material'   => ['sometimes', 'array'],
+            'brand' => ['sometimes', 'array'],
+            'brand.*' => ['string'],
+            'color' => ['sometimes', 'array'],
+            'color.*' => ['string'],
+            'material' => ['sometimes', 'array'],
             'material.*' => ['string'],
-            'size'       => ['sometimes', 'array'],
-            'size.*'     => ['string'],
-            'min_price'  => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'max_price'  => ['sometimes', 'nullable', 'numeric', 'min:0'],
-            'sort'       => ['sometimes', 'nullable', 'in:featured,price_asc,price_desc,new'],
-            'page'       => ['sometimes', 'integer', 'min:1'],
+            'size' => ['sometimes', 'array'],
+            'size.*' => ['string'],
+            'min_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'max_price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
+            'sort' => ['sometimes', 'nullable', 'in:featured,price_asc,price_desc,new'],
+            'page' => ['sometimes', 'integer', 'min:1'],
         ];
     }
 }

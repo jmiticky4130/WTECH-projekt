@@ -7,8 +7,8 @@ use App\Http\Requests\SearchFilterRequest;
 use App\Models\Product;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
-use App\Support\ProductImageUrl;
 use App\Support\CategoryMapping;
+use App\Support\ProductImageUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,37 +23,37 @@ class SearchController extends Controller
 
     public function index(SearchFilterRequest $request)
     {
-        $q       = trim((string) $request->input('q', ''));
+        $q = trim((string) $request->input('q', ''));
         $perPage = 12;
-        $page    = max(1, (int) $request->input('page', 1));
-        $sortBy  = $request->input('sort', 'featured');
+        $page = max(1, (int) $request->input('page', 1));
+        $sortBy = $request->input('sort', 'featured');
 
-        $brands         = $this->filterData->getBrands();
-        $colors         = $this->filterData->getColors();
-        $materials      = $this->filterData->getMaterials();
-        $clothingSizes  = CategoryMapping::CLOTHING_SIZES;
-        $shoeSizes      = CategoryMapping::SHOE_EU_SIZES;
+        $brands = $this->filterData->getBrands();
+        $colors = $this->filterData->getColors();
+        $materials = $this->filterData->getMaterials();
+        $clothingSizes = CategoryMapping::CLOTHING_SIZES;
+        $shoeSizes = CategoryMapping::SHOE_EU_SIZES;
         $globalMinPrice = $this->filterData->getGlobalMinPrice();
         $globalMaxPrice = $this->filterData->getGlobalMaxPrice();
 
-        $filterBrands    = array_filter((array) $request->input('brand', []));
-        $filterColors    = array_filter((array) $request->input('color', []));
+        $filterBrands = array_filter((array) $request->input('brand', []));
+        $filterColors = array_filter((array) $request->input('color', []));
         $filterMaterials = array_filter((array) $request->input('material', []));
-        $filterSizes     = array_filter((array) $request->input('size', []));
-        $minPrice        = $request->input('min_price');
-        $maxPrice        = $request->input('max_price');
+        $filterSizes = array_filter((array) $request->input('size', []));
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
 
         $filters = [
-            'brand'     => $filterBrands,
-            'color'     => $filterColors,
-            'material'  => $filterMaterials,
-            'size'      => $filterSizes,
+            'brand' => $filterBrands,
+            'color' => $filterColors,
+            'material' => $filterMaterials,
+            'size' => $filterSizes,
             'min_price' => $minPrice,
             'max_price' => $maxPrice,
         ];
 
-        $baseQuery  = $this->productQuery->buildFilteredQuery($filters, null, null, $q !== '' ? $q : null);
-        $total      = $this->productQuery->getTotal($baseQuery);
+        $baseQuery = $this->productQuery->buildFilteredQuery($filters, null, null, $q !== '' ? $q : null);
+        $total = $this->productQuery->getTotal($baseQuery);
         $totalPages = max(1, (int) ceil($total / $perPage));
 
         $this->productQuery->applyPresentation($baseQuery, $sortBy);
@@ -77,19 +77,19 @@ class SearchController extends Controller
             return response()->json([]);
         }
 
-        $term = '%' . mb_strtolower($q) . '%';
+        $term = '%'.mb_strtolower($q).'%';
 
         $products = Product::query()
             ->join('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('product_images', function ($join) {
                 $join->on('products.id', '=', 'product_images.product_id')
-                     ->whereRaw('"product_images"."is_primary" = true');
+                    ->whereRaw('"product_images"."is_primary" = true');
             })
             ->join('product_variants', 'products.id', '=', 'product_variants.product_id')
             ->where(function (Builder $w) use ($term) {
                 $w->whereRaw('LOWER(products.name) LIKE ?', [$term])
-                  ->orWhereRaw('LOWER(brands.name) LIKE ?', [$term])
-                  ->orWhereRaw('LOWER(products.description) LIKE ?', [$term]);
+                    ->orWhereRaw('LOWER(brands.name) LIKE ?', [$term])
+                    ->orWhereRaw('LOWER(products.description) LIKE ?', [$term]);
             })
             ->select(
                 'products.name',
@@ -104,11 +104,11 @@ class SearchController extends Controller
             ->get();
 
         return response()->json($products->map(fn ($p) => [
-            'name'            => $p->name,
-            'slug'            => $p->slug,
-            'brand_name'      => $p->brand_name,
-            'image_url'       => ProductImageUrl::resolve($p->image_path),
-            'price_formatted' => number_format((float) $p->min_price, 2, ',', "\u{00A0}") . "\u{00A0}€",
+            'name' => $p->name,
+            'slug' => $p->slug,
+            'brand_name' => $p->brand_name,
+            'image_url' => ProductImageUrl::resolve($p->image_path),
+            'price_formatted' => number_format((float) $p->min_price, 2, ',', "\u{00A0}")."\u{00A0}€",
         ]));
     }
 }

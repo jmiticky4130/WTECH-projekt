@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductImage;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -90,7 +89,7 @@ class ProductService
         // Resolve each meta entry to a path in tray order
         $paths = [];
         foreach ($newImagesMeta as $entry) {
-            $type  = $entry['type'] ?? '';
+            $type = $entry['type'] ?? '';
             $value = $entry['value'] ?? '';
 
             if ($type === 'upload') {

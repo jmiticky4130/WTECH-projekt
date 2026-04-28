@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function show(string $slug)
     {
-        $product = Product::with(['brand', 'material', 'category', 'subcategory'])
+        $product = Product::with(['brand', 'material', 'subcategory'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -28,28 +28,28 @@ class ProductController extends Controller
             )
             ->get()
             ->map(fn ($v) => (object) [
-                'id'             => $v->id,
-                'color_id'       => $v->color_id,
-                'color_name'     => $v->color->name,
-                'hex_code'       => $v->color->hex_code,
-                'size'           => $v->size,
-                'price'          => $v->price,
+                'id' => $v->id,
+                'color_id' => $v->color_id,
+                'color_name' => $v->color->name,
+                'hex_code' => $v->color->hex_code,
+                'size' => $v->size,
+                'price' => $v->price,
                 'stock_quantity' => $v->stock_quantity,
             ]);
 
-        $colors   = $variants->unique('color_id')->values();
+        $colors = $variants->unique('color_id')->values();
         $minPrice = $variants->min('price');
 
         $similarSub = DB::table('product_variants')
             ->select('product_id', DB::raw('MIN(price) as variant_min_price'))
             ->groupBy('product_id');
 
-        $similarQuery = Product::query()
+        $similarProducts = Product::query()
             ->joinSub($similarSub, 'qv', 'products.id', '=', 'qv.product_id')
             ->join('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('product_images', function ($join) {
                 $join->on('products.id', '=', 'product_images.product_id')
-                     ->whereRaw('"product_images"."is_primary" = true');
+                    ->whereRaw('"product_images"."is_primary" = true');
             })
             ->select(
                 'products.id',
@@ -61,6 +61,8 @@ class ProductController extends Controller
                 DB::raw("(SELECT STRING_AGG(DISTINCT pv_s.size, ', ') FROM product_variants pv_s WHERE pv_s.product_id = products.id) as sizes"),
             )
             ->where('products.id', '!=', $product->id)
+            ->where('products.subcategory_id', $product->subcategory_id)
+            ->where('products.category', $product->category)
             ->groupBy(
                 'products.id',
                 'products.name',
@@ -69,15 +71,8 @@ class ProductController extends Controller
                 'product_images.image_path',
                 'qv.variant_min_price',
             )
-            ->limit(4);
-
-        if ($product->subcategory_id) {
-            $similarQuery->where('products.subcategory_id', $product->subcategory_id);
-        } else {
-            $similarQuery->where('products.category_id', $product->category_id);
-        }
-
-        $similarProducts = $similarQuery->get();
+            ->limit(4)
+            ->get();
 
         $clothingOrder = CategoryMapping::SIZE_ORDER;
         $similarProducts->each(function ($p) use ($clothingOrder) {
@@ -85,40 +80,42 @@ class ProductController extends Controller
             usort($sizes, function ($a, $b) use ($clothingOrder) {
                 $aNum = is_numeric($a);
                 $bNum = is_numeric($b);
-                if ($aNum && $bNum) return (int) $a <=> (int) $b;
-                if (! $aNum && ! $bNum) return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+                if ($aNum && $bNum) {
+                    return (int) $a <=> (int) $b;
+                }
+                if (! $aNum && ! $bNum) {
+                    return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+                }
 
                 return $aNum ? 1 : -1;
             });
             $p->sizes = implode(', ', $sizes);
         });
 
+        $genderSlug = CategoryMapping::GENDER_SLUG_BY_NAME[$product->category] ?? null;
+
         $breadcrumb = [['label' => 'Domov', 'href' => url('/')]];
-        if ($product->category && isset(CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name])) {
+        if ($genderSlug) {
             $breadcrumb[] = [
-                'label' => $product->category->name,
-                'href'  => url('/kategoria/' . CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name]),
+                'label' => $product->category,
+                'href' => url('/kategoria/'.$genderSlug),
             ];
         }
         if ($product->subcategory) {
-            $genderSlug = $product->category
-                ? (CategoryMapping::GENDER_SLUG_BY_NAME[$product->category->name] ?? null)
-                : null;
-            $subSlug = CategoryMapping::CAT_SLUG_BY_NAME[$product->subcategory->name] ?? null;
-            $subHref = $genderSlug && $subSlug
-                ? url('/kategoria/' . $genderSlug . '/' . $subSlug)
-                : null;
+            $subHref = $genderSlug
+                ? url('/kategoria/'.$genderSlug.'/'.$product->subcategory->slug)
+                : url('/kategoria/'.$product->subcategory->slug);
 
-            $breadcrumb[] = array_filter([
+            $breadcrumb[] = [
                 'label' => $product->subcategory->name,
-                'href'  => $subHref,
-            ]);
+                'href' => $subHref,
+            ];
         }
         $breadcrumb[] = ['label' => $product->name];
 
-        $product->brand_name       = $product->brand->name ?? null;
-        $product->material_name    = $product->material->name ?? null;
-        $product->category_name    = $product->category->name ?? null;
+        $product->brand_name = $product->brand->name ?? null;
+        $product->material_name = $product->material->name ?? null;
+        $product->category_name = $product->category;
         $product->subcategory_name = $product->subcategory?->name;
 
         return view('pages.store.product-detail', compact(

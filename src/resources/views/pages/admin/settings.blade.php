@@ -14,39 +14,8 @@
 
     <div class="space-y-5">
 
-      <!-- categories + subcategories -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-        <!-- categories -->
-        <div class="bg-white shadow rounded">
-          <div class="px-5 py-4 border-b border-gray-100">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500">Kategórie</h2>
-          </div>
-          <div class="px-5 py-5 flex flex-col">
-            <p class="text-xs text-gray-400 mb-2 font-medium">Existujúce kategórie</p>
-            <div class="flex flex-wrap gap-2 mb-5">
-              @forelse ($categories as $cat)
-                <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm px-3 py-1">
-                  {{ $cat->name }}
-                  <form method="POST" action="{{ route('admin.categories.destroy', $cat) }}" class="inline" onsubmit="return confirm('Vymazať kategóriu?')">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="text-gray-400 hover:text-red-500 leading-none">&#x2715;</button>
-                  </form>
-                </span>
-              @empty
-                <p class="text-xs text-gray-400">Žiadne kategórie.</p>
-              @endforelse
-            </div>
-            <div>
-              <p class="text-xs text-gray-400 mb-2 font-medium">Pridať novú</p>
-              <form method="POST" action="{{ route('admin.categories.store') }}" class="flex gap-2">
-                @csrf
-                <input type="text" name="name" placeholder="Nová kategória" required class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark flex-1" />
-                <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors whitespace-nowrap">Pridať</button>
-              </form>
-            </div>
-          </div>
-        </div>
+      <!-- subcategories -->
+      <div class="grid grid-cols-1 gap-5">
 
         <!-- subcategories -->
         <div class="bg-white shadow rounded">

@@ -333,20 +333,19 @@
       });
     </script>
     <div id="sticky-bar"
-         class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-3 translate-y-full transition-transform duration-300"
-         :class="{ 'opacity-50 pointer-events-none': !activeSize || !inStock }">
+         class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-3 py-3 flex items-center gap-3 translate-y-full transition-transform duration-300">
       <div class="flex flex-1 items-stretch h-13 min-h-13">
         <div class="flex items-stretch border border-gray-300 border-r-0 shrink-0">
           <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1"
                   @click="qty = Math.max(1, qty - 1)">&minus;</button>
           <div class="w-10 flex items-center justify-center text-sm font-semibold border-x border-gray-300" x-text="qty ?? 1"></div>
           <button type="button" class="w-10 flex items-center justify-center text-lg font-light text-brand-dark select-none px-1"
-            @click="if (selectedVariant && qty < maxSelectableQty) qty = qty + 1">+</button>
+            @click="qty = selectedVariant ? Math.min(maxSelectableQty, qty + 1) : qty + 1">+</button>
         </div>
         <button @click="addToCart()"
                 :disabled="!activeSize || !inStock || addingToCart"
-                class="flex-1 bg-brand-dark text-white font-bold text-sm tracking-widest uppercase transition-colors active:bg-brand-accent disabled:opacity-40">
-          <span x-show="!addedToCart" x-text="addingToCart ? 'Pridávam...' : 'Pridať do košíka'"></span>
+                class="flex-1 bg-brand-dark text-white font-bold text-sm tracking-widest uppercase transition-colors active:bg-brand-accent disabled:opacity-40 disabled:cursor-not-allowed">
+          <span x-show="!addedToCart" x-text="addingToCart ? 'Pridávam...' : (!activeSize ? 'Vyberte veľkosť' : 'Pridať do košíka')"></span>
           <span x-show="addedToCart">Pridané ✓</span>
         </button>
       </div>

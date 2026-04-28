@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PaymentMethod extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['name', 'type', 'fee', 'requires_address', 'is_active', 'sort_order'];
 
     protected $casts = ['requires_address' => 'boolean', 'is_active' => 'boolean', 'fee' => 'decimal:2'];

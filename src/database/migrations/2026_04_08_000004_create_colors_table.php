@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 20);
             $table->string('hex_code', 7);
+            $table->softDeletes();
         });
     }
 

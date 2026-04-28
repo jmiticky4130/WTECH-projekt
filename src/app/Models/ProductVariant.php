@@ -16,6 +16,6 @@ class ProductVariant extends Model
 
     public function color(): BelongsTo
     {
-        return $this->belongsTo(Color::class);
+        return $this->belongsTo(Color::class)->withTrashed();
     }
 }

@@ -11,26 +11,21 @@ class Product extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'description', 'category_id', 'subcategory_id', 'brand_id', 'material_id', 'is_featured'];
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
+    protected $fillable = ['name', 'slug', 'description', 'category', 'subcategory_id', 'brand_id', 'material_id', 'is_featured'];
 
     public function subcategory(): BelongsTo
     {
-        return $this->belongsTo(Subcategory::class);
+        return $this->belongsTo(Subcategory::class)->withTrashed();
     }
 
     public function brand(): BelongsTo
     {
-        return $this->belongsTo(Brand::class);
+        return $this->belongsTo(Brand::class)->withTrashed();
     }
 
     public function material(): BelongsTo
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class)->withTrashed();
     }
 
     public function variants(): HasMany

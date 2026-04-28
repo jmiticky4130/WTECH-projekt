@@ -23,7 +23,7 @@ class LandingController extends Controller
             ->join('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('product_images', function ($join) {
                 $join->on('products.id', '=', 'product_images.product_id')
-                     ->whereRaw('"product_images"."is_primary" = true');
+                    ->whereRaw('"product_images"."is_primary" = true');
             })
             ->whereRaw('"products"."is_featured" IS TRUE')
             ->whereNull('products.deleted_at')
@@ -45,7 +45,7 @@ class LandingController extends Controller
             ->join('brands', 'products.brand_id', '=', 'brands.id')
             ->leftJoin('product_images', function ($join) {
                 $join->on('products.id', '=', 'product_images.product_id')
-                     ->whereRaw('"product_images"."is_primary" = true');
+                    ->whereRaw('"product_images"."is_primary" = true');
             })
             ->whereNull('products.deleted_at')
             ->select(
@@ -71,8 +71,12 @@ class LandingController extends Controller
                 usort($sizes, function ($a, $b) use ($clothingOrder) {
                     $aNum = is_numeric($a);
                     $bNum = is_numeric($b);
-                    if ($aNum && $bNum) return (int) $a <=> (int) $b;
-                    if (! $aNum && ! $bNum) return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+                    if ($aNum && $bNum) {
+                        return (int) $a <=> (int) $b;
+                    }
+                    if (! $aNum && ! $bNum) {
+                        return ($clothingOrder[$a] ?? 999) <=> ($clothingOrder[$b] ?? 999);
+                    }
 
                     return $aNum ? 1 : -1;
                 });

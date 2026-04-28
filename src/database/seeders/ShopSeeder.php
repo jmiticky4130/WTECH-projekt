@@ -47,31 +47,23 @@ class ShopSeeder extends Seeder
             ShippingMethod::firstOrCreate(['name' => $method['name']], $method);
         }
 
-        // Top-level categories = genders
-        $categoryIds = [];
-        $genders = ['Ženy', 'Muži', 'Deti'];
-        foreach ($genders as $name) {
-            DB::table('categories')->updateOrInsert(
-                ['name' => $name],
-                ['updated_at' => now()]
-            );
-
-            $categoryIds[$name] = (int) DB::table('categories')
-                ->where('name', $name)
-                ->value('id');
-        }
-
         // Subcategories = global product types
         $subcategoryIds = [];
         $subtypes = ['Novinky', 'Oblečenie', 'Topánky', 'Doplnky', 'Akcie'];
-        foreach ($subtypes as $sub) {
+        foreach ($subtypes as $i => $sub) {
+            $slug = Str::slug($sub);
             DB::table('subcategories')->updateOrInsert(
-                ['name' => $sub],
-                ['updated_at' => now()]
+                ['slug' => $slug],
+                [
+                    'name' => $sub,
+                    'sort_order' => $i,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
             );
 
             $subcategoryIds[$sub] = (int) DB::table('subcategories')
-                ->where('name', $sub)
+                ->where('slug', $slug)
                 ->value('id');
         }
 
@@ -248,7 +240,7 @@ class ShopSeeder extends Seeder
                     'name' => $p['name'],
                     'slug' => $slug,
                     'description' => $descriptions[$index % count($descriptions)],
-                    'category_id' => $categoryIds[$p['cat']],
+                    'category' => $p['cat'],
                     'subcategory_id' => $subcategoryIds[$p['sub']],
                     'brand_id' => $brandIds[$p['brand']],
                     'material_id' => $materialIds[$p['material']],
@@ -259,7 +251,7 @@ class ShopSeeder extends Seeder
             ], ['slug'], [
                 'name',
                 'description',
-                'category_id',
+                'category',
                 'subcategory_id',
                 'brand_id',
                 'material_id',

@@ -18,7 +18,7 @@ class ProductQueryService
      */
     public function buildFilteredQuery(
         array $filters,
-        ?int $categoryId = null,
+        ?string $genderName = null,
         ?array $subcategoryIds = null,
         ?string $searchTerm = null,
         bool $includeProductsWithoutVariants = false,
@@ -39,8 +39,8 @@ class ProductQueryService
             $query->joinSub($variantSub, 'qv', 'products.id', '=', 'qv.product_id');
         }
 
-        if ($categoryId !== null) {
-            $query->where('products.category_id', $categoryId);
+        if ($genderName !== null) {
+            $query->where('products.category', $genderName);
         }
 
         if (! empty($subcategoryIds)) {
@@ -56,11 +56,11 @@ class ProductQueryService
         }
 
         if ($searchTerm !== null && $searchTerm !== '') {
-            $term = '%' . mb_strtolower($searchTerm) . '%';
+            $term = '%'.mb_strtolower($searchTerm).'%';
             $query->where(function (Builder $w) use ($term) {
                 $w->whereRaw('LOWER(products.name) LIKE ?', [$term])
-                  ->orWhereRaw('LOWER(products.description) LIKE ?', [$term])
-                  ->orWhereRaw('LOWER(brands.name) LIKE ?', [$term]);
+                    ->orWhereRaw('LOWER(products.description) LIKE ?', [$term])
+                    ->orWhereRaw('LOWER(brands.name) LIKE ?', [$term]);
             });
         }
 
@@ -86,7 +86,7 @@ class ProductQueryService
             ->leftJoin('subcategories', 'products.subcategory_id', '=', 'subcategories.id')
             ->leftJoin('product_images', function ($join) {
                 $join->on('products.id', '=', 'product_images.product_id')
-                     ->whereRaw('"product_images"."is_primary" = true');
+                    ->whereRaw('"product_images"."is_primary" = true');
             })
             ->select(
                 'products.id',
@@ -111,10 +111,10 @@ class ProductQueryService
             );
 
         match ($sortBy) {
-            'price_asc'  => $query->orderBy('qv.variant_min_price'),
+            'price_asc' => $query->orderBy('qv.variant_min_price'),
             'price_desc' => $query->orderByDesc('qv.variant_min_price'),
-            'new'        => $query->orderByDesc('products.created_at'),
-            default      => $query->orderByDesc('products.is_featured')->orderByDesc('products.created_at'),
+            'new' => $query->orderByDesc('products.created_at'),
+            default => $query->orderByDesc('products.is_featured')->orderByDesc('products.created_at'),
         };
     }
 

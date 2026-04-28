@@ -1,8 +1,16 @@
 @php
   use App\Models\PaymentMethod;
+  use App\Models\Subcategory;
   use App\Support\CategoryMapping;
+  use Illuminate\Support\Facades\Cache;
 
   $paymentMethods = PaymentMethod::active()->get();
+  $subnavItems = Cache::remember('subnav:all', 3600, function () {
+    return Subcategory::orderBy('sort_order')->orderBy('id')->get(['name', 'slug'])->map(fn ($s) => [
+      'label' => $s->name,
+      'slug'  => $s->slug,
+    ])->all();
+  });
 @endphp
 
 <footer class="bg-brand-dark text-white mt-8">
@@ -33,7 +41,7 @@
       <div>
         <p class="font-bold uppercase tracking-wider mb-3">Nakupovanie</p>
         <ul class="space-y-2 text-gray-300">
-          @foreach(CategoryMapping::STORE_SUB_NAV_ITEMS as $item)
+          @foreach($subnavItems as $item)
             <li>
               <a href="{{ url('/kategoria/' . $item['slug']) }}" class="hover:text-white transition-colors">
                 {{ $item['label'] }}

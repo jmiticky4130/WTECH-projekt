@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
-use App\Models\Category;
 use App\Models\Color;
 use App\Models\Material;
 use App\Models\PaymentMethod;
@@ -17,8 +16,7 @@ class SettingsController extends Controller
     public function index(): View
     {
         return view('pages.admin.settings', [
-            'categories' => Category::orderBy('name')->get(),
-            'subcategories' => Subcategory::orderBy('name')->get(),
+            'subcategories' => Subcategory::orderBy('sort_order')->orderBy('name')->get(),
             'brands' => Brand::orderBy('name')->get(),
             'colors' => Color::orderBy('name')->get(),
             'materials' => Material::orderBy('name')->get(),

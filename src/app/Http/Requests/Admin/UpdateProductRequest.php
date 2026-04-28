@@ -16,8 +16,8 @@ class UpdateProductRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:50'],
             'description' => ['required', 'string'],
-            'category_id' => ['required', 'exists:categories,id'],
-            'subcategory_id' => ['nullable', 'exists:subcategories,id'],
+            'category' => ['required', 'string', 'in:Ženy,Muži,Deti'],
+            'subcategory_id' => ['required', 'exists:subcategories,id'],
             'brand_id' => ['nullable', 'exists:brands,id'],
             'material_id' => ['nullable', 'exists:materials,id'],
             'is_featured' => ['boolean'],

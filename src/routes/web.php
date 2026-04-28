@@ -48,7 +48,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/orders/{order}', [Admin\OrderController::class, 'destroy'])->name('orders.destroy');
 
         Route::get('/settings', [Admin\SettingsController::class, 'index'])->name('settings');
-        Route::resource('settings/categories', Admin\CategoryController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'categories.store', 'update' => 'categories.update', 'destroy' => 'categories.destroy']);
         Route::resource('settings/subcategories', Admin\SubcategoryController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'subcategories.store', 'update' => 'subcategories.update', 'destroy' => 'subcategories.destroy']);
         Route::resource('settings/brands', Admin\BrandController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'brands.store', 'update' => 'brands.update', 'destroy' => 'brands.destroy']);
         Route::resource('settings/colors', Admin\ColorController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'colors.store', 'update' => 'colors.update', 'destroy' => 'colors.destroy']);

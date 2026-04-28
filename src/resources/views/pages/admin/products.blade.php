@@ -43,8 +43,8 @@
       />
       <select name="category" class="border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
         <option value="">Všetky kategórie</option>
-        @foreach ($categories as $cat)
-          <option value="{{ $cat->name }}" @selected(request('category') === $cat->name)>{{ $cat->name }}</option>
+        @foreach ($genders as $genderName)
+          <option value="{{ $genderName }}" @selected(request('category') === $genderName)>{{ $genderName }}</option>
         @endforeach
       </select>
       <button type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-sm px-4 py-2 transition-colors">
@@ -174,16 +174,16 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
-            <select name="category_id" id="add-category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="category" id="add-category" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať kategóriu</option>
-              @foreach ($categories as $cat)
-                <option value="{{ $cat->id }}" @selected((string) old('category_id') === (string) $cat->id)>{{ $cat->name }}</option>
+              @foreach ($genders as $genderName)
+                <option value="{{ $genderName }}" @selected((string) old('category') === (string) $genderName)>{{ $genderName }}</option>
               @endforeach
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5">Podkategória</label>
-            <select name="subcategory_id" id="add-subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <label class="block text-sm font-medium mb-1.5">Podkategória <span class="text-red-500">*</span></label>
+            <select name="subcategory_id" id="add-subcategory_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať podkategóriu</option>
               @foreach ($subcategories as $sub)
                 <option value="{{ $sub->id }}" @selected((string) old('subcategory_id') === (string) $sub->id)>{{ $sub->name }}</option>
@@ -338,16 +338,16 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5">Kategória <span class="text-red-500">*</span></label>
-            <select name="category_id" id="edit-category_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <select name="category" id="edit-category" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať kategóriu</option>
-              @foreach ($categories as $cat)
-                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+              @foreach ($genders as $genderName)
+                <option value="{{ $genderName }}">{{ $genderName }}</option>
               @endforeach
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5">Podkategória</label>
-            <select name="subcategory_id" id="edit-subcategory_id" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
+            <label class="block text-sm font-medium mb-1.5">Podkategória <span class="text-red-500">*</span></label>
+            <select name="subcategory_id" id="edit-subcategory_id" required class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark bg-white">
               <option value="">Vybrať podkategóriu</option>
               @foreach ($subcategories as $sub)
                 <option value="{{ $sub->id }}">{{ $sub->name }}</option>
@@ -813,7 +813,7 @@
       document.getElementById('add-images-validation-message').textContent = '';
       document.getElementById('add-images-validation-message').classList.add('hidden');
       hideVariantValidationMessage();
-      syncSubcategoryState('add-category_id', 'add-subcategory_id');
+      syncSubcategoryState('add-category', 'add-subcategory_id');
       form.querySelectorAll('[data-tray-generated]').forEach(el => el.remove());
     }
 
@@ -861,9 +861,9 @@
         .then(r => r.json())
         .then(data => {
           document.getElementById('edit-description').value = data.description || '';
-          setSelectVal('edit-category_id', data.category_id);
+          setSelectVal('edit-category', data.category);
           setSelectVal('edit-subcategory_id', data.subcategory_id);
-          syncSubcategoryState('edit-category_id', 'edit-subcategory_id');
+          syncSubcategoryState('edit-category', 'edit-subcategory_id');
           setSelectVal('edit-brand_id', data.brand_id);
           setSelectVal('edit-material_id', data.material_id);
           document.getElementById('edit-is_featured').checked = !!data.is_featured;
@@ -1018,12 +1018,12 @@
       setupFileInput('edit');
       setupLibraryPicker('add');
       setupLibraryPicker('edit');
-      syncSubcategoryState('add-category_id', 'add-subcategory_id');
-      syncSubcategoryState('edit-category_id', 'edit-subcategory_id');
-      document.getElementById('add-category_id')?.addEventListener('change', () =>
-        syncSubcategoryState('add-category_id', 'add-subcategory_id'));
-      document.getElementById('edit-category_id')?.addEventListener('change', () =>
-        syncSubcategoryState('edit-category_id', 'edit-subcategory_id'));
+      syncSubcategoryState('add-category', 'add-subcategory_id');
+      syncSubcategoryState('edit-category', 'edit-subcategory_id');
+      document.getElementById('add-category')?.addEventListener('change', () =>
+        syncSubcategoryState('add-category', 'add-subcategory_id'));
+      document.getElementById('edit-category')?.addEventListener('change', () =>
+        syncSubcategoryState('edit-category', 'edit-subcategory_id'));
       document.getElementById('add-url-input')?.addEventListener('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); addExternalUrl('add'); }
       });

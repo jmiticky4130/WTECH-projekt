@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Brand;
-use App\Models\Category;
 use App\Models\Color;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Subcategory;
-use App\Support\ProductImageUrl;
 use App\Services\FilterDataService;
 use App\Services\ProductQueryService;
 use App\Services\ProductService;
+use App\Support\CategoryMapping;
+use App\Support\ProductImageUrl;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,9 +33,11 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $filters = ['brand' => [], 'color' => [], 'material' => [], 'size' => [], 'min_price' => null, 'max_price' => null];
-        $categoryId = $request->input('category') ? Category::where('name', $request->input('category'))->value('id') : null;
+        $genderName = in_array($request->input('category'), CategoryMapping::GENDER_NAMES, true)
+            ? $request->input('category')
+            : null;
 
-        $base = $this->queryService->buildFilteredQuery($filters, $categoryId, null, $request->input('q'), true);
+        $base = $this->queryService->buildFilteredQuery($filters, $genderName, null, $request->input('q'), true);
         $query = (clone $base);
         $this->queryService->applyPresentation($query, 'newest');
 
@@ -48,8 +50,8 @@ class ProductController extends Controller
 
         return view('pages.admin.products', [
             'products' => $products,
-            'categories' => Category::orderBy('name')->get(),
-            'subcategories' => Subcategory::orderBy('name')->get(),
+            'genders' => CategoryMapping::GENDER_NAMES,
+            'subcategories' => Subcategory::orderBy('sort_order')->orderBy('name')->get(),
             'brands' => Brand::orderBy('name')->get(),
             'materials' => Material::orderBy('name')->get(),
             'colors' => Color::orderBy('name')->get(),
@@ -87,7 +89,7 @@ class ProductController extends Controller
 
         return response()->json([
             'description' => $product->description,
-            'category_id' => $product->category_id,
+            'category' => $product->category,
             'subcategory_id' => $product->subcategory_id,
             'brand_id' => $product->brand_id,
             'material_id' => $product->material_id,
@@ -166,7 +168,7 @@ class ProductController extends Controller
             ->filter(fn ($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
             ->sortBy(fn ($file) => strtolower($file->getFilename()))
             ->map(function ($file): array {
-                $path = 'images/products/' . $file->getFilename();
+                $path = 'images/products/'.$file->getFilename();
 
                 return [
                     'path' => $path,

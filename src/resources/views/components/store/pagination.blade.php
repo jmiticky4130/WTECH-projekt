@@ -10,7 +10,7 @@
 @php
   $baseUrl = url()->current();
   $query   = request()->except('page');
-  $pageUrl = fn($p) => $baseUrl . '?' . http_build_query(array_merge($query, ['page' => $p]));
+  $pageUrl = fn($p) => $baseUrl . '?' . http_build_query(array_merge($query, ['page' => $p])) . '#products';
 
   // Always show first, last, current, and one neighbour on each side
   $show = collect([1, $totalPages, $currentPage, $currentPage - 1, $currentPage + 1])

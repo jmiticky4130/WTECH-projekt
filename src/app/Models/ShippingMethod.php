@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ShippingMethod extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'name', 'type', 'price', 'delivery_days_from', 'delivery_days_to',
         'description', 'is_active', 'sort_order',

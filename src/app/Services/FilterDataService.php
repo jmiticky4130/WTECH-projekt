@@ -13,17 +13,17 @@ class FilterDataService
 {
     public function getBrands(): Collection
     {
-        return Brand::orderBy('name')->get();
+        return Brand::withTrashed()->orderBy('name')->get();
     }
 
     public function getColors(): Collection
     {
-        return Color::orderBy('name')->get();
+        return Color::withTrashed()->orderBy('name')->get();
     }
 
     public function getMaterials(): Collection
     {
-        return Material::orderBy('name')->get();
+        return Material::withTrashed()->orderBy('name')->get();
     }
 
     public function getGlobalMinPrice(): int
