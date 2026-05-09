@@ -172,7 +172,6 @@
                 <th class="px-4 py-3 text-left font-medium">Názov</th>
                 <th class="px-4 py-3 text-left font-medium">Typ</th>
                 <th class="px-4 py-3 text-left font-medium">Poplatok</th>
-                <th class="px-4 py-3 text-left font-medium">Poradie</th>
                 <th class="px-4 py-3 text-center font-medium">Len pre adresu</th>
                 <th class="px-4 py-3 text-center font-medium">Aktívne</th>
                 <th class="px-4 py-3 text-right font-medium">Akcie</th>
@@ -197,9 +196,6 @@
                       <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
                     </div>
                   </td>
-                  <td class="px-4 py-2">
-                    <input form="pm-upd-{{ $pm->id }}" type="number" name="sort_order" min="0" value="{{ $pm->sort_order }}" class="w-16 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
-                  </td>
                   <td class="px-4 py-2 text-center">
                     <input form="pm-upd-{{ $pm->id }}" type="hidden" name="requires_address" value="0" />
                     <input form="pm-upd-{{ $pm->id }}" type="checkbox" name="requires_address" value="1" @checked($pm->requires_address) class="accent-brand-dark w-4 h-4" />
@@ -215,7 +211,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="7" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby platby.</td>
+                  <td colspan="6" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby platby.</td>
                 </tr>
               @endforelse
 
@@ -236,9 +232,6 @@
                     <input form="pm-store" type="number" name="fee" min="0" step="0.01" value="0" class="w-24 border border-gray-300 px-2 py-1.5 pr-6 text-sm focus:outline-none focus:border-brand-dark" />
                     <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
                   </div>
-                </td>
-                <td class="px-4 py-2">
-                  <input form="pm-store" type="number" name="sort_order" min="0" value="0" class="w-16 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                 </td>
                 <td class="px-4 py-2 text-center">
                   <input form="pm-store" type="hidden" name="requires_address" value="0" />
@@ -277,7 +270,6 @@
                 <th class="px-4 py-3 text-left font-medium">Názov</th>
                 <th class="px-4 py-3 text-left font-medium">Typ</th>
                 <th class="px-4 py-3 text-left font-medium">Cena</th>
-                <th class="px-4 py-3 text-left font-medium">Poradie</th>
                 <th class="px-4 py-3 text-left font-medium">Dodanie (dni)</th>
                 <th class="px-4 py-3 text-left font-medium">Popis</th>
                 <th class="px-4 py-3 text-center font-medium">Aktívne</th>
@@ -304,9 +296,6 @@
                     </div>
                   </td>
                   <td class="px-4 py-2">
-                    <input form="sm-upd-{{ $sm->id }}" type="number" name="sort_order" min="0" value="{{ $sm->sort_order }}" class="w-16 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
-                  </td>
-                  <td class="px-4 py-2">
                     <div class="flex items-center gap-1">
                       <input form="sm-upd-{{ $sm->id }}" type="number" name="delivery_days_from" min="1" value="{{ $sm->delivery_days_from }}" required class="w-14 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                       <span class="text-gray-400 text-xs shrink-0">–</span>
@@ -327,7 +316,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="8" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby dopravy.</td>
+                  <td colspan="7" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby dopravy.</td>
                 </tr>
               @endforelse
 
@@ -348,9 +337,6 @@
                     <input form="sm-store" type="number" name="price" min="0" step="0.01" placeholder="0.00" required class="w-24 border border-gray-300 px-2 py-1.5 pr-6 text-sm focus:outline-none focus:border-brand-dark" />
                     <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
                   </div>
-                </td>
-                <td class="px-4 py-2">
-                  <input form="sm-store" type="number" name="sort_order" min="0" value="0" class="w-16 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                 </td>
                 <td class="px-4 py-2">
                   <div class="flex items-center gap-1">

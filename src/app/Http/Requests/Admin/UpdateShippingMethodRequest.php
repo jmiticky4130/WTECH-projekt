@@ -24,7 +24,6 @@ class UpdateShippingMethodRequest extends FormRequest
             'delivery_days_to' => ['required', 'integer', 'min:1', 'gte:delivery_days_from'],
             'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

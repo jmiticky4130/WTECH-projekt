@@ -17,7 +17,6 @@ class ShopSeeder extends Seeder
         DB::table('admins')->updateOrInsert(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin',
                 'password' => Hash::make('admin123'),
                 'updated_at' => now(),
                 'created_at' => now(),
@@ -25,9 +24,9 @@ class ShopSeeder extends Seeder
         );
 
         $paymentMethods = [
-            ['name' => 'Platba kartou online', 'type' => 'karta',          'fee' => 0,    'sort_order' => 1],
-            ['name' => 'Dobierka',              'type' => 'dobierka',       'fee' => 1.50, 'sort_order' => 2],
-            ['name' => 'Bankový prevod',        'type' => 'bankový prevod', 'fee' => 0,    'sort_order' => 4],
+            ['name' => 'Platba kartou online', 'type' => 'karta',          'fee' => 0   ],
+            ['name' => 'Dobierka',              'type' => 'dobierka',       'fee' => 1.50],
+            ['name' => 'Bankový prevod',        'type' => 'bankový prevod', 'fee' => 0   ],
         ];
 
         foreach ($paymentMethods as $method) {
@@ -37,10 +36,10 @@ class ShopSeeder extends Seeder
         DB::statement("UPDATE payment_methods SET requires_address = true WHERE type = 'dobierka'");
 
         $shippingMethods = [
-            ['name' => 'Kuriér DPD',              'type' => 'address',         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3, 'sort_order' => 1],
-            ['name' => 'Slovenská pošta',          'type' => 'address',         'price' => 2.49, 'delivery_days_from' => 3, 'delivery_days_to' => 5, 'sort_order' => 2],
-            ['name' => 'Zásielkovňa',              'type' => 'pickup_point',    'price' => 1.99, 'delivery_days_from' => 2, 'delivery_days_to' => 4, 'sort_order' => 3],
-            ['name' => 'Osobný odber Bratislava',  'type' => 'personal_pickup', 'price' => 0,    'delivery_days_from' => 1, 'delivery_days_to' => 1, 'sort_order' => 4],
+            ['name' => 'Kuriér DPD',              'type' => 'address',         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3],
+            ['name' => 'Slovenská pošta',          'type' => 'address',         'price' => 2.49, 'delivery_days_from' => 3, 'delivery_days_to' => 5],
+            ['name' => 'Zásielkovňa',              'type' => 'pickup_point',    'price' => 1.99, 'delivery_days_from' => 2, 'delivery_days_to' => 4],
+            ['name' => 'Osobný odber Bratislava',  'type' => 'personal_pickup', 'price' => 0,    'delivery_days_from' => 1, 'delivery_days_to' => 1],
         ];
 
         foreach ($shippingMethods as $method) {
@@ -316,13 +315,13 @@ class ShopSeeder extends Seeder
 
         $shippingMethods = DB::table('shipping_methods')
             ->select(['id', 'type', 'price'])
-            ->orderBy('sort_order')
+            ->orderBy('created_at')
             ->get()
             ->values();
 
         $paymentMethods = DB::table('payment_methods')
             ->select(['id', 'fee'])
-            ->orderBy('sort_order')
+            ->orderBy('created_at')
             ->get()
             ->values();
 

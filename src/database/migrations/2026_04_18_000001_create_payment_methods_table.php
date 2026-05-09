@@ -15,7 +15,6 @@ return new class extends Migration
             $table->decimal('fee', 10, 2)->default(0);
             $table->boolean('requires_address')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->integer('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

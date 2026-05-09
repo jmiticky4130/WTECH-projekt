@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CategoryController;
 use App\Http\Controllers\Store\LandingController;
+use App\Http\Controllers\Store\OrderController;
 use App\Http\Controllers\Store\ProductController;
 use App\Http\Controllers\Store\SearchController;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +56,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('settings/shipping-methods', Admin\ShippingMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'shipping-methods.store', 'update' => 'shipping-methods.update', 'destroy' => 'shipping-methods.destroy']);
         Route::resource('settings/payment-methods', Admin\PaymentMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'payment-methods.store', 'update' => 'payment-methods.update', 'destroy' => 'payment-methods.destroy']);
     });
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/objednavky', [OrderController::class, 'index'])->name('store.orders');
 });
 
 Route::redirect('/dashboard', '/')->name('dashboard');

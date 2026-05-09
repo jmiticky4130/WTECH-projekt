@@ -47,7 +47,10 @@
     <div class="flex items-center gap-6 min-[1000px]:gap-6 shrink-0 ml-auto">
       @auth
         <div class="flex items-center gap-3">
-          <span class="hidden min-[1000px]:inline text-sm text-gray-600">{{ auth()->user()->name }}</span>
+          <a href="{{ route('store.orders') }}" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
+            <img src="{{ asset('icons/shopping-bag.svg') }}" class="w-7 h-7 brightness-0" alt="Moje objednávky" />
+            <span class="hidden min-[1000px]:inline">Moje objednávky</span>
+          </a>
           <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">

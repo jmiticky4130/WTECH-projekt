@@ -23,7 +23,7 @@ class ProductController extends Controller
             ->with('color')
             ->orderBy('color_id')
             ->when($isShoe,
-                fn ($q) => $q->orderByRaw('size::integer'),
+                fn ($q) => $q->orderByRaw("(CASE WHEN size ~ '^[0-9]+$' THEN size::integer END) NULLS LAST"),
                 fn ($q) => $q->orderByRaw("CASE size WHEN 'XS' THEN 0 WHEN 'S' THEN 1 WHEN 'M' THEN 2 WHEN 'L' THEN 3 WHEN 'XL' THEN 4 WHEN 'XXL' THEN 5 END"),
             )
             ->get()

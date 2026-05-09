@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PaymentMethod extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'type', 'fee', 'requires_address', 'is_active', 'sort_order'];
+    protected $fillable = ['name', 'type', 'fee', 'requires_address', 'is_active'];
 
     protected $casts = ['requires_address' => 'boolean', 'is_active' => 'boolean', 'fee' => 'decimal:2'];
 
@@ -27,6 +27,6 @@ class PaymentMethod extends Model
     {
         return $query
             ->whereRaw($this->qualifyColumn('is_active').' is true')
-            ->orderBy('sort_order');
+            ->orderBy('created_at');
     }
 }

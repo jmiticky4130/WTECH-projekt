@@ -15,7 +15,8 @@
               <div>
                 <label class="block text-sm mb-1">E-mail <span class="text-red-500">*</span></label>
                 <input type="email" x-model="f.email" placeholder="vas@email.sk"
-                       :class="err.email ? 'border-red-500' : 'border-gray-300'"
+                       :readonly="isAuth"
+                       :class="[err.email ? 'border-red-500' : 'border-gray-300', isAuth ? 'bg-gray-50 text-gray-500 cursor-default' : '']"
                        class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
                 <p class="text-xs text-red-500 mt-1" x-show="err.email" x-text="err.email"></p>
               </div>
@@ -346,6 +347,8 @@
         selectedShippingId: null,
         selectedPaymentId: null,
 
+        prefill: @json($prefill),
+
         f: {
           email: '', phone: '',
           firstName: '', lastName: '', street: '', city: '', zip: '', country: 'Slovensko',
@@ -424,7 +427,32 @@
 
         async init() {
           this.restoreSelection();
+          this.applyPrefill();
           await this.loadCart();
+        },
+
+        applyPrefill() {
+          if (!this.prefill) return;
+          const p = this.prefill;
+          this.f.email              = p.email              ?? this.f.email;
+          this.f.phone              = p.phone              ?? this.f.phone;
+          this.f.firstName          = p.firstName          ?? this.f.firstName;
+          this.f.lastName           = p.lastName           ?? this.f.lastName;
+          this.f.street             = p.street             ?? this.f.street;
+          this.f.city               = p.city               ?? this.f.city;
+          this.f.zip                = p.zip                ?? this.f.zip;
+          this.f.country            = p.country            ?? this.f.country;
+          this.f.billingSame        = p.billingSame        ?? this.f.billingSame;
+          this.f.billingFirstName   = p.billingFirstName   ?? this.f.billingFirstName;
+          this.f.billingLastName    = p.billingLastName    ?? this.f.billingLastName;
+          this.f.billingStreet      = p.billingStreet      ?? this.f.billingStreet;
+          this.f.billingCity        = p.billingCity        ?? this.f.billingCity;
+          this.f.billingZip         = p.billingZip         ?? this.f.billingZip;
+          this.f.billingCountry     = p.billingCountry     ?? this.f.billingCountry;
+          this.f.pickupFirstName    = p.pickupFirstName    ?? this.f.pickupFirstName;
+          this.f.pickupLastName     = p.pickupLastName     ?? this.f.pickupLastName;
+          this.f.personalFirstName  = p.personalFirstName  ?? this.f.personalFirstName;
+          this.f.personalLastName   = p.personalLastName   ?? this.f.personalLastName;
         },
 
         async loadCart() {

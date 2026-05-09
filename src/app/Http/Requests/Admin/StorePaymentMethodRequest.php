@@ -20,7 +20,6 @@ class StorePaymentMethodRequest extends FormRequest
             'fee' => ['nullable', 'numeric', 'min:0'],
             'requires_address' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

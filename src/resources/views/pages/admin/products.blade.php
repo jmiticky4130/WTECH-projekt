@@ -223,30 +223,9 @@
           <div id="add-image-tray" class="flex flex-wrap gap-2 mb-3 min-h-8"></div>
           <p id="add-images-validation-message" class="hidden text-xs text-red-600 mb-2"></p>
 
-          <!-- library picker -->
-          <details class="mb-3">
-            <summary class="text-xs font-semibold text-gray-600 cursor-pointer select-none mb-1">Vybrať z knižnice obrázkov</summary>
-            @if (count($libraryImages) > 0)
-              <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto border border-gray-200 rounded p-2 mt-2" id="add-library-grid">
-                @foreach ($libraryImages as $image)
-                  <label class="cursor-pointer block relative" data-lib-url="{{ $image['url'] }}" data-lib-path="{{ $image['path'] }}">
-                    <input type="checkbox" data-lib="1" value="{{ $image['path'] }}" class="peer sr-only add-lib-checkbox" />
-                    <span class="absolute top-1 right-1 hidden w-5 h-5 items-center justify-center rounded-full bg-brand-dark text-white text-[11px] font-bold peer-checked:flex">&#10003;</span>
-                    <span class="block border border-gray-200 rounded p-1 transition-colors peer-checked:border-brand-dark peer-checked:ring-1 peer-checked:ring-brand-dark peer-checked:bg-gray-50">
-                      <img src="{{ $image['url'] }}" alt="{{ $image['name'] }}" class="w-full h-20 object-cover rounded">
-                      <span class="block text-[10px] text-gray-500 truncate mt-1">{{ $image['name'] }}</span>
-                    </span>
-                  </label>
-                @endforeach
-              </div>
-            @else
-              <p class="text-xs text-gray-400 mt-1">V priečinku public/images/products nie sú dostupné žiadne obrázky.</p>
-            @endif
-          </details>
-
           <!-- upload -->
           <p class="text-xs text-gray-500 mb-1">Nahrať nové fotografie</p>
-          <input type="file" id="add-file-input" accept="image/*" multiple
+          <input type="file" id="add-file-input" name="images[]" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
           />
 
@@ -411,7 +390,7 @@
 
           <!-- upload -->
           <p class="text-xs text-gray-500 mb-1">Nahrať nové fotografie</p>
-          <input type="file" id="edit-file-input" accept="image/*" multiple
+          <input type="file" id="edit-file-input" name="images[]" accept="image/*" multiple
             class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark file:mr-3 file:text-xs file:border-0 file:bg-gray-100 file:px-2 file:py-1 file:cursor-pointer"
           />
 
@@ -505,28 +484,38 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-2">Veľkosti <span class="text-red-500">*</span></label>
-          <p class="text-xs text-gray-400 mb-1.5">Oblečenie / doplnky</p>
-          <div class="flex flex-wrap gap-2 mb-3">
-            @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
-              <div>
-                <input type="checkbox" id="va-size-clothes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only" />
-                <label for="va-size-clothes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
-                  {{ $size }}
-                </label>
-              </div>
-            @endforeach
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium">Veľkosti <span class="text-red-500">*</span></label>
+            <div class="flex border border-gray-200 rounded overflow-hidden text-xs font-medium">
+              <button type="button" id="va-toggle-clothes" onclick="setSizingMode('clothes')"
+                class="px-3 py-1 transition-colors bg-brand-dark text-white">Oblečenie</button>
+              <button type="button" id="va-toggle-shoes" onclick="setSizingMode('shoes')"
+                class="px-3 py-1 transition-colors bg-white text-gray-600 hover:bg-gray-50">Topánky</button>
+            </div>
           </div>
-          <p class="text-xs text-gray-400 mb-1.5">Topánky (EU)</p>
-          <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
-            @foreach (range(20, 50) as $size)
-              <div>
-                <input type="checkbox" id="va-size-shoes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only" />
-                <label for="va-size-shoes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
-                  {{ $size }}
-                </label>
-              </div>
-            @endforeach
+          <div id="va-clothes-section">
+            <div class="flex flex-wrap gap-2">
+              @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
+                <div>
+                  <input type="checkbox" id="va-size-clothes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only va-clothes-cb" />
+                  <label for="va-size-clothes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-12 h-10 text-sm font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
+                    {{ $size }}
+                  </label>
+                </div>
+              @endforeach
+            </div>
+          </div>
+          <div id="va-shoes-section" class="hidden">
+            <div class="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
+              @foreach (range(20, 50) as $size)
+                <div>
+                  <input type="checkbox" id="va-size-shoes-{{ $size }}" name="va_size" value="{{ $size }}" class="peer sr-only va-shoes-cb" />
+                  <label for="va-size-shoes-{{ $size }}" class="flex items-center justify-center cursor-pointer border border-gray-200 w-10 h-10 text-xs font-medium hover:border-brand-dark transition-colors peer-checked:border-brand-dark peer-checked:bg-brand-dark peer-checked:text-white">
+                    {{ $size }}
+                  </label>
+                </div>
+              @endforeach
+            </div>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 pt-1 border-t border-gray-100">
@@ -958,9 +947,33 @@
       document.getElementById('va-stock').value = '';
       if (validationMessage) showVariantValidationMessage(validationMessage);
       else hideVariantValidationMessage();
+
+      setSizingMode('clothes');
+
       const el = document.getElementById('modal-variant-adder');
       el.classList.remove('hidden');
       el.classList.add('flex');
+    }
+
+    function setSizingMode(mode) {
+      const isShoe = mode === 'shoes';
+      document.getElementById('va-clothes-section').classList.toggle('hidden', isShoe);
+      document.getElementById('va-shoes-section').classList.toggle('hidden', !isShoe);
+      document.querySelectorAll('#modal-variant-adder input[name="va_size"]').forEach(cb => cb.checked = false);
+      const activeClass = ['bg-brand-dark', 'text-white'];
+      const inactiveClass = ['bg-white', 'text-gray-600', 'hover:bg-gray-50'];
+      const clothesBtn = document.getElementById('va-toggle-clothes');
+      const shoesBtn = document.getElementById('va-toggle-shoes');
+      clothesBtn.classList.toggle('bg-brand-dark', !isShoe);
+      clothesBtn.classList.toggle('text-white', !isShoe);
+      clothesBtn.classList.toggle('bg-white', isShoe);
+      clothesBtn.classList.toggle('text-gray-600', isShoe);
+      clothesBtn.classList.toggle('hover:bg-gray-50', isShoe);
+      shoesBtn.classList.toggle('bg-brand-dark', isShoe);
+      shoesBtn.classList.toggle('text-white', isShoe);
+      shoesBtn.classList.toggle('bg-white', !isShoe);
+      shoesBtn.classList.toggle('text-gray-600', !isShoe);
+      shoesBtn.classList.toggle('hover:bg-gray-50', !isShoe);
     }
 
     function closeVariantAdder() {

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use App\Listeners\LinkGuestOrdersAfterRegistration;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +36,8 @@ class AppServiceProvider extends ServiceProvider
                 session()->flash('merge_cart', true);
             }
         });
+
+        Event::listen(Registered::class, LinkGuestOrdersAfterRegistration::class);
     }
 
     /**

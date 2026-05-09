@@ -4,8 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\PaymentMethod;
 use App\Models\ShippingMethod;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 
 class PlaceOrderRequest extends FormRequest
@@ -178,6 +180,13 @@ class PlaceOrderRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            if (! Auth::check()) {
+                $email = $this->input('email');
+                if ($email && User::where('email', $email)->exists()) {
+                    $validator->errors()->add('email', 'Na tento e-mail je už zaregistrovaný účet. Prihláste sa prosím.');
+                }
+            }
+
             $shippingMethod = ShippingMethod::query()->find($this->input('shipping_method_id'));
             $paymentMethod = PaymentMethod::query()->find($this->input('payment_method_id'));
 

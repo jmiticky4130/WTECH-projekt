@@ -16,16 +16,19 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)],
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^[+\d\s\-()]{7,}$/'],
             'password' => $this->passwordRules(),
         ])->validate();
 
         return User::create([
-            'name' => $input['first_name'].' '.$input['last_name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
+            'first_name' => $input['first_name'],
+            'last_name'  => $input['last_name'],
+            'phone'      => isset($input['phone']) && trim($input['phone']) !== '' ? trim($input['phone']) : null,
+            'email'      => $input['email'],
+            'password'   => $input['password'],
         ]);
     }
 }

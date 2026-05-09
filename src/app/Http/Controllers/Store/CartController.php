@@ -295,7 +295,36 @@ class CartController extends Controller
 
     public function details(): View
     {
-        return view('pages.store.cart-step-3', $this->checkoutMethods());
+        $prefill = null;
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            $recentOrder = Order::where('user_id', $user->id)->latest()->first();
+
+            $prefill = [
+                'email'              => $user->email,
+                'phone'              => $user->phone,
+                'firstName'          => $user->first_name,
+                'lastName'           => $user->last_name,
+                'street'             => $recentOrder?->street,
+                'city'               => $recentOrder?->city,
+                'zip'                => $recentOrder?->zip,
+                'country'            => $recentOrder?->country,
+                'billingSame'        => $recentOrder ? (bool) $recentOrder->billing_same_as_delivery : true,
+                'billingFirstName'   => $recentOrder?->billing_first_name,
+                'billingLastName'    => $recentOrder?->billing_last_name,
+                'billingStreet'      => $recentOrder?->billing_street,
+                'billingCity'        => $recentOrder?->billing_city,
+                'billingZip'         => $recentOrder?->billing_zip,
+                'billingCountry'     => $recentOrder?->billing_country,
+                'pickupFirstName'    => $user->first_name,
+                'pickupLastName'     => $user->last_name,
+                'personalFirstName'  => $user->first_name,
+                'personalLastName'   => $user->last_name,
+            ];
+        }
+
+        return view('pages.store.cart-step-3', array_merge($this->checkoutMethods(), ['prefill' => $prefill]));
     }
 
     public function thanks(Order $order): View

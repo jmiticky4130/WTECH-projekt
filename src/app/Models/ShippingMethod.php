@@ -11,7 +11,7 @@ class ShippingMethod extends Model
     use SoftDeletes;
     protected $fillable = [
         'name', 'type', 'price', 'delivery_days_from', 'delivery_days_to',
-        'description', 'is_active', 'sort_order',
+        'description', 'is_active',
     ];
 
     protected $casts = ['is_active' => 'boolean', 'price' => 'decimal:2'];
@@ -25,6 +25,6 @@ class ShippingMethod extends Model
     {
         return $query
             ->whereRaw($this->qualifyColumn('is_active').' is true')
-            ->orderBy('sort_order');
+            ->orderBy('created_at');
     }
 }
