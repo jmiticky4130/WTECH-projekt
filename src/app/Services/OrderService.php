@@ -31,7 +31,6 @@ class OrderService
 
             $paymentMethod = PaymentMethod::query()
                 ->where('id', $dto->paymentMethodId)
-                ->whereRaw('is_active is true')
                 ->first();
 
             if (! $paymentMethod) {
@@ -97,11 +96,12 @@ class OrderService
             }
 
             $shippingType = (string) $shippingMethod->type;
-            [$firstName, $lastName] = $this->resolveOrderNamePair($dto, $shippingType);
 
             $isAddress = $shippingType === ShippingType::ADDRESS->value;
             $isPickupPoint = $shippingType === ShippingType::PICKUP_POINT->value;
-            $billingSameAsDelivery = $isAddress ? $dto->billingSameAsDelivery : true;
+
+            // For ADDRESS: honour the user's billing toggle; for other types billing = main fields
+            $billingSameAsDelivery = $isAddress ? $dto->billingSameAsDelivery : false;
             $billingSameAsDeliveryValue = DB::getDriverName() === 'pgsql'
                 ? DB::raw($billingSameAsDelivery ? 'true' : 'false')
                 : $billingSameAsDelivery;
@@ -124,8 +124,8 @@ class OrderService
                 'payment_fee' => $paymentFee,
                 'subtotal' => round($subtotal, 2),
                 'total' => $total,
-                'first_name' => $firstName,
-                'last_name' => $lastName,
+                'first_name' => trim((string) ($dto->firstName ?? '')),
+                'last_name' => trim((string) ($dto->lastName ?? '')),
                 'street' => $isAddress ? $dto->street : null,
                 'city' => $isAddress ? $dto->city : null,
                 'zip' => $isAddress ? $dto->zip : null,
@@ -194,52 +194,38 @@ class OrderService
         return $itemsByVariant;
     }
 
-    private function resolveOrderNamePair(PlaceOrderData $dto, string $shippingType): array
-    {
-        if ($shippingType === ShippingType::PICKUP_POINT->value) {
-            return [
-                trim((string) ($dto->pickupFirstName ?? '')),
-                trim((string) ($dto->pickupLastName ?? '')),
-            ];
-        }
-
-        if ($shippingType === ShippingType::PERSONAL_PICKUP->value) {
-            return [
-                trim((string) ($dto->personalFirstName ?? '')),
-                trim((string) ($dto->personalLastName ?? '')),
-            ];
-        }
-
-        return [
-            trim((string) ($dto->firstName ?? '')),
-            trim((string) ($dto->lastName ?? '')),
-        ];
-    }
-
     private function resolveBillingData(PlaceOrderData $dto, bool $isAddress, bool $billingSameAsDelivery): array
     {
-        if (! $isAddress) {
-            return [null, null, null, null, null, null];
-        }
+        if ($isAddress) {
+            if ($billingSameAsDelivery) {
+                return [
+                    $dto->firstName,
+                    $dto->lastName,
+                    $dto->street,
+                    $dto->city,
+                    $dto->zip,
+                    $dto->country,
+                ];
+            }
 
-        if ($billingSameAsDelivery) {
             return [
-                $dto->firstName,
-                $dto->lastName,
-                $dto->street,
-                $dto->city,
-                $dto->zip,
-                $dto->country,
+                $dto->billingFirstName,
+                $dto->billingLastName,
+                $dto->billingStreet,
+                $dto->billingCity,
+                $dto->billingZip,
+                $dto->billingCountry,
             ];
         }
 
+        // PICKUP_POINT and PERSONAL_PICKUP: the main form fields are the billing/contact address
         return [
-            $dto->billingFirstName,
-            $dto->billingLastName,
-            $dto->billingStreet,
-            $dto->billingCity,
-            $dto->billingZip,
-            $dto->billingCountry,
+            $dto->firstName,
+            $dto->lastName,
+            $dto->street,
+            $dto->city,
+            $dto->zip,
+            $dto->country,
         ];
     }
 }

@@ -5,6 +5,9 @@
     @if (session('success'))
       <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded">{{ session('success') }}</div>
     @endif
+    @if (session('error'))
+      <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded">{{ session('error') }}</div>
+    @endif
 
     <!-- page header -->
     <div class="mb-8">
@@ -48,6 +51,71 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- landing page categories -->
+      <div class="bg-white shadow rounded">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500">Úvodná stránka – Kategórie</h2>
+          <div class="flex items-center gap-3">
+            <span id="lp-dirty" class="hidden text-xs text-amber-500 font-medium">● Neuložené zmeny</span>
+            <span class="text-xs text-gray-400"><span id="lp-count">0</span>/4 vybraných</span>
+          </div>
+        </div>
+        <div class="px-5 py-5">
+          <p class="text-xs text-gray-400 mb-4">Vyberte max. 4 podkategórie, ktoré sa zobrazia na úvodnej stránke, a nahrajte k nim obrázky.</p>
+
+          @if ($subcategories->isEmpty())
+            <p class="text-xs text-gray-400">Žiadne podkategórie. Najprv ich pridajte vyššie.</p>
+          @else
+            <form method="POST" action="{{ route('admin.subcategories.landing') }}" enctype="multipart/form-data">
+              @csrf
+              <div class="space-y-2">
+                @foreach ($subcategories as $sub)
+                  <div class="lp-row flex items-center gap-4 p-3 border rounded transition-colors {{ $sub->show_on_landing ? 'border-brand-dark bg-gray-50' : 'border-gray-200' }}">
+
+                    <input
+                      type="checkbox"
+                      name="show_on_landing[]"
+                      value="{{ $sub->id }}"
+                      @checked($sub->show_on_landing)
+                      class="lp-checkbox accent-brand-dark w-4 h-4 shrink-0 cursor-pointer"
+                    />
+
+                    <span class="text-sm font-medium text-gray-700 flex-1 min-w-0 truncate">{{ $sub->name }}</span>
+
+                    {{-- image thumbnail --}}
+                    <div class="w-12 h-12 shrink-0 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                      @if ($sub->landing_image)
+                        <img
+                          src="{{ \App\Support\ProductImageUrl::resolve($sub->landing_image) }}"
+                          class="w-full h-full object-cover"
+                          alt="{{ $sub->name }}"
+                        >
+                      @else
+                        <span class="text-gray-300 text-xs">—</span>
+                      @endif
+                    </div>
+
+                    {{-- file upload --}}
+                    <label class="shrink-0 cursor-pointer">
+                      <span class="lp-file-label text-xs border border-gray-300 px-2 py-1.5 hover:border-brand-dark transition-colors whitespace-nowrap text-gray-500 select-none">
+                        {{ $sub->landing_image ? 'Zmeniť' : 'Nahrať obrázok' }}
+                      </span>
+                      <input type="file" name="images[{{ $sub->id }}]" accept="image/*" class="sr-only lp-file-input" />
+                    </label>
+
+                  </div>
+                @endforeach
+              </div>
+
+              <div class="flex items-center justify-between mt-4">
+                <p id="lp-warning" class="text-xs text-red-500 hidden">Môžete vybrať najviac 4 podkategórie.</p>
+                <button type="submit" class="ml-auto bg-brand-dark hover:bg-brand-accent text-white text-sm px-5 py-2 transition-colors">Uložiť</button>
+              </div>
+            </form>
+          @endif
+        </div>
       </div>
 
       <!-- colors + materials -->
@@ -295,6 +363,51 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+
+    // ── Landing page category picker ────────────────────────────────────────
+    const lpCheckboxes = document.querySelectorAll('.lp-checkbox');
+    const lpCountEl    = document.getElementById('lp-count');
+    const lpWarning    = document.getElementById('lp-warning');
+    const lpDirty      = document.getElementById('lp-dirty');
+    const lpForm       = document.querySelector('form[action*="landing-page"]');
+
+    function markLPDirty() {
+      if (lpDirty) lpDirty.classList.remove('hidden');
+    }
+
+    function updateLPCounter() {
+      const count = document.querySelectorAll('.lp-checkbox:checked').length;
+      if (lpCountEl) lpCountEl.textContent = count;
+      if (lpWarning) lpWarning.classList.toggle('hidden', count <= 4);
+    }
+
+    lpCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const row = cb.closest('.lp-row');
+        if (row) {
+          row.classList.toggle('border-brand-dark', cb.checked);
+          row.classList.toggle('bg-gray-50', cb.checked);
+          row.classList.toggle('border-gray-200', !cb.checked);
+        }
+        updateLPCounter();
+        markLPDirty();
+      });
+    });
+
+    document.querySelectorAll('.lp-file-input').forEach(input => {
+      input.addEventListener('change', function () {
+        const label = this.closest('label')?.querySelector('.lp-file-label');
+        if (label && this.files.length) label.textContent = this.files[0].name;
+        markLPDirty();
+      });
+    });
+
+    lpForm?.addEventListener('submit', () => {
+      if (lpDirty) lpDirty.classList.add('hidden');
+    });
+
+    updateLPCounter();
+    // ───────────────────────────────────────────────────────────────────────
     // For each shipping method row, snapshot original values and watch for changes
     document.querySelectorAll('tr.sm-row').forEach(row => {
       const smId = row.dataset.smId;

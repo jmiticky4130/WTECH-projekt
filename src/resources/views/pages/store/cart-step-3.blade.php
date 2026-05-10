@@ -9,29 +9,37 @@
         <div class="flex-1 min-w-0">
           <h1 class="text-2xl font-bold mb-6">Dodacie údaje</h1>
 
-          <section class="mb-6">
-            <h2 class="text-base font-bold mb-4">Kontaktné údaje</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm mb-1">E-mail <span class="text-red-500">*</span></label>
-                <input type="email" x-model="f.email" placeholder="vas@email.sk"
-                       :readonly="isAuth"
-                       :class="[err.email ? 'border-red-500' : 'border-gray-300', isAuth ? 'bg-gray-50 text-gray-500 cursor-default' : '']"
-                       class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                <p class="text-xs text-red-500 mt-1" x-show="err.email" x-text="err.email"></p>
-              </div>
-              <div>
-                <label class="block text-sm mb-1">Telefón</label>
-                <input type="tel" x-model="f.phone" placeholder="+421 9XX XXX XXX"
-                       :class="err.phone ? 'border-red-500' : 'border-gray-300'"
-                       class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                <p class="text-xs text-red-500 mt-1" x-show="err.phone" x-text="err.phone"></p>
-              </div>
+          {{-- ── PICKUP POINT: výdajné miesto dropdown ─────────────────────── --}}
+          <section class="mb-6" x-show="isPickupPoint">
+            <h2 class="text-base font-bold mb-4">Dodacie údaje</h2>
+            <div>
+              <label class="block text-sm mb-1">Vyberte výdajné miesto <span class="text-red-500">*</span></label>
+              <select x-model="f.pickupPoint"
+                      :class="err.pickupPoint ? 'border-red-500' : 'border-gray-300'"
+                      class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark bg-white appearance-none">
+                <option value="">— Vyberte miesto —</option>
+                <option>Zásielkovňa Bratislava – Obchodná 5</option>
+                <option>Zásielkovňa Bratislava – Račianska 12</option>
+                <option>Zásielkovňa Košice – Hlavná 30</option>
+                <option>Zásielkovňa Žilina – Mariánske nám. 1</option>
+              </select>
+              <p class="text-xs text-red-500 mt-1" x-show="err.pickupPoint" x-text="err.pickupPoint"></p>
             </div>
           </section>
 
-          <section class="mb-6" x-show="needsAddress">
-            <h2 class="text-base font-bold mb-4">Doručovacia adresa</h2>
+          {{-- ── PERSONAL PICKUP: store info ──────────────────────────────── --}}
+          <div class="border border-gray-200 rounded p-4 space-y-1 text-sm mb-6" x-show="isPersonalPickup">
+            <p class="font-semibold">Pobočka Bratislava</p>
+            <p class="text-gray-600">Obchodná 12, 811 06 Bratislava</p>
+            <p class="text-gray-500">Po – Pi: 9:00 – 19:00 &nbsp;|&nbsp; So: 9:00 – 14:00</p>
+            <p class="text-gray-500">Objednávka bude pripravená do 24 hodín od potvrdenia.</p>
+          </div>
+
+          {{-- ── MAIN FORM — "Dodacie údaje" for ADDRESS, "Fakturačné údaje" for others ── --}}
+          <section class="mb-6">
+            <h2 class="text-base font-bold mb-4"
+                x-text="needsAddress ? 'Dodacie údaje' : 'Fakturačné údaje'"></h2>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label class="block text-sm mb-1">Meno <span class="text-red-500">*</span></label>
@@ -48,6 +56,25 @@
                 <p class="text-xs text-red-500 mt-1" x-show="err.lastName" x-text="err.lastName"></p>
               </div>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm mb-1">E-mail <span class="text-red-500">*</span></label>
+                <input type="email" x-model="f.email" placeholder="vas@email.sk"
+                       :readonly="isAuth"
+                       :class="[err.email ? 'border-red-500' : 'border-gray-300', isAuth ? 'bg-gray-50 text-gray-500 cursor-default' : '']"
+                       class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
+                <p class="text-xs text-red-500 mt-1" x-show="err.email" x-text="err.email"></p>
+              </div>
+              <div>
+                <label class="block text-sm mb-1">Telefón</label>
+                <input type="tel" x-model="f.phone" placeholder="+421 9XX XXX XXX"
+                       :class="err.phone ? 'border-red-500' : 'border-gray-300'"
+                       class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
+                <p class="text-xs text-red-500 mt-1" x-show="err.phone" x-text="err.phone"></p>
+              </div>
+            </div>
+
             <div class="mb-4">
               <label class="block text-sm mb-1">Ulica a číslo domu <span class="text-red-500">*</span></label>
               <input type="text" x-model="f.street" placeholder="Ulica a číslo"
@@ -55,6 +82,7 @@
                      class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
               <p class="text-xs text-red-500 mt-1" x-show="err.street" x-text="err.street"></p>
             </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-[1fr_7rem_10rem] gap-4">
               <div>
                 <label class="block text-sm mb-1">Mesto <span class="text-red-500">*</span></label>
@@ -84,6 +112,7 @@
             </div>
           </section>
 
+          {{-- ── ADDRESS ONLY: optional separate billing form ─────────────── --}}
           <section class="mb-6" x-show="needsAddress">
             <label class="flex items-center gap-2 text-sm font-medium cursor-pointer select-none mb-4">
               <input type="checkbox" x-model="f.billingSame" class="accent-brand-dark w-4 h-4" />
@@ -91,7 +120,8 @@
             </label>
 
             <div x-show="!f.billingSame">
-              <h2 class="text-base font-bold mb-4">Fakturačná adresa</h2>
+              <h2 class="text-base font-bold mb-4">Fakturačné údaje</h2>
+
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm mb-1">Meno <span class="text-red-500">*</span></label>
@@ -108,6 +138,7 @@
                   <p class="text-xs text-red-500 mt-1" x-show="err.billingLastName" x-text="err.billingLastName"></p>
                 </div>
               </div>
+
               <div class="mb-4">
                 <label class="block text-sm mb-1">Ulica a číslo domu <span class="text-red-500">*</span></label>
                 <input type="text" x-model="f.billingStreet" placeholder="Ulica a číslo"
@@ -115,6 +146,7 @@
                        class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
                 <p class="text-xs text-red-500 mt-1" x-show="err.billingStreet" x-text="err.billingStreet"></p>
               </div>
+
               <div class="grid grid-cols-1 sm:grid-cols-[1fr_7rem_10rem] gap-4">
                 <div>
                   <label class="block text-sm mb-1">Mesto <span class="text-red-500">*</span></label>
@@ -134,7 +166,7 @@
                   <label class="block text-sm mb-1">Krajina <span class="text-red-500">*</span></label>
                   <select x-model="f.billingCountry"
                           :class="err.billingCountry ? 'border-red-500' : 'border-gray-300'"
-                          class="w-full border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark bg-white appearance-none">
+                          class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark bg-white appearance-none">
                     <option>Slovensko</option>
                     <option>Česká republika</option>
                     <option>Rakúsko</option>
@@ -147,69 +179,7 @@
             </div>
           </section>
 
-          <section class="mb-6" x-show="isPickupPoint">
-            <h2 class="text-base font-bold mb-4">Výdajné miesto</h2>
-            <div class="border border-gray-200 rounded p-4 space-y-4">
-              <div>
-                <label class="block text-sm mb-1">Meno a priezvisko <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <input type="text" x-model="f.pickupFirstName" placeholder="Meno"
-                           :class="err.pickupFirstName ? 'border-red-500' : 'border-gray-300'"
-                           class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                    <p class="text-xs text-red-500 mt-1" x-show="err.pickupFirstName" x-text="err.pickupFirstName"></p>
-                  </div>
-                  <div>
-                    <input type="text" x-model="f.pickupLastName" placeholder="Priezvisko"
-                           :class="err.pickupLastName ? 'border-red-500' : 'border-gray-300'"
-                           class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                    <p class="text-xs text-red-500 mt-1" x-show="err.pickupLastName" x-text="err.pickupLastName"></p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm mb-1">Vyberte výdajné miesto <span class="text-red-500">*</span></label>
-                <select x-model="f.pickupPoint"
-                        :class="err.pickupPoint ? 'border-red-500' : 'border-gray-300'"
-                        class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark bg-white appearance-none">
-                  <option value="">— Vyberte miesto —</option>
-                  <option>Zásielkovňa Bratislava – Obchodná 5</option>
-                  <option>Zásielkovňa Bratislava – Račianska 12</option>
-                  <option>Zásielkovňa Košice – Hlavná 30</option>
-                  <option>Zásielkovňa Žilina – Mariánske nám. 1</option>
-                </select>
-                <p class="text-xs text-red-500 mt-1" x-show="err.pickupPoint" x-text="err.pickupPoint"></p>
-              </div>
-            </div>
-          </section>
-
-          <section class="mb-6" x-show="isPersonalPickup">
-            <h2 class="text-base font-bold mb-4">Osobný odber</h2>
-            <div class="border border-gray-200 rounded p-4 space-y-3">
-              <p class="text-sm font-semibold">Pobočka Bratislava</p>
-              <p class="text-sm text-gray-600">Obchodná 12, 811 06 Bratislava</p>
-              <p class="text-sm text-gray-500">Po – Pi: 9:00 – 19:00 &nbsp;|&nbsp; So: 9:00 – 14:00</p>
-              <p class="text-sm text-gray-500">Objednávka bude pripravená do 24 hodín od potvrdenia.</p>
-              <div class="pt-2">
-                <label class="block text-sm mb-1">Meno a priezvisko <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <input type="text" x-model="f.personalFirstName" placeholder="Meno"
-                           :class="err.personalFirstName ? 'border-red-500' : 'border-gray-300'"
-                           class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                    <p class="text-xs text-red-500 mt-1" x-show="err.personalFirstName" x-text="err.personalFirstName"></p>
-                  </div>
-                  <div>
-                    <input type="text" x-model="f.personalLastName" placeholder="Priezvisko"
-                           :class="err.personalLastName ? 'border-red-500' : 'border-gray-300'"
-                           class="w-full border px-3 py-2.5 text-sm focus:outline-none focus:border-brand-dark" />
-                    <p class="text-xs text-red-500 mt-1" x-show="err.personalLastName" x-text="err.personalLastName"></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
+          {{-- ── Payment sections ─────────────────────────────────────────── --}}
           <section class="mb-8" x-show="isCardPayment">
             <h2 class="text-base font-bold mb-3">Údaje o karte</h2>
             <div class="border border-gray-200 rounded p-4 space-y-4">
@@ -268,6 +238,7 @@
 
         </div>
 
+        {{-- ── Order summary sidebar ────────────────────────────────────────── --}}
         <aside class="w-full lg:w-80 shrink-0 lg:sticky lg:top-4">
           <div class="border border-gray-200 p-5">
             <h2 class="text-base font-bold mb-4">Súhrn objednávky</h2>
@@ -350,23 +321,23 @@
         prefill: @json($prefill),
 
         f: {
-          email: '', phone: '',
-          firstName: '', lastName: '', street: '', city: '', zip: '', country: 'Slovensko',
+          firstName: '', lastName: '', email: '', phone: '',
+          street: '', city: '', zip: '', country: 'Slovensko',
           billingSame: true,
-          billingFirstName: '', billingLastName: '', billingStreet: '', billingCity: '', billingZip: '', billingCountry: 'Slovensko',
-          pickupFirstName: '', pickupLastName: '', pickupPoint: '',
-          personalFirstName: '', personalLastName: '',
+          billingFirstName: '', billingLastName: '',
+          billingStreet: '', billingCity: '', billingZip: '', billingCountry: 'Slovensko',
+          pickupPoint: '',
           cardNumber: '', cardName: '', cardExpiry: '', cardCvv: '',
         },
 
         err: {},
 
         get shipping() {
-          return this.shippingOptions.find(option => option.id === this.selectedShippingId) ?? null;
+          return this.shippingOptions.find(o => o.id === this.selectedShippingId) ?? null;
         },
 
         get payment() {
-          return this.paymentOptions.find(option => option.id === this.selectedPaymentId) ?? null;
+          return this.paymentOptions.find(o => o.id === this.selectedPaymentId) ?? null;
         },
 
         get needsAddress() {
@@ -394,32 +365,25 @@
         },
 
         isPaymentDisabled(paymentId) {
-          const shipping = this.shipping;
-          if (!shipping) return false;
-          const allowed = shipping.allowed_payment_ids ?? [];
+          const allowed = this.shipping?.allowed_payment_ids ?? [];
           if (allowed.length === 0) return false;
           return !allowed.includes(paymentId);
         },
 
         firstEnabledPaymentId() {
-          const enabled = this.paymentOptions.find(option => !this.isPaymentDisabled(option.id));
-
-          return enabled ? enabled.id : null;
+          return this.paymentOptions.find(o => !this.isPaymentDisabled(o.id))?.id ?? null;
         },
 
         restoreSelection() {
           const saved = JSON.parse(sessionStorage.getItem('bellura_checkout') || '{}');
 
           const savedShippingId = Number(saved.shipping_method_id ?? 0);
-          const hasSavedShipping = this.shippingOptions.some(option => option.id === savedShippingId);
-          this.selectedShippingId = hasSavedShipping
+          this.selectedShippingId = this.shippingOptions.some(o => o.id === savedShippingId)
             ? savedShippingId
             : (this.shippingOptions[0]?.id ?? null);
 
           const savedPaymentId = Number(saved.payment_method_id ?? 0);
-          const hasSavedPayment = this.paymentOptions.some(option => option.id === savedPaymentId);
-
-          if (hasSavedPayment && !this.isPaymentDisabled(savedPaymentId)) {
+          if (this.paymentOptions.some(o => o.id === savedPaymentId) && !this.isPaymentDisabled(savedPaymentId)) {
             this.selectedPaymentId = savedPaymentId;
           } else {
             this.selectedPaymentId = this.firstEnabledPaymentId();
@@ -435,25 +399,21 @@
         applyPrefill() {
           if (!this.prefill) return;
           const p = this.prefill;
-          this.f.email              = p.email              ?? this.f.email;
-          this.f.phone              = p.phone              ?? this.f.phone;
-          this.f.firstName          = p.firstName          ?? this.f.firstName;
-          this.f.lastName           = p.lastName           ?? this.f.lastName;
-          this.f.street             = p.street             ?? this.f.street;
-          this.f.city               = p.city               ?? this.f.city;
-          this.f.zip                = p.zip                ?? this.f.zip;
-          this.f.country            = p.country            ?? this.f.country;
-          this.f.billingSame        = p.billingSame        ?? this.f.billingSame;
-          this.f.billingFirstName   = p.billingFirstName   ?? this.f.billingFirstName;
-          this.f.billingLastName    = p.billingLastName    ?? this.f.billingLastName;
-          this.f.billingStreet      = p.billingStreet      ?? this.f.billingStreet;
-          this.f.billingCity        = p.billingCity        ?? this.f.billingCity;
-          this.f.billingZip         = p.billingZip         ?? this.f.billingZip;
-          this.f.billingCountry     = p.billingCountry     ?? this.f.billingCountry;
-          this.f.pickupFirstName    = p.pickupFirstName    ?? this.f.pickupFirstName;
-          this.f.pickupLastName     = p.pickupLastName     ?? this.f.pickupLastName;
-          this.f.personalFirstName  = p.personalFirstName  ?? this.f.personalFirstName;
-          this.f.personalLastName   = p.personalLastName   ?? this.f.personalLastName;
+          this.f.email            = p.email            ?? this.f.email;
+          this.f.phone            = p.phone            ?? this.f.phone;
+          this.f.firstName        = p.firstName        ?? this.f.firstName;
+          this.f.lastName         = p.lastName         ?? this.f.lastName;
+          this.f.street           = p.street           ?? this.f.street;
+          this.f.city             = p.city             ?? this.f.city;
+          this.f.zip              = p.zip              ?? this.f.zip;
+          this.f.country          = p.country          ?? this.f.country;
+          this.f.billingSame      = p.billingSame      ?? this.f.billingSame;
+          this.f.billingFirstName = p.billingFirstName ?? this.f.billingFirstName;
+          this.f.billingLastName  = p.billingLastName  ?? this.f.billingLastName;
+          this.f.billingStreet    = p.billingStreet    ?? this.f.billingStreet;
+          this.f.billingCity      = p.billingCity      ?? this.f.billingCity;
+          this.f.billingZip       = p.billingZip       ?? this.f.billingZip;
+          this.f.billingCountry   = p.billingCountry   ?? this.f.billingCountry;
         },
 
         async loadCart() {
@@ -466,10 +426,7 @@
               this.items = data.items ?? [];
             } else {
               const stored = JSON.parse(localStorage.getItem('bellura_cart') || '[]');
-              if (stored.length === 0) {
-                this.loading = false;
-                return;
-              }
+              if (stored.length === 0) { this.loading = false; return; }
 
               const params = new URLSearchParams();
               stored.forEach((it, i) => {
@@ -481,7 +438,6 @@
               const data = await res.json();
               this.items = (data.items ?? []).map(item => {
                 const found = stored.find(s => s.variant_id == item.variant_id);
-
                 return { ...item, qty: found ? found.qty : (item.qty ?? 1) };
               });
             }
@@ -497,19 +453,12 @@
         },
 
         get total() {
-          const shippingPrice = Number(this.shipping?.price ?? 0);
-          const paymentFee = Number(this.payment?.fee ?? 0);
-
-          return this.subtotal + shippingPrice + paymentFee;
+          return this.subtotal + Number(this.shipping?.price ?? 0) + Number(this.payment?.fee ?? 0);
         },
 
         validate() {
           const e = {};
-          const req = (value, key, message) => {
-            if (!value?.trim()) {
-              e[key] = message;
-            }
-          };
+          const req = (val, key, msg) => { if (!val?.trim()) e[key] = msg; };
 
           if (!this.f.email?.trim()) {
             e.email = 'E-mail je povinný.';
@@ -521,50 +470,37 @@
             e.phone = 'Zadajte platné telefónne číslo.';
           }
 
-          if (this.needsAddress) {
-            req(this.f.firstName, 'firstName', 'Meno je povinné.');
-            req(this.f.lastName, 'lastName', 'Priezvisko je povinné.');
-            req(this.f.street, 'street', 'Ulica je povinná.');
-            req(this.f.city, 'city', 'Mesto je povinné.');
+          req(this.f.firstName, 'firstName', 'Meno je povinné.');
+          req(this.f.lastName, 'lastName', 'Priezvisko je povinné.');
+          req(this.f.street, 'street', 'Ulica je povinná.');
+          req(this.f.city, 'city', 'Mesto je povinné.');
 
-            if (!this.f.zip?.trim()) {
-              e.zip = 'PSČ je povinné.';
-            } else if (!/^\d{3}\s?\d{2}$/.test(this.f.zip.trim())) {
-              e.zip = 'PSČ musí byť vo formáte XXX XX.';
-            }
-
-            if (!this.f.billingSame) {
-              req(this.f.billingFirstName, 'billingFirstName', 'Meno vo fakturačnej adrese je povinné.');
-              req(this.f.billingLastName, 'billingLastName', 'Priezvisko vo fakturačnej adrese je povinné.');
-              req(this.f.billingStreet, 'billingStreet', 'Ulica vo fakturačnej adrese je povinná.');
-              req(this.f.billingCity, 'billingCity', 'Mesto vo fakturačnej adrese je povinné.');
-              req(this.f.billingCountry, 'billingCountry', 'Krajina vo fakturačnej adrese je povinná.');
-
-              if (!this.f.billingZip?.trim()) {
-                e.billingZip = 'PSČ vo fakturačnej adrese je povinné.';
-              } else if (!/^\d{3}\s?\d{2}$/.test(this.f.billingZip.trim())) {
-                e.billingZip = 'PSČ vo fakturačnej adrese musí byť vo formáte XXX XX.';
-              }
-            }
+          if (!this.f.zip?.trim()) {
+            e.zip = 'PSČ je povinné.';
+          } else if (!/^\d{3}\s?\d{2}$/.test(this.f.zip.trim())) {
+            e.zip = 'PSČ musí byť vo formáte XXX XX.';
           }
 
-          if (this.isPickupPoint) {
-            req(this.f.pickupFirstName, 'pickupFirstName', 'Meno je povinné.');
-            req(this.f.pickupLastName, 'pickupLastName', 'Priezvisko je povinné.');
-
-            if (!this.f.pickupPoint) {
-              e.pickupPoint = 'Vyberte výdajné miesto.';
-            }
+          if (this.isPickupPoint && !this.f.pickupPoint) {
+            e.pickupPoint = 'Vyberte výdajné miesto.';
           }
 
-          if (this.isPersonalPickup) {
-            req(this.f.personalFirstName, 'personalFirstName', 'Meno je povinné.');
-            req(this.f.personalLastName, 'personalLastName', 'Priezvisko je povinné.');
+          if (this.needsAddress && !this.f.billingSame) {
+            req(this.f.billingFirstName, 'billingFirstName', 'Meno vo fakturačnej adrese je povinné.');
+            req(this.f.billingLastName, 'billingLastName', 'Priezvisko vo fakturačnej adrese je povinné.');
+            req(this.f.billingStreet, 'billingStreet', 'Ulica vo fakturačnej adrese je povinná.');
+            req(this.f.billingCity, 'billingCity', 'Mesto vo fakturačnej adrese je povinné.');
+            req(this.f.billingCountry, 'billingCountry', 'Krajina vo fakturačnej adrese je povinná.');
+
+            if (!this.f.billingZip?.trim()) {
+              e.billingZip = 'PSČ vo fakturačnej adrese je povinné.';
+            } else if (!/^\d{3}\s?\d{2}$/.test(this.f.billingZip.trim())) {
+              e.billingZip = 'PSČ vo fakturačnej adrese musí byť vo formáte XXX XX.';
+            }
           }
 
           if (this.isCardPayment) {
             const digits = this.f.cardNumber.replace(/\s/g, '');
-
             if (!digits) {
               e.cardNumber = 'Číslo karty je povinné.';
             } else if (!/^\d{13,19}$/.test(digits)) {
@@ -578,12 +514,10 @@
             } else if (!/^(0[1-9]|1[0-2])\s?\/\s?\d{2}$/.test(this.f.cardExpiry.trim())) {
               e.cardExpiry = 'Formát musí byť MM / RR.';
             } else {
-              const [monthRaw, yearRaw] = this.f.cardExpiry.split('/').map(part => parseInt(part.trim(), 10));
+              const [m, y] = this.f.cardExpiry.split('/').map(p => parseInt(p.trim(), 10));
               const now = new Date();
-              const expiryYear = 2000 + yearRaw;
-              const expiryMonth = monthRaw;
-
-              if (expiryYear < now.getFullYear() || (expiryYear === now.getFullYear() && expiryMonth < now.getMonth() + 1)) {
+              const ey = 2000 + y;
+              if (ey < now.getFullYear() || (ey === now.getFullYear() && m < now.getMonth() + 1)) {
                 e.cardExpiry = 'Platnosť karty vypršala.';
               }
             }
@@ -596,32 +530,20 @@
           }
 
           this.err = e;
-
           return Object.keys(e).length === 0;
         },
 
         mapBackendField(field) {
-          const fieldMap = {
-            first_name: 'firstName',
-            last_name: 'lastName',
-            pickup_first_name: 'pickupFirstName',
-            pickup_last_name: 'pickupLastName',
+          const map = {
+            first_name: 'firstName', last_name: 'lastName',
             pickup_point: 'pickupPoint',
-            personal_first_name: 'personalFirstName',
-            personal_last_name: 'personalLastName',
-            billing_first_name: 'billingFirstName',
-            billing_last_name: 'billingLastName',
-            billing_street: 'billingStreet',
-            billing_city: 'billingCity',
-            billing_zip: 'billingZip',
-            billing_country: 'billingCountry',
-            card_number: 'cardNumber',
-            card_name: 'cardName',
-            card_expiry: 'cardExpiry',
-            card_cvv: 'cardCvv',
+            billing_first_name: 'billingFirstName', billing_last_name: 'billingLastName',
+            billing_street: 'billingStreet', billing_city: 'billingCity',
+            billing_zip: 'billingZip', billing_country: 'billingCountry',
+            card_number: 'cardNumber', card_name: 'cardName',
+            card_expiry: 'cardExpiry', card_cvv: 'cardCvv',
           };
-
-          return fieldMap[field] ?? field;
+          return map[field] ?? field;
         },
 
         async submit() {
@@ -641,6 +563,9 @@
 
           this.submitting = true;
 
+          const billingSameAsDelivery = this.needsAddress ? this.f.billingSame : false;
+          const separateBilling = this.needsAddress && !this.f.billingSame;
+
           const payload = {
             email: this.f.email,
             phone: this.f.phone,
@@ -654,20 +579,15 @@
             zip: this.f.zip,
             country: this.f.country,
 
-            billing_same_as_delivery: this.f.billingSame,
-            billing_first_name: this.f.billingFirstName,
-            billing_last_name: this.f.billingLastName,
-            billing_street: this.f.billingStreet,
-            billing_city: this.f.billingCity,
-            billing_zip: this.f.billingZip,
-            billing_country: this.f.billingCountry,
+            pickup_point: this.isPickupPoint ? this.f.pickupPoint : null,
 
-            pickup_first_name: this.f.pickupFirstName,
-            pickup_last_name: this.f.pickupLastName,
-            pickup_point: this.f.pickupPoint,
-
-            personal_first_name: this.f.personalFirstName,
-            personal_last_name: this.f.personalLastName,
+            billing_same_as_delivery: billingSameAsDelivery,
+            billing_first_name: separateBilling ? this.f.billingFirstName : null,
+            billing_last_name: separateBilling ? this.f.billingLastName : null,
+            billing_street: separateBilling ? this.f.billingStreet : null,
+            billing_city: separateBilling ? this.f.billingCity : null,
+            billing_zip: separateBilling ? this.f.billingZip : null,
+            billing_country: separateBilling ? this.f.billingCountry : null,
 
             card_number: this.f.cardNumber,
             card_name: this.f.cardName,
@@ -706,11 +626,9 @@
                   ])
                 );
                 this.submitError = data.message ?? 'Skontrolujte prosím formulár.';
-
                 this.$nextTick(() => {
                   document.querySelector('.border-red-500')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 });
-
                 return;
               }
 
@@ -729,7 +647,6 @@
             localStorage.removeItem('bellura_cart');
             sessionStorage.removeItem('bellura_checkout');
             window.dispatchEvent(new CustomEvent('bellura:cart-updated', { detail: { count: 0 } }));
-
             window.location.href = `/kosik/hotovo/${data.order_id}`;
           } catch (e) {
             this.submitError = 'Objednávku sa nepodarilo odoslať. Skúste to prosím znova.';
@@ -744,7 +661,6 @@
 
         formatExpiry(value) {
           const digits = value.replace(/\D/g, '').slice(0, 4);
-
           return digits.length >= 3 ? digits.slice(0, 2) + ' / ' + digits.slice(2) : digits;
         },
 

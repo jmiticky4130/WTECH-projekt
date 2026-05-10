@@ -244,7 +244,7 @@
                 <span class="flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
                   <span x-text="selectedVariant && selectedVariant.stock_quantity <= 5
-                    ? `Skladom uz len ${selectedVariant.stock_quantity} ks`
+                    ? `Skladom už len ${selectedVariant.stock_quantity} ks`
                     : `Skladom ${selectedVariant ? selectedVariant.stock_quantity : 0} ks`"></span>
                 </span>
               </template>

@@ -9,18 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class PaymentMethod extends Model
 {
     public $timestamps = false;
-    
-    protected $fillable = ['name', 'fee', 'requires_address'];
+
+    protected $fillable = ['name', 'fee'];
 
     protected $casts = [
-        'requires_address' => 'boolean', 
-        'fee' => 'decimal:2'
+        'fee' => 'decimal:2',
     ];
-
-    public function setRequiresAddressAttribute(mixed $value): void
-    {
-        $this->attributes['requires_address'] = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false';
-    }
 
     public function scopeActive(Builder $query): Builder
     {

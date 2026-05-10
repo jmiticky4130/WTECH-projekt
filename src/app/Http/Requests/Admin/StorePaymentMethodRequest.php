@@ -18,7 +18,6 @@ class StorePaymentMethodRequest extends FormRequest
             'name' => ['required', 'string', 'max:50', 'unique:payment_methods,name'],
             'type' => ['required', Rule::in(['karta', 'dobierka', 'bankový prevod'])],
             'fee' => ['nullable', 'numeric', 'min:0'],
-            'requires_address' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }
@@ -26,7 +25,6 @@ class StorePaymentMethodRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'requires_address' => $this->boolean('requires_address'),
             'is_active' => $this->boolean('is_active', true),
         ]);
     }

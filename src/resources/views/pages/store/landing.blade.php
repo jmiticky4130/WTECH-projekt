@@ -17,7 +17,7 @@
 
       <!-- categories -->
       @php
-        $categoryItems = \App\Models\Subcategory::orderBy('sort_order')->orderBy('id')->limit(4)->get(['name', 'slug']);
+        $categoryItems = \App\Models\Subcategory::where('show_on_landing', true)->orderBy('sort_order')->orderBy('id')->get(['name', 'slug', 'landing_image']);
       @endphp
       @if ($categoryItems->isNotEmpty())
         <section>
@@ -26,7 +26,7 @@
             @foreach ($categoryItems as $item)
               <x-store.category-card
                 :href="url('/kategoria/' . $item->slug)"
-                :image="'images/category-photos/' . $item->slug . '.jpg'"
+                :image="$item->landing_image"
                 :alt="$item->name"
                 :label="$item->name"
               />

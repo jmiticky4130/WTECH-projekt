@@ -41,12 +41,7 @@ class PlaceOrderRequest extends FormRequest
             'billing_zip' => ['nullable', 'regex:/^\d{3}\s?\d{2}$/'],
             'billing_country' => ['nullable', 'string', 'max:80'],
 
-            'pickup_first_name' => ['nullable', 'string', 'max:80'],
-            'pickup_last_name' => ['nullable', 'string', 'max:80'],
             'pickup_point' => ['nullable', 'string', 'max:140'],
-
-            'personal_first_name' => ['nullable', 'string', 'max:80'],
-            'personal_last_name' => ['nullable', 'string', 'max:80'],
 
             'card_number' => ['nullable', 'string', 'max:23', 'regex:/^[\d\s]+$/'],
             'card_name' => ['nullable', 'string', 'max:120'],
@@ -97,11 +92,7 @@ class PlaceOrderRequest extends FormRequest
         $legacyFieldMap = [
             'firstName' => 'first_name',
             'lastName' => 'last_name',
-            'pickupFirstName' => 'pickup_first_name',
-            'pickupLastName' => 'pickup_last_name',
             'pickupPoint' => 'pickup_point',
-            'personalFirstName' => 'personal_first_name',
-            'personalLastName' => 'personal_last_name',
             'billingSame' => 'billing_same_as_delivery',
             'billingFirstName' => 'billing_first_name',
             'billingLastName' => 'billing_last_name',
@@ -120,8 +111,7 @@ class PlaceOrderRequest extends FormRequest
             'first_name', 'last_name', 'street', 'city', 'zip', 'country',
             'billing_first_name', 'billing_last_name', 'billing_street',
             'billing_city', 'billing_zip', 'billing_country',
-            'pickup_first_name', 'pickup_last_name', 'pickup_point',
-            'personal_first_name', 'personal_last_name',
+            'pickup_point',
             'card_number', 'card_name', 'card_expiry', 'card_cvv',
         ];
 
@@ -218,14 +208,22 @@ class PlaceOrderRequest extends FormRequest
             }
 
             if ($shippingType === ShippingType::PICKUP_POINT->value) {
-                $this->requireFilled($validator, 'pickup_first_name', 'Meno je povinné.');
-                $this->requireFilled($validator, 'pickup_last_name', 'Priezvisko je povinné.');
+                $this->requireFilled($validator, 'first_name', 'Meno je povinné.');
+                $this->requireFilled($validator, 'last_name', 'Priezvisko je povinné.');
+                $this->requireFilled($validator, 'street', 'Ulica je povinná.');
+                $this->requireFilled($validator, 'city', 'Mesto je povinné.');
+                $this->requireFilled($validator, 'zip', 'PSČ je povinné.');
+                $this->requireFilled($validator, 'country', 'Krajina je povinná.');
                 $this->requireFilled($validator, 'pickup_point', 'Vyberte výdajné miesto.');
             }
 
             if ($shippingType === ShippingType::PERSONAL_PICKUP->value) {
-                $this->requireFilled($validator, 'personal_first_name', 'Meno je povinné.');
-                $this->requireFilled($validator, 'personal_last_name', 'Priezvisko je povinné.');
+                $this->requireFilled($validator, 'first_name', 'Meno je povinné.');
+                $this->requireFilled($validator, 'last_name', 'Priezvisko je povinné.');
+                $this->requireFilled($validator, 'street', 'Ulica je povinná.');
+                $this->requireFilled($validator, 'city', 'Mesto je povinné.');
+                $this->requireFilled($validator, 'zip', 'PSČ je povinné.');
+                $this->requireFilled($validator, 'country', 'Krajina je povinná.');
             }
 
             if ($paymentType === 'card') {
@@ -236,10 +234,6 @@ class PlaceOrderRequest extends FormRequest
 
                 $this->validateCardNumber($validator);
                 $this->validateCardExpiry($validator);
-            }
-
-            if ($paymentMethod->requires_address && $shippingType !== ShippingType::ADDRESS->value) {
-                $validator->errors()->add('payment_method_id', 'Dobierka je dostupná iba pri doručení na adresu.');
             }
         });
     }

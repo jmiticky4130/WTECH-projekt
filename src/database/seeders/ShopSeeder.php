@@ -34,7 +34,6 @@ class ShopSeeder extends Seeder
             PaymentMethod::firstOrCreate(['name' => $method['name']], $method);
         }
 
-        DB::statement("UPDATE payment_methods SET requires_address = true WHERE name = 'Dobierka'");
 
         $shippingMethods = [
             ['name' => 'Kuriér DPD',              'type' => ShippingType::ADDRESS->value,         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3],

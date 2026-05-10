@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Subcategory extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'slug', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'sort_order', 'show_on_landing', 'landing_image'];
+
+    protected $casts = ['show_on_landing' => 'boolean'];
 
     public function products(): HasMany
     {
