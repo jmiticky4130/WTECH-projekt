@@ -72,7 +72,7 @@
               @csrf
               <div class="space-y-2">
                 @foreach ($subcategories as $sub)
-                  <div class="lp-row flex items-center gap-4 p-3 border rounded transition-colors {{ $sub->show_on_landing ? 'border-brand-dark bg-gray-50' : 'border-gray-200' }}">
+                  <div class="lp-row flex items-center gap-4 p-3 border rounded transition-colors {{ $sub->show_on_landing ? 'border-brand-dark bg-gray-50' : 'border-gray-200' }}" data-sub-id="{{ $sub->id }}">
 
                     <input
                       type="checkbox"
@@ -85,7 +85,7 @@
                     <span class="text-sm font-medium text-gray-700 flex-1 min-w-0 truncate">{{ $sub->name }}</span>
 
                     {{-- image thumbnail --}}
-                    <div class="w-12 h-12 shrink-0 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                    <div class="lp-thumb w-12 h-12 shrink-0 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center" id="lp-thumb-{{ $sub->id }}">
                       @if ($sub->landing_image)
                         <img
                           src="{{ \App\Support\ProductImageUrl::resolve($sub->landing_image) }}"
@@ -97,13 +97,24 @@
                       @endif
                     </div>
 
-                    {{-- file upload --}}
-                    <label class="shrink-0 cursor-pointer">
-                      <span class="lp-file-label text-xs border border-gray-300 px-2 py-1.5 hover:border-brand-dark transition-colors whitespace-nowrap text-gray-500 select-none">
-                        {{ $sub->landing_image ? 'Zmeniť' : 'Nahrať obrázok' }}
-                      </span>
-                      <input type="file" name="images[{{ $sub->id }}]" accept="image/*" class="sr-only lp-file-input" />
-                    </label>
+                    {{-- image source: segmented toggle — only one can be active --}}
+                    @php
+                      $lpHasFile = $sub->landing_image && !preg_match('#^https?://#i', $sub->landing_image);
+                      $lpHasUrl  = $sub->landing_image &&  preg_match('#^https?://#i', $sub->landing_image);
+                    @endphp
+                    <input type="hidden" name="url_images[{{ $sub->id }}]" id="lp-url-hidden-{{ $sub->id }}" value="" />
+                    <div class="shrink-0 flex border border-gray-300 text-xs overflow-hidden">
+                      <label id="lp-file-tab-{{ $sub->id }}"
+                        class="lp-file-tab cursor-pointer flex items-center px-2.5 py-1.5 whitespace-nowrap select-none transition-colors {{ $lpHasFile ? 'bg-brand-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-50' }}">
+                        <span class="lp-file-label">{{ $lpHasFile ? '✓ Súbor' : 'Súbor' }}</span>
+                        <input type="file" name="images[{{ $sub->id }}]" accept="image/*" class="sr-only lp-file-input" />
+                      </label>
+                      <div class="w-px bg-gray-300 shrink-0"></div>
+                      <button type="button" onclick="openLpUrlModal({{ $sub->id }})" id="lp-url-btn-{{ $sub->id }}"
+                        class="lp-url-tab flex items-center px-2.5 py-1.5 whitespace-nowrap select-none transition-colors {{ $lpHasUrl ? 'bg-brand-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-50' }}">
+                        {{ $lpHasUrl ? '✓ URL' : 'URL' }}
+                      </button>
+                    </div>
 
                   </div>
                 @endforeach
@@ -234,16 +245,15 @@
         @endforeach
         <form id="sm-store" method="POST" action="{{ route('admin.shipping-methods.store') }}">@csrf</form>
 
-        <div class="overflow-x-visible">
+        <div class="overflow-auto max-h-80 sm:max-h-none">
           <table class="w-full text-sm">
-            <thead>
+            <thead class="sticky top-0 z-10">
               <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
                 <th class="px-4 py-3 text-left font-medium">Názov</th>
                 <th class="px-4 py-3 text-left font-medium">Typ</th>
                 <th class="px-4 py-3 text-left font-medium">Cena</th>
                 <th class="px-4 py-3 text-left font-medium">Dodanie (dni)</th>
                 <th class="px-4 py-3 text-left font-medium max-w-[200px]">Povolené platby</th>
-                <th class="px-4 py-3 text-center font-medium">Aktívne</th>
                 <th class="px-4 py-3 text-right font-medium">Akcie</th>
               </tr>
             </thead>
@@ -291,10 +301,6 @@
                       @endforeach
                     </div>
                   </td>
-                  <td class="px-4 py-2 text-center">
-                    <input form="sm-upd-{{ $sm->id }}" type="hidden" name="is_active" value="0" />
-                    <input form="sm-upd-{{ $sm->id }}" type="checkbox" name="is_active" value="1" @checked($sm->is_active) class="accent-brand-dark w-4 h-4" />
-                  </td>
                   <td class="px-4 py-2 text-right whitespace-nowrap">
                     <button form="sm-upd-{{ $sm->id }}" type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-3 py-1.5 transition-colors uppercase tracking-wide mr-2">Uložiť</button>
                     <button form="sm-del-{{ $sm->id }}" type="submit" class="text-xs text-gray-400 hover:text-red-500 transition-colors">Vymazať</button>
@@ -302,7 +308,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="7" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby dopravy.</td>
+                  <td colspan="6" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby dopravy.</td>
                 </tr>
               @endforelse
 
@@ -344,10 +350,6 @@
                       </label>
                     @endforeach
                   </div>
-                </td>
-                <td class="px-4 py-2 text-center">
-                  <input form="sm-store" type="hidden" name="is_active" value="0" />
-                  <input form="sm-store" type="checkbox" name="is_active" value="1" checked class="accent-brand-dark w-4 h-4" />
                 </td>
                 <td class="px-4 py-2 text-right">
                   <button form="sm-store" type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-4 py-1.5 transition-colors uppercase tracking-wide">Pridať</button>
@@ -394,10 +396,34 @@
       });
     });
 
+    function setLpActiveTab(subId, active) {
+      const fileTab = document.getElementById('lp-file-tab-' + subId);
+      const urlBtn  = document.getElementById('lp-url-btn-'  + subId);
+      if (!fileTab || !urlBtn) return;
+      const on  = ['bg-brand-dark', 'text-white'];
+      const off = ['bg-white', 'text-gray-500', 'hover:bg-gray-50'];
+      if (active === 'file') {
+        fileTab.classList.add(...on);    fileTab.classList.remove(...off);
+        urlBtn.classList.add(...off);    urlBtn.classList.remove(...on);
+      } else {
+        urlBtn.classList.add(...on);     urlBtn.classList.remove(...off);
+        fileTab.classList.add(...off);   fileTab.classList.remove(...on);
+      }
+    }
+
     document.querySelectorAll('.lp-file-input').forEach(input => {
       input.addEventListener('change', function () {
-        const label = this.closest('label')?.querySelector('.lp-file-label');
-        if (label && this.files.length) label.textContent = this.files[0].name;
+        if (!this.files.length) return;
+        const row = this.closest('.lp-row');
+        if (!row) return;
+        const subId = row.dataset.subId;
+        const label = this.closest('.lp-file-tab')?.querySelector('.lp-file-label');
+        if (label) label.textContent = '✓ ' + this.files[0].name;
+        const urlHidden = document.getElementById('lp-url-hidden-' + subId);
+        if (urlHidden) urlHidden.value = '';
+        const urlBtn = document.getElementById('lp-url-btn-' + subId);
+        if (urlBtn) urlBtn.textContent = 'URL';
+        setLpActiveTab(subId, 'file');
         markLPDirty();
       });
     });
@@ -538,6 +564,131 @@
 
     [storeFrom, storeTo].forEach(el => el?.addEventListener('input', validateStoreDelivery));
     storeForm?.addEventListener('submit', e => { if (!validateStoreDelivery()) e.preventDefault(); });
+  });
+</script>
+
+<!-- modal: landing image via URL -->
+<div id="modal-lp-url" class="fixed inset-0 bg-black/40 hidden items-center justify-center px-4 z-50">
+  <div class="bg-white w-full max-w-md shadow-xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <h2 class="text-base font-bold">Obrázok cez URL</h2>
+      <button type="button" onclick="closeLpUrlModal()" class="text-gray-400 hover:text-brand-dark transition-colors text-xl leading-none">&#x2715;</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1.5">URL obrázka</label>
+        <div class="flex gap-2">
+          <input type="text" id="lp-url-input" placeholder="https://example.com/image.jpg"
+            class="flex-1 border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-brand-dark" />
+          <button type="button" onclick="previewLpUrl()" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-sm border border-gray-300 transition-colors whitespace-nowrap">Náhľad</button>
+        </div>
+        <p id="lp-url-error" class="hidden text-xs text-red-500 mt-1"></p>
+      </div>
+      <div id="lp-url-preview-wrap" class="hidden">
+        <p class="text-xs text-gray-400 mb-1.5">Náhľad:</p>
+        <img id="lp-url-preview-img" src="" alt="Náhľad"
+          class="max-h-40 max-w-full border border-gray-200 object-contain"
+          />
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+      <button type="button" onclick="closeLpUrlModal()" class="px-4 py-2.5 border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">Zrušiť</button>
+      <button type="button" onclick="confirmLpUrl()" class="bg-brand-dark hover:bg-brand-accent text-white text-sm font-bold tracking-widest uppercase px-4 py-2.5 transition-colors">Potvrdiť</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let _lpCurrentSubId = null;
+
+  function openLpUrlModal(subId) {
+    _lpCurrentSubId = subId;
+    const hidden = document.getElementById('lp-url-hidden-' + subId);
+    const input  = document.getElementById('lp-url-input');
+    input.value  = (hidden && hidden.value) ? hidden.value : '';
+    const errEl  = document.getElementById('lp-url-error');
+    errEl.textContent = '';
+    errEl.classList.add('hidden');
+    if (input.value.trim().match(/^https?:\/\/.+/i)) {
+      _showLpPreview(input.value.trim());
+    } else {
+      document.getElementById('lp-url-preview-wrap').classList.add('hidden');
+      document.getElementById('lp-url-preview-img').src = '';
+    }
+    const modal = document.getElementById('modal-lp-url');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => input.select(), 50);
+  }
+
+  function closeLpUrlModal() {
+    _lpCurrentSubId = null;
+    const modal = document.getElementById('modal-lp-url');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function previewLpUrl() {
+    const url   = document.getElementById('lp-url-input').value.trim();
+    const errEl = document.getElementById('lp-url-error');
+    if (!url.match(/^https?:\/\/.+/i)) {
+      errEl.textContent = 'Zadajte platnú URL adresu (začínajúcu https://).';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    errEl.classList.add('hidden');
+    _showLpPreview(url);
+  }
+
+  function _showLpPreview(url) {
+    const img = document.getElementById('lp-url-preview-img');
+    img.src   = url;
+    document.getElementById('lp-url-preview-wrap').classList.remove('hidden');
+  }
+
+  function confirmLpUrl() {
+    const url   = document.getElementById('lp-url-input').value.trim();
+    const errEl = document.getElementById('lp-url-error');
+    if (!url.match(/^https?:\/\/.+/i)) {
+      errEl.textContent = 'Zadajte platnú URL adresu (začínajúcu https://).';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    errEl.classList.add('hidden');
+
+    const hidden = document.getElementById('lp-url-hidden-' + _lpCurrentSubId);
+    if (hidden) hidden.value = url;
+
+    const row = document.querySelector('.lp-row[data-sub-id="' + _lpCurrentSubId + '"]');
+    if (row) {
+      const fileInput = row.querySelector('.lp-file-input');
+      if (fileInput) fileInput.value = '';
+      const fileLabel = row.querySelector('.lp-file-label');
+      if (fileLabel) fileLabel.textContent = 'Súbor';
+    }
+
+    const btn = document.getElementById('lp-url-btn-' + _lpCurrentSubId);
+    if (btn) btn.textContent = '✓ URL';
+
+    if (typeof setLpActiveTab === 'function') setLpActiveTab(_lpCurrentSubId, 'url');
+
+    const thumb = document.getElementById('lp-thumb-' + _lpCurrentSubId);
+    if (thumb) {
+      thumb.innerHTML = '<img src="' + url.replace(/&/g,'&amp;').replace(/"/g,'&quot;') + '" class="w-full h-full object-cover" alt="">';
+    }
+
+    if (typeof markLPDirty === 'function') markLPDirty();
+    closeLpUrlModal();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('lp-url-input')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  { e.preventDefault(); confirmLpUrl(); }
+      if (e.key === 'Escape') { closeLpUrlModal(); }
+    });
+    document.getElementById('modal-lp-url')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeLpUrlModal();
+    });
   });
 </script>
 

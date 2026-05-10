@@ -32,11 +32,11 @@
       };
     </script>
   </head>
-  <body class="font-sans bg-gray-100 min-h-screen">
-    <x-admin.mobile-nav :active="$active" />
-    <div class="flex min-h-screen">
-      <x-admin.sidebar :active="$active" />
-      <main class="flex-1 overflow-auto">
+  <body class="font-sans bg-gray-100 h-screen overflow-hidden flex">
+    <x-admin.sidebar :active="$active" />
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <x-admin.mobile-nav :active="$active" />
+      <main class="flex-1 overflow-y-auto">
         {{ $slot }}
       </main>
     </div>

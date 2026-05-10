@@ -42,6 +42,8 @@ class SubcategoryController extends Controller
             'show_on_landing'   => ['nullable', 'array'],
             'show_on_landing.*' => ['integer', 'exists:subcategories,id'],
             'images.*'          => ['nullable', 'image', 'max:4096'],
+            'url_images'        => ['nullable', 'array'],
+            'url_images.*'      => ['nullable', 'url', 'max:2048'],
         ]);
 
         $selectedIds = array_map('intval', $request->input('show_on_landing', []));
@@ -54,9 +56,11 @@ class SubcategoryController extends Controller
         foreach (Subcategory::all() as $sub) {
             $data = ['show_on_landing' => in_array($sub->id, $selectedIds)];
 
-            $file = $request->file('images.' . $sub->id);
+            $file     = $request->file('images.' . $sub->id);
+            $urlImage = $request->input('url_images.' . $sub->id);
+
             if ($file) {
-                if ($sub->landing_image) {
+                if ($sub->landing_image && ! preg_match('#^https?://#i', $sub->landing_image)) {
                     Storage::disk('public')->delete($sub->landing_image);
                 }
                 $data['landing_image'] = $file->storeAs(
@@ -64,6 +68,11 @@ class SubcategoryController extends Controller
                     $sub->slug . '.' . $file->extension(),
                     'public'
                 );
+            } elseif (! empty($urlImage)) {
+                if ($sub->landing_image && ! preg_match('#^https?://#i', $sub->landing_image)) {
+                    Storage::disk('public')->delete($sub->landing_image);
+                }
+                $data['landing_image'] = $urlImage;
             }
 
             $sub->update($data);

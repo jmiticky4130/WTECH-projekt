@@ -20,7 +20,6 @@ class OrderService
             $shippingMethod = ShippingMethod::query()
                 ->with('paymentMethods')
                 ->where('id', $dto->shippingMethodId)
-                ->whereRaw('is_active is true')
                 ->first();
 
             if (! $shippingMethod) {

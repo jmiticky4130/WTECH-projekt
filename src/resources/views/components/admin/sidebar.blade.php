@@ -1,6 +1,6 @@
 @props(['active' => 'products'])
 
-<aside class="hidden md:flex flex-col w-64 shrink-0 bg-brand-dark text-white min-h-screen">
+<aside class="hidden md:flex flex-col w-64 shrink-0 bg-brand-dark text-white h-screen overflow-y-auto sticky top-0">
   <div class="px-6 py-5 border-b border-gray-600">
     <a href="{{ route('admin.products') }}" class="font-bold text-lg tracking-wider">
       <span class="inline-block bg-white rounded-lg px-2 py-1">

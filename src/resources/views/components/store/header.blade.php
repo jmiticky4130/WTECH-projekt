@@ -49,20 +49,20 @@
         <div class="flex items-center gap-3">
           <a href="{{ route('store.orders') }}" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
             <img src="{{ asset('icons/shopping-bag.svg') }}" class="w-7 h-7 brightness-0" alt="Moje objednávky" />
-            <span class="hidden min-[1000px]:inline">Moje objednávky</span>
+            <span class="hidden min-[1270px]:inline">Moje objednávky</span>
           </a>
           <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
               <img src="{{ asset('icons/logout.svg') }}" class="w-7 h-7 brightness-0" alt="Logout" />
-              <span class="hidden min-[1000px]:inline">Odhlásiť sa</span>
+              <span class="hidden min-[1270px]:inline">Odhlásiť sa</span>
             </button>
           </form>
         </div>
       @else
         <button @click="modal = 'login'" class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
           <img src="{{ asset('icons/profile-circle.svg') }}" class="w-7 h-7 brightness-0" alt="Profile" />
-          <span class="hidden min-[1000px]:inline">Prihlásenie</span>
+          <span class="hidden min-[1270px]:inline">Prihlásenie</span>
         </button>
       @endauth
       <a href="{{ route('store.cart') }}"
@@ -71,7 +71,7 @@
          @cart-updated.window="onCartUpdated($event)"
          class="flex items-center gap-2 text-sm text-gray-600 hover:text-brand-dark transition-colors">
         <img src="{{ asset('icons/shopping-cart.svg') }}" class="w-7 h-7 brightness-0" alt="Cart" />
-        <span class="hidden min-[1000px]:inline" x-text="'Košík (' + count + ')'">Košík (0)</span>
+        <span class="hidden min-[1270px]:inline" x-text="'Košík (' + count + ')'">Košík (0)</span>
       </a>
     </div>
   </div>

@@ -21,16 +21,9 @@ class StoreShippingMethodRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'delivery_days_from' => ['required', 'integer', 'min:1'],
             'delivery_days_to' => ['required', 'integer', 'min:1', 'gte:delivery_days_from'],
-            'is_active' => ['sometimes', 'boolean'],
             'payment_methods' => ['nullable', 'array'],
             'payment_methods.*' => ['exists:payment_methods,id'],
         ];
     }
 
-    protected function prepareForValidation(): void
-    {
-        $this->merge([
-            'is_active' => $this->boolean('is_active', true),
-        ]);
-    }
 }

@@ -330,8 +330,8 @@ class CartController extends Controller
 
     private function checkoutMethods(): array
     {
-        $shippingMethods = ShippingMethod::active()
-            ->with('paymentMethods')
+        $shippingMethods = ShippingMethod::with('paymentMethods')
+            ->orderBy('created_at')
             ->get()
             ->map(fn (ShippingMethod $method) => [
                 'id' => (int) $method->id,
