@@ -12,7 +12,10 @@ class ShippingMethodController extends Controller
 {
     public function store(StoreShippingMethodRequest $request): RedirectResponse
     {
-        ShippingMethod::create($request->validated());
+        $shippingMethod = ShippingMethod::create($request->validated());
+        if ($request->has('payment_methods')) {
+            $shippingMethod->paymentMethods()->sync($request->validated('payment_methods'));
+        }
 
         return redirect()->route('admin.settings')->with('success', 'Spôsob dopravy bol pridaný.');
     }
@@ -20,6 +23,7 @@ class ShippingMethodController extends Controller
     public function update(UpdateShippingMethodRequest $request, ShippingMethod $shippingMethod): RedirectResponse
     {
         $shippingMethod->update($request->validated());
+        $shippingMethod->paymentMethods()->sync($request->validated('payment_methods') ?? []);
 
         return redirect()->route('admin.settings')->with('success', 'Spôsob dopravy bol upravený.');
     }

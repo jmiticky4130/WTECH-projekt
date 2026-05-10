@@ -335,13 +335,14 @@ class CartController extends Controller
     private function checkoutMethods(): array
     {
         $shippingMethods = ShippingMethod::active()
+            ->with('paymentMethods')
             ->get()
             ->map(fn (ShippingMethod $method) => [
                 'id' => (int) $method->id,
                 'label' => (string) $method->name,
-                'desc' => $method->description,
                 'price' => (float) $method->price,
                 'type' => (string) $method->type,
+                'allowed_payment_ids' => $method->paymentMethods->pluck('id')->map(fn ($id) => (int) $id)->values()->all(),
             ])
             ->values()
             ->all();
@@ -352,8 +353,6 @@ class CartController extends Controller
                 'id' => (int) $method->id,
                 'label' => (string) $method->name,
                 'fee' => (float) $method->fee,
-                'type' => (string) $method->type,
-                'requires_address' => (bool) $method->requires_address,
             ])
             ->values()
             ->all();

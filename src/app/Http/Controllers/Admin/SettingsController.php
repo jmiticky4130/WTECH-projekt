@@ -20,8 +20,8 @@ class SettingsController extends Controller
             'brands' => Brand::orderBy('name')->get(),
             'colors' => Color::orderBy('name')->get(),
             'materials' => Material::orderBy('name')->get(),
-            'paymentMethods' => PaymentMethod::orderBy('created_at')->get(),
-            'shippingMethods' => ShippingMethod::orderBy('created_at')->get(),
+            'paymentMethods' => PaymentMethod::orderBy('id')->get(),
+            'shippingMethods' => ShippingMethod::with('paymentMethods')->orderBy('created_at')->get(),
         ]);
     }
 }

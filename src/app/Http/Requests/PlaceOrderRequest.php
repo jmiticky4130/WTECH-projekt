@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\PaymentMethod;
 use App\Models\ShippingMethod;
+use App\Enums\ShippingType;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
@@ -198,7 +199,7 @@ class PlaceOrderRequest extends FormRequest
             $paymentType = (string) $paymentMethod->type;
             $billingSame = $this->boolean('billing_same_as_delivery', true);
 
-            if ($shippingType === 'address') {
+            if ($shippingType === ShippingType::ADDRESS->value) {
                 $this->requireFilled($validator, 'first_name', 'Meno je povinné.');
                 $this->requireFilled($validator, 'last_name', 'Priezvisko je povinné.');
                 $this->requireFilled($validator, 'street', 'Ulica je povinná.');
@@ -216,13 +217,13 @@ class PlaceOrderRequest extends FormRequest
                 }
             }
 
-            if ($shippingType === 'pickup_point') {
+            if ($shippingType === ShippingType::PICKUP_POINT->value) {
                 $this->requireFilled($validator, 'pickup_first_name', 'Meno je povinné.');
                 $this->requireFilled($validator, 'pickup_last_name', 'Priezvisko je povinné.');
                 $this->requireFilled($validator, 'pickup_point', 'Vyberte výdajné miesto.');
             }
 
-            if ($shippingType === 'personal_pickup') {
+            if ($shippingType === ShippingType::PERSONAL_PICKUP->value) {
                 $this->requireFilled($validator, 'personal_first_name', 'Meno je povinné.');
                 $this->requireFilled($validator, 'personal_last_name', 'Priezvisko je povinné.');
             }
@@ -237,7 +238,7 @@ class PlaceOrderRequest extends FormRequest
                 $this->validateCardExpiry($validator);
             }
 
-            if ($paymentMethod->requires_address && $shippingType !== 'address') {
+            if ($paymentMethod->requires_address && $shippingType !== ShippingType::ADDRESS->value) {
                 $validator->errors()->add('payment_method_id', 'Dobierka je dostupná iba pri doručení na adresu.');
             }
         });

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->integer('delivery_days_from');
             $table->integer('delivery_days_to');
-            $table->string('description', 255)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

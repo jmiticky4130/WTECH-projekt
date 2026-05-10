@@ -370,34 +370,35 @@
         },
 
         get needsAddress() {
-          return this.shipping?.type === 'address';
+          return this.shipping?.type === @json(\App\Enums\ShippingType::ADDRESS->value);
         },
 
         get isPickupPoint() {
-          return this.shipping?.type === 'pickup_point';
+          return this.shipping?.type === @json(\App\Enums\ShippingType::PICKUP_POINT->value);
         },
 
         get isPersonalPickup() {
-          return this.shipping?.type === 'personal_pickup';
+          return this.shipping?.type === @json(\App\Enums\ShippingType::PERSONAL_PICKUP->value);
         },
 
         get isCardPayment() {
-          return this.payment?.type === 'karta';
+          return this.payment?.label?.toLowerCase().includes('kart');
         },
 
         get isBankTransfer() {
-          return this.payment?.type === 'bankový prevod';
+          return this.payment?.label?.toLowerCase().includes('prevod');
         },
 
         get isCashOnDelivery() {
-          return this.payment?.type === 'dobierka';
+          return this.payment?.label?.toLowerCase().includes('dobierka');
         },
 
         isPaymentDisabled(paymentId) {
-          const payment = this.paymentOptions.find(option => option.id === paymentId);
           const shipping = this.shipping;
-
-          return !!(payment?.requires_address && shipping?.type !== 'address');
+          if (!shipping) return false;
+          const allowed = shipping.allowed_payment_ids ?? [];
+          if (allowed.length === 0) return false;
+          return !allowed.includes(paymentId);
         },
 
         firstEnabledPaymentId() {

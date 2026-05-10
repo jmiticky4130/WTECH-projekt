@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ShippingType;
 use App\Models\PaymentMethod;
 use App\Models\ShippingMethod;
 use App\Support\CategoryMapping;
@@ -24,26 +25,31 @@ class ShopSeeder extends Seeder
         );
 
         $paymentMethods = [
-            ['name' => 'Platba kartou online', 'type' => 'karta',          'fee' => 0   ],
-            ['name' => 'Dobierka',              'type' => 'dobierka',       'fee' => 1.50],
-            ['name' => 'Bankový prevod',        'type' => 'bankový prevod', 'fee' => 0   ],
+            ['name' => 'Platba kartou online', 'fee' => 0.00],
+            ['name' => 'Dobierka',             'fee' => 1.50],
+            ['name' => 'Bankový prevod',       'fee' => 0.00],
         ];
 
         foreach ($paymentMethods as $method) {
             PaymentMethod::firstOrCreate(['name' => $method['name']], $method);
         }
 
-        DB::statement("UPDATE payment_methods SET requires_address = true WHERE type = 'dobierka'");
+        DB::statement("UPDATE payment_methods SET requires_address = true WHERE name = 'Dobierka'");
 
         $shippingMethods = [
-            ['name' => 'Kuriér DPD',              'type' => 'address',         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3],
-            ['name' => 'Slovenská pošta',          'type' => 'address',         'price' => 2.49, 'delivery_days_from' => 3, 'delivery_days_to' => 5],
-            ['name' => 'Zásielkovňa',              'type' => 'pickup_point',    'price' => 1.99, 'delivery_days_from' => 2, 'delivery_days_to' => 4],
-            ['name' => 'Osobný odber Bratislava',  'type' => 'personal_pickup', 'price' => 0,    'delivery_days_from' => 1, 'delivery_days_to' => 1],
+            ['name' => 'Kuriér DPD',              'type' => ShippingType::ADDRESS->value,         'price' => 3.99, 'delivery_days_from' => 2, 'delivery_days_to' => 3],
+            ['name' => 'Slovenská pošta',          'type' => ShippingType::ADDRESS->value,         'price' => 2.49, 'delivery_days_from' => 3, 'delivery_days_to' => 5],
+            ['name' => 'Zásielkovňa',              'type' => ShippingType::PICKUP_POINT->value,    'price' => 1.99, 'delivery_days_from' => 2, 'delivery_days_to' => 4],
+            ['name' => 'Osobný odber Bratislava',  'type' => ShippingType::PERSONAL_PICKUP->value, 'price' => 0,    'delivery_days_from' => 1, 'delivery_days_to' => 1],
         ];
 
         foreach ($shippingMethods as $method) {
-            ShippingMethod::firstOrCreate(['name' => $method['name']], $method);
+            $sm = ShippingMethod::firstOrCreate(['name' => $method['name']], $method);
+            $sm->paymentMethods()->sync(PaymentMethod::whereIn('name', ['Platba kartou online', 'Bankový prevod'])->pluck('id'));
+            
+            if ($method['type'] === ShippingType::ADDRESS->value) {
+                $sm->paymentMethods()->syncWithoutDetaching(PaymentMethod::where('name', 'Dobierka')->pluck('id'));
+            }
         }
 
         // Subcategories = global product types
@@ -362,8 +368,8 @@ class ShopSeeder extends Seeder
             $shipping = $shippingMethods[$index % $shippingMethods->count()];
             $payment = $paymentMethods[$index % $paymentMethods->count()];
 
-            $isAddress = $shipping->type === 'address';
-            $isPickupPoint = $shipping->type === 'pickup_point';
+            $isAddress = $shipping->type === ShippingType::ADDRESS->value;
+            $isPickupPoint = $shipping->type === ShippingType::PICKUP_POINT->value;
 
             $street = $isAddress ? 'Hlavna '.(10 + $index) : null;
             $city = $isAddress ? 'Bratislava' : null;

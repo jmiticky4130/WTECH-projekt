@@ -54,7 +54,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('settings/colors', Admin\ColorController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'colors.store', 'update' => 'colors.update', 'destroy' => 'colors.destroy']);
         Route::resource('settings/materials', Admin\MaterialController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'materials.store', 'update' => 'materials.update', 'destroy' => 'materials.destroy']);
         Route::resource('settings/shipping-methods', Admin\ShippingMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'shipping-methods.store', 'update' => 'shipping-methods.update', 'destroy' => 'shipping-methods.destroy']);
-        Route::resource('settings/payment-methods', Admin\PaymentMethodController::class)->only(['store', 'update', 'destroy'])->names(['store' => 'payment-methods.store', 'update' => 'payment-methods.update', 'destroy' => 'payment-methods.destroy']);
     });
 });
 

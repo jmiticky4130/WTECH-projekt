@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\ShippingType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,12 +19,13 @@ class UpdateShippingMethodRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique('shipping_methods', 'name')->ignore($shippingMethod?->id)],
-            'type' => ['required', Rule::in(['address', 'pickup_point', 'personal_pickup'])],
+            'type' => ['required', Rule::enum(ShippingType::class)],
             'price' => ['required', 'numeric', 'min:0'],
             'delivery_days_from' => ['required', 'integer', 'min:1'],
             'delivery_days_to' => ['required', 'integer', 'min:1', 'gte:delivery_days_from'],
-            'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
+            'payment_methods' => ['nullable', 'array'],
+            'payment_methods.*' => ['exists:payment_methods,id'],
         ];
     }
 

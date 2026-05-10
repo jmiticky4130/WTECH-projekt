@@ -132,10 +132,11 @@
         },
 
         isPaymentDisabled(paymentId) {
-          const payment = this.paymentOptions.find(option => option.id === paymentId);
           const shipping = this.shipping;
-
-          return !!(payment?.requires_address && shipping?.type !== 'address');
+          if (!shipping) return false;
+          const allowed = shipping.allowed_payment_ids ?? [];
+          if (allowed.length === 0) return false;
+          return !allowed.includes(paymentId);
         },
 
         firstEnabledPaymentId() {

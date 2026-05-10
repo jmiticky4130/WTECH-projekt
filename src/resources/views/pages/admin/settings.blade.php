@@ -152,108 +152,11 @@
         </div>
       </div>
 
-      <!-- payment methods -->
-      <div class="bg-white shadow rounded overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
-          <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500">Spôsoby platby</h2>
-        </div>
-
-        {{-- orphaned forms referenced by table inputs via form="..." --}}
-        @foreach ($paymentMethods as $pm)
-          <form id="pm-upd-{{ $pm->id }}" method="POST" action="{{ route('admin.payment-methods.update', $pm) }}">@csrf @method('PUT')</form>
-          <form id="pm-del-{{ $pm->id }}" method="POST" action="{{ route('admin.payment-methods.destroy', $pm) }}" onsubmit="return confirm('Vymazať spôsob platby?')">@csrf @method('DELETE')</form>
-        @endforeach
-        <form id="pm-store" method="POST" action="{{ route('admin.payment-methods.store') }}">@csrf</form>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
-                <th class="px-4 py-3 text-left font-medium">Názov</th>
-                <th class="px-4 py-3 text-left font-medium">Typ</th>
-                <th class="px-4 py-3 text-left font-medium">Poplatok</th>
-                <th class="px-4 py-3 text-center font-medium">Len pre adresu</th>
-                <th class="px-4 py-3 text-center font-medium">Aktívne</th>
-                <th class="px-4 py-3 text-right font-medium">Akcie</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              @forelse ($paymentMethods as $pm)
-                <tr class="hover:bg-gray-50">
-                  <td class="px-4 py-2">
-                    <input form="pm-upd-{{ $pm->id }}" type="text" name="name" value="{{ $pm->name }}" required class="w-full min-w-[160px] border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
-                  </td>
-                  <td class="px-4 py-2">
-                    <select form="pm-upd-{{ $pm->id }}" name="type" class="w-full border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark bg-white">
-                      <option value="karta" @selected($pm->type === 'karta')>karta</option>
-                      <option value="dobierka" @selected($pm->type === 'dobierka')>dobierka</option>
-                      <option value="bankový prevod" @selected($pm->type === 'bankový prevod')>bankový prevod</option>
-                    </select>
-                  </td>
-                  <td class="px-4 py-2">
-                    <div class="relative">
-                      <input form="pm-upd-{{ $pm->id }}" type="number" name="fee" min="0" step="0.01" value="{{ number_format((float) $pm->fee, 2, '.', '') }}" class="w-24 border border-gray-300 px-2 py-1.5 pr-6 text-sm focus:outline-none focus:border-brand-dark" />
-                      <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
-                    </div>
-                  </td>
-                  <td class="px-4 py-2 text-center">
-                    <input form="pm-upd-{{ $pm->id }}" type="hidden" name="requires_address" value="0" />
-                    <input form="pm-upd-{{ $pm->id }}" type="checkbox" name="requires_address" value="1" @checked($pm->requires_address) class="accent-brand-dark w-4 h-4" />
-                  </td>
-                  <td class="px-4 py-2 text-center">
-                    <input form="pm-upd-{{ $pm->id }}" type="hidden" name="is_active" value="0" />
-                    <input form="pm-upd-{{ $pm->id }}" type="checkbox" name="is_active" value="1" @checked($pm->is_active) class="accent-brand-dark w-4 h-4" />
-                  </td>
-                  <td class="px-4 py-2 text-right whitespace-nowrap">
-                    <button form="pm-upd-{{ $pm->id }}" type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-3 py-1.5 transition-colors uppercase tracking-wide mr-2">Uložiť</button>
-                    <button form="pm-del-{{ $pm->id }}" type="submit" class="text-xs text-gray-400 hover:text-red-500 transition-colors">Vymazať</button>
-                  </td>
-                </tr>
-              @empty
-                <tr>
-                  <td colspan="6" class="px-4 py-5 text-xs text-gray-400 text-center">Žiadne spôsoby platby.</td>
-                </tr>
-              @endforelse
-
-              {{-- add new row --}}
-              <tr class="bg-gray-50 border-t-2 border-gray-200">
-                <td class="px-4 py-2">
-                  <input form="pm-store" type="text" name="name" placeholder="Nový názov" required class="w-full min-w-[160px] border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
-                </td>
-                <td class="px-4 py-2">
-                  <select form="pm-store" name="type" required class="w-full border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark bg-white">
-                    <option value="karta">karta</option>
-                    <option value="dobierka">dobierka</option>
-                    <option value="bankový prevod">bankový prevod</option>
-                  </select>
-                </td>
-                <td class="px-4 py-2">
-                  <div class="relative">
-                    <input form="pm-store" type="number" name="fee" min="0" step="0.01" value="0" class="w-24 border border-gray-300 px-2 py-1.5 pr-6 text-sm focus:outline-none focus:border-brand-dark" />
-                    <span class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none">€</span>
-                  </div>
-                </td>
-                <td class="px-4 py-2 text-center">
-                  <input form="pm-store" type="hidden" name="requires_address" value="0" />
-                  <input form="pm-store" type="checkbox" name="requires_address" value="1" class="accent-brand-dark w-4 h-4" />
-                </td>
-                <td class="px-4 py-2 text-center">
-                  <input form="pm-store" type="hidden" name="is_active" value="0" />
-                  <input form="pm-store" type="checkbox" name="is_active" value="1" checked class="accent-brand-dark w-4 h-4" />
-                </td>
-                <td class="px-4 py-2 text-right">
-                  <button form="pm-store" type="submit" class="bg-brand-dark hover:bg-brand-accent text-white text-xs px-4 py-1.5 transition-colors uppercase tracking-wide">Pridať</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       <!-- shipping methods -->
       <div class="bg-white shadow rounded overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-4">
           <h2 class="text-sm font-bold uppercase tracking-wider text-gray-500">Spôsoby dopravy</h2>
+          <span id="sm-delivery-error" class="hidden text-xs text-red-500"></span>
         </div>
 
         {{-- orphaned forms referenced by table inputs via form="..." --}}
@@ -263,7 +166,7 @@
         @endforeach
         <form id="sm-store" method="POST" action="{{ route('admin.shipping-methods.store') }}">@csrf</form>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-visible">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
@@ -271,22 +174,25 @@
                 <th class="px-4 py-3 text-left font-medium">Typ</th>
                 <th class="px-4 py-3 text-left font-medium">Cena</th>
                 <th class="px-4 py-3 text-left font-medium">Dodanie (dni)</th>
-                <th class="px-4 py-3 text-left font-medium">Popis</th>
+                <th class="px-4 py-3 text-left font-medium max-w-[200px]">Povolené platby</th>
                 <th class="px-4 py-3 text-center font-medium">Aktívne</th>
                 <th class="px-4 py-3 text-right font-medium">Akcie</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               @forelse ($shippingMethods as $sm)
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 sm-row" data-sm-id="{{ $sm->id }}">
                   <td class="px-4 py-2">
                     <input form="sm-upd-{{ $sm->id }}" type="text" name="name" value="{{ $sm->name }}" required class="w-full min-w-[160px] border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                   </td>
                   <td class="px-4 py-2">
+                    @php
+                       $shippingTypeOptions = \App\Enums\ShippingType::cases();
+                    @endphp
                     <select form="sm-upd-{{ $sm->id }}" name="type" class="w-full border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark bg-white">
-                      <option value="address" @selected($sm->type === 'address')>address</option>
-                      <option value="pickup_point" @selected($sm->type === 'pickup_point')>pickup_point</option>
-                      <option value="personal_pickup" @selected($sm->type === 'personal_pickup')>personal_pickup</option>
+                      @foreach($shippingTypeOptions as $enumType)
+                        <option value="{{ $enumType->value }}" @selected($sm->type === $enumType->value)>{{ $enumType->value }}</option>
+                      @endforeach
                     </select>
                   </td>
                   <td class="px-4 py-2">
@@ -302,8 +208,20 @@
                       <input form="sm-upd-{{ $sm->id }}" type="number" name="delivery_days_to" min="1" value="{{ $sm->delivery_days_to }}" required class="w-14 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                     </div>
                   </td>
-                  <td class="px-4 py-2">
-                    <input form="sm-upd-{{ $sm->id }}" type="text" name="description" value="{{ $sm->description }}" placeholder="Popis" class="w-full min-w-[140px] border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
+                  <td class="px-4 py-2 relative group cursor-pointer">
+                    @php $smPaymentIds = $sm->paymentMethods->pluck('id')->toArray(); @endphp
+                    <div class="w-full min-w-[150px] border border-gray-300 px-3 py-1.5 text-sm bg-white flex justify-between items-center group-hover:border-brand-dark transition-colors">
+                        <span class="text-gray-600 truncate">{{ count($smPaymentIds) }} vybrané</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="absolute left-4 right-4 mt-1 bg-white border border-gray-200 shadow-lg rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-2">
+                      @foreach($paymentMethods as $pm)
+                        <label class="flex items-center gap-2 text-sm hover:bg-gray-50 px-2 py-1 cursor-pointer">
+                            <input form="sm-upd-{{ $sm->id }}" type="checkbox" name="payment_methods[]" value="{{ $pm->id }}" @checked(in_array($pm->id, $smPaymentIds)) class="accent-brand-dark w-3.5 h-3.5" />
+                            <span>{{ $pm->name }}</span>
+                        </label>
+                      @endforeach
+                    </div>
                   </td>
                   <td class="px-4 py-2 text-center">
                     <input form="sm-upd-{{ $sm->id }}" type="hidden" name="is_active" value="0" />
@@ -327,9 +245,9 @@
                 </td>
                 <td class="px-4 py-2">
                   <select form="sm-store" name="type" required class="w-full border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark bg-white">
-                    <option value="address">address</option>
-                    <option value="pickup_point">pickup_point</option>
-                    <option value="personal_pickup">personal_pickup</option>
+                    @foreach(\App\Enums\ShippingType::cases() as $enumType)
+                        <option value="{{ $enumType->value }}">{{ $enumType->value }}</option>
+                    @endforeach
                   </select>
                 </td>
                 <td class="px-4 py-2">
@@ -345,8 +263,19 @@
                     <input form="sm-store" type="number" name="delivery_days_to" min="1" placeholder="Do" required class="w-14 border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
                   </div>
                 </td>
-                <td class="px-4 py-2">
-                  <input form="sm-store" type="text" name="description" placeholder="Popis" class="w-full min-w-[140px] border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:border-brand-dark" />
+                <td class="px-4 py-2 relative group cursor-pointer">
+                  <div class="w-full min-w-[150px] border border-gray-300 px-3 py-1.5 text-sm bg-white flex justify-between items-center group-hover:border-brand-dark transition-colors">
+                      <span class="text-gray-600 truncate">Všetky</span>
+                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                  <div class="absolute left-4 right-4 bottom-full mb-1 bg-white border border-gray-200 shadow-lg rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-2 space-y-2">
+                    @foreach($paymentMethods as $pm)
+                      <label class="flex items-center gap-2 text-sm hover:bg-gray-50 px-2 py-1 cursor-pointer">
+                          <input form="sm-store" type="checkbox" name="payment_methods[]" value="{{ $pm->id }}" checked class="accent-brand-dark w-3.5 h-3.5" />
+                          <span>{{ $pm->name }}</span>
+                      </label>
+                    @endforeach
+                  </div>
                 </td>
                 <td class="px-4 py-2 text-center">
                   <input form="sm-store" type="hidden" name="is_active" value="0" />
@@ -363,5 +292,140 @@
 
     </div>
   </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // For each shipping method row, snapshot original values and watch for changes
+    document.querySelectorAll('tr.sm-row').forEach(row => {
+      const smId = row.dataset.smId;
+      const form = document.getElementById('sm-upd-' + smId);
+      if (!form) return;
+
+      // Collect all inputs/selects/checkboxes belonging to this update form
+      const fields = () => document.querySelectorAll('[form="sm-upd-' + smId + '"]');
+
+      // Per-field original values
+      const originalValues = {};
+      fields().forEach(el => {
+        const key = el.type === 'checkbox' ? el.name + '_' + el.value : el.name;
+        originalValues[key] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+
+      const isFieldChanged = el => {
+        const key = el.type === 'checkbox' ? el.name + '_' + el.value : el.name;
+        return el.type === 'checkbox'
+          ? el.checked !== originalValues[key]
+          : el.value !== originalValues[key];
+      };
+
+      const isFieldInvalid = el => el.style.borderColor === 'rgb(239, 68, 68)';
+
+      const highlightField = el => {
+        if (el.type === 'hidden' || el.type === 'submit') return;
+        if (isFieldInvalid(el)) return; // red validation error takes priority
+        if (isFieldChanged(el)) {
+          el.style.borderColor = '#f59e0b';
+          el.style.backgroundColor = '#fffbeb';
+        } else {
+          el.style.borderColor = '';
+          el.style.backgroundColor = '';
+        }
+      };
+
+      const firstCell = row.querySelector('td');
+      const saveBtn = document.querySelector('[form="sm-upd-' + smId + '"][type="submit"]');
+
+      const checkDirty = () => {
+        let anyDirty = false;
+        fields().forEach(el => {
+          highlightField(el);
+          if (el.type !== 'hidden' && el.type !== 'submit' && isFieldChanged(el)) anyDirty = true;
+        });
+        firstCell.style.boxShadow = anyDirty ? 'inset 3px 0 0 #f59e0b' : '';
+        row.style.backgroundColor = anyDirty ? '#fff7ed' : '';
+        if (saveBtn) {
+          saveBtn.style.backgroundColor = anyDirty ? '#f59e0b' : '';
+          saveBtn.style.boxShadow = anyDirty ? '0 0 0 2px #fde68a' : '';
+        }
+      };
+
+      fields().forEach(el => {
+        el.addEventListener('input', checkDirty);
+        el.addEventListener('change', checkDirty);
+      });
+
+      // Delivery days validation
+      const fromInput  = document.querySelector('[form="sm-upd-' + smId + '"][name="delivery_days_from"]');
+      const toInput    = document.querySelector('[form="sm-upd-' + smId + '"][name="delivery_days_to"]');
+      const headerError = document.getElementById('sm-delivery-error');
+
+      const validateDelivery = () => {
+        if (!fromInput || !toInput) return true;
+        const from = parseInt(fromInput.value, 10);
+        const to   = parseInt(toInput.value, 10);
+        let msg = '';
+        if (fromInput.value !== '' && from < 1) msg = 'Minimálna hodnota je 1.';
+        else if (toInput.value !== '' && to < 1) msg = 'Minimálna hodnota je 1.';
+        else if (fromInput.value !== '' && toInput.value !== '' && from >= to)
+          msg = from === to ? 'Od a Do nemôžu byť rovnaké.' : 'Od musí byť menšie ako Do.';
+        if (msg) {
+          if (headerError) { headerError.textContent = msg; headerError.classList.remove('hidden'); }
+          [fromInput, toInput].forEach(el => { el.style.borderColor = '#ef4444'; el.style.backgroundColor = '#fef2f2'; });
+          return false;
+        } else {
+          if (headerError) headerError.classList.add('hidden');
+          [fromInput, toInput].forEach(el => { el.style.borderColor = ''; el.style.backgroundColor = ''; });
+          return true;
+        }
+      };
+
+      [fromInput, toInput].forEach(el => el?.addEventListener('input', validateDelivery));
+
+      // Remove all highlights when save is submitted
+      form.addEventListener('submit', e => {
+        if (!validateDelivery()) { e.preventDefault(); return; }
+        fields().forEach(el => {
+          el.style.borderColor = '';
+          el.style.backgroundColor = '';
+        });
+        firstCell.style.boxShadow = '';
+        row.style.backgroundColor = '';
+        if (saveBtn) {
+          saveBtn.style.backgroundColor = '';
+          saveBtn.style.boxShadow = '';
+        }
+      });
+    });
+
+    // Delivery validation for the new-row form
+    const storeForm  = document.getElementById('sm-store');
+    const storeFrom  = document.querySelector('[form="sm-store"][name="delivery_days_from"]');
+    const storeTo    = document.querySelector('[form="sm-store"][name="delivery_days_to"]');
+    const storeHeaderError = document.getElementById('sm-delivery-error');
+
+    const validateStoreDelivery = () => {
+      if (!storeFrom || !storeTo) return true;
+      const from = parseInt(storeFrom.value, 10);
+      const to   = parseInt(storeTo.value, 10);
+      let msg = '';
+      if (storeFrom.value !== '' && from < 1) msg = 'Minimálna hodnota je 1.';
+      else if (storeTo.value !== '' && to < 1)  msg = 'Minimálna hodnota je 1.';
+      else if (storeFrom.value !== '' && storeTo.value !== '' && from >= to)
+        msg = from === to ? 'Od a Do nemôžu byť rovnaké.' : 'Od musí byť menšie ako Do.';
+      if (msg) {
+        if (storeHeaderError) { storeHeaderError.textContent = msg; storeHeaderError.classList.remove('hidden'); }
+        [storeFrom, storeTo].forEach(el => { el.style.borderColor = '#ef4444'; el.style.backgroundColor = '#fef2f2'; });
+        return false;
+      } else {
+        if (storeHeaderError) storeHeaderError.classList.add('hidden');
+        [storeFrom, storeTo].forEach(el => { el.style.borderColor = ''; el.style.backgroundColor = ''; });
+        return true;
+      }
+    };
+
+    [storeFrom, storeTo].forEach(el => el?.addEventListener('input', validateStoreDelivery));
+    storeForm?.addEventListener('submit', e => { if (!validateStoreDelivery()) e.preventDefault(); });
+  });
+</script>
 
 </x-admin.layout>

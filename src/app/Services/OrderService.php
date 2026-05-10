@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
+use App\Enums\ShippingType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -17,6 +18,7 @@ class OrderService
     {
         return DB::transaction(function () use ($dto): Order {
             $shippingMethod = ShippingMethod::query()
+                ->with('paymentMethods')
                 ->where('id', $dto->shippingMethodId)
                 ->whereRaw('is_active is true')
                 ->first();
@@ -38,9 +40,10 @@ class OrderService
                 ]);
             }
 
-            if ($paymentMethod->requires_address && $shippingMethod->type !== 'address') {
+            $allowedPaymentIds = $shippingMethod->paymentMethods->pluck('id');
+            if ($allowedPaymentIds->isNotEmpty() && ! $allowedPaymentIds->contains($paymentMethod->id)) {
                 throw ValidationException::withMessages([
-                    'payment_method_id' => 'Dobierka je dostupná iba pri doručení na adresu.',
+                    'payment_method_id' => 'Vybraný spôsob platby nie je dostupný pre zvolený spôsob dopravy.',
                 ]);
             }
 
@@ -96,8 +99,8 @@ class OrderService
             $shippingType = (string) $shippingMethod->type;
             [$firstName, $lastName] = $this->resolveOrderNamePair($dto, $shippingType);
 
-            $isAddress = $shippingType === 'address';
-            $isPickupPoint = $shippingType === 'pickup_point';
+            $isAddress = $shippingType === ShippingType::ADDRESS->value;
+            $isPickupPoint = $shippingType === ShippingType::PICKUP_POINT->value;
             $billingSameAsDelivery = $isAddress ? $dto->billingSameAsDelivery : true;
             $billingSameAsDeliveryValue = DB::getDriverName() === 'pgsql'
                 ? DB::raw($billingSameAsDelivery ? 'true' : 'false')
@@ -193,14 +196,14 @@ class OrderService
 
     private function resolveOrderNamePair(PlaceOrderData $dto, string $shippingType): array
     {
-        if ($shippingType === 'pickup_point') {
+        if ($shippingType === ShippingType::PICKUP_POINT->value) {
             return [
                 trim((string) ($dto->pickupFirstName ?? '')),
                 trim((string) ($dto->pickupLastName ?? '')),
             ];
         }
 
-        if ($shippingType === 'personal_pickup') {
+        if ($shippingType === ShippingType::PERSONAL_PICKUP->value) {
             return [
                 trim((string) ($dto->personalFirstName ?? '')),
                 trim((string) ($dto->personalLastName ?? '')),
